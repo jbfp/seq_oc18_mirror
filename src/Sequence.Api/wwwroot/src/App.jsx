@@ -10,7 +10,7 @@ import Protect from './Protect';
 
 class App extends React.Component {
   state = {
-    server: new Server('test'),
+    server: null,
   };
 
   handleLogin = event => {
