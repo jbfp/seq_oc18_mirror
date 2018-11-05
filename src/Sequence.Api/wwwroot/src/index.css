@@ -246,7 +246,8 @@ div[data-rank="king"]::after {
 }
 
 .card[data-selected=true] {
-  box-shadow: 0 0 15px 5px blue;
+  box-shadow: 0 5px 10px 4px #33333366;
+  transform: translateY(-0.5em);
 }
 
 #deck {
