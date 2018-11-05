@@ -195,8 +195,6 @@ class BoardView extends React.PureComponent {
       'gridTemplateRows': `repeat(${numRows}, 50px)`,
     };
 
-
-
     // TODO: Memoize cells.
     const cells = board.map((cells, row) => {
       return cells.map((cell, column) => {
