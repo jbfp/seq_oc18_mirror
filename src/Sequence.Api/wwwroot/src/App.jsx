@@ -8,17 +8,31 @@ import Home from './Home';
 import Login from './Login';
 import Protect from './Protect';
 
+const userNameKey = 'user-name';
+
 class App extends React.Component {
   state = {
     server: null,
   };
 
-  handleLogin = event => {
-    this.setState({ server: new Server(event.userName) });
+  constructor(props) {
+    super(props);
+
+    const userName = localStorage.getItem(userNameKey);
+
+    if (userName) {
+      this.state.server = new Server(userName);
+    }
+  }
+
+  handleLogin = ({ userName }) => {
+    this.setState({ server: new Server(userName) });
+    localStorage.setItem(userNameKey, userName);
   };
 
   handleLogout = () => {
     this.setState({ server: null });
+    localStorage.removeItem(userNameKey);
   };
 
   render() {
