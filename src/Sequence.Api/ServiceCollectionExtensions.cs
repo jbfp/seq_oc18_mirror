@@ -58,14 +58,13 @@ namespace Sequence.Api
                 .GetSection("Sqlite")
                 .GetValue<string>("ConnectionString");
 
-            var connectionFactory = new SqliteConnectionFactory(() => new SqliteConnection(connectionString));
-            var sqlite = new SqliteDb(connectionFactory);
-            var cache = new CachedGameStore(sqlite, sqlite);
+            services.AddSingleton<SqliteConnectionFactory>(() => new SqliteConnection(connectionString));
+            services.AddSingleton<SqliteDb>();
 
-            services.AddSingleton<IGameEventStore>(cache);
-            services.AddSingleton<IGameProvider>(cache);
-            services.AddSingleton<IGameListProvider>(sqlite);
-            services.AddSingleton<IGameStore>(sqlite);
+            services.AddTransient<IGameEventStore, SqliteDb>();
+            services.AddTransient<IGameProvider, SqliteDb>();
+            services.AddTransient<IGameListProvider, SqliteDb>();
+            services.AddTransient<IGameStore, SqliteDb>();
 
             return services;
         }
