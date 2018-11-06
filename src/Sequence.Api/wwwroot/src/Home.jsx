@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import { Route } from 'react-router-dom';
+import { Route, withRouter } from 'react-router-dom';
 
 import { ServerContext } from './contexts';
 
@@ -11,6 +11,7 @@ class Home extends React.Component {
   static contextType = ServerContext;
 
   static propTypes = {
+    history: PropTypes.object.isRequired,
     onLogout: PropTypes.func.isRequired,
   };
 
@@ -32,8 +33,9 @@ class Home extends React.Component {
     event.preventDefault();
     const opponent = this.state.opponent;
     this.setState({ opponent: '' });
-    await this.context.createGameAsync(opponent);
+    const gameId = await this.context.createGameAsync(opponent);
     await this.loadGamesAsync();
+    this.props.history.push(`/games/${gameId}`);
   };
 
   async loadGamesAsync() {
@@ -96,4 +98,4 @@ class Home extends React.Component {
   }
 }
 
-export default Home;
+export default withRouter(props => <Home {...props} />);
