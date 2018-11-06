@@ -195,7 +195,10 @@ div[data-rank="king"]::after {
 
 .player-name {
   font-size: 115%;
+  overflow: hidden;
   position: absolute;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   width: 15%;
 }
 
