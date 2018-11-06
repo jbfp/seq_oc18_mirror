@@ -56,6 +56,8 @@ class Home extends React.Component {
             </button>
           </form>
 
+          <hr />
+
           <form onSubmit={this.createGame}>
             <fieldset>
               <legend>New game</legend>
@@ -80,6 +82,8 @@ class Home extends React.Component {
               </div>
             </fieldset>
           </form>
+
+          <hr />
 
           <Games games={games} />
         </div>
