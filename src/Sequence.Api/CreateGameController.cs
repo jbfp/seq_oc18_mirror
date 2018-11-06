@@ -25,7 +25,7 @@ namespace Sequence.Api
             var player1 = PlayerId;
             var player2 = new PlayerId(form.Opponent);
             var gameId = await _handler.CreateGameAsync(player1, player2, cancellationToken);
-            return Created($"/api/games/{gameId}", null);
+            return Created($"/api/games/{gameId}", new { gameId });
         }
     }
 

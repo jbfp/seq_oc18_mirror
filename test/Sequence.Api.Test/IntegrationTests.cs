@@ -87,6 +87,8 @@ namespace Sequence.Api.Test
             // Then:
             Assert.Equal(HttpStatusCode.Created, response.StatusCode);
             Assert.NotNull(response.Headers.Location);
+            Assert.NotNull(response.Content);
+            Assert.Equal("application/json", response.Content.Headers.ContentType.MediaType);
         }
 
         [Fact]
