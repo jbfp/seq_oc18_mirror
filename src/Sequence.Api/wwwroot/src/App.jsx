@@ -36,8 +36,11 @@ class App extends React.Component {
   };
 
   render() {
+    const { server } = this.state;
+    const isAuthenticated = server !== null;
+
     const SeqProtect = ({ component: Component, ...rest }) => (
-      <Protect {...rest} component={Component} isAuthenticated={!!this.state.server} loginPath="/login" />
+      <Protect {...rest} component={Component} isAuthenticated={isAuthenticated} loginPath="/login" />
     );
 
     return (
@@ -47,7 +50,7 @@ class App extends React.Component {
             <Route path="/login" render={props => <Login {...props} onLogin={this.handleLogin} />} />
 
             <SeqProtect exact path={["/", "/games", "/games/:id"]} component={props =>
-              <ServerContext.Provider value={this.state.server}>
+              <ServerContext.Provider value={server}>
                 <Home {...props} onLogout={this.handleLogout} />
               </ServerContext.Provider>
             } />
