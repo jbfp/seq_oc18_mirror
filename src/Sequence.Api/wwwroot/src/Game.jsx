@@ -114,11 +114,16 @@ class GameView extends React.PureComponent {
     const { game, onCardClick, onCoordClick, playerId, selectedCard } = this.props;
 
     if (game) {
-      const opponentObj = game.players.find(p => p.id !== playerId);
+      const opponentObj = {
+        ...game.players.find(p => p.id !== playerId),
+      };
+
+      opponentObj.isCurrentPlayer = game.currentPlayerId === opponentObj.id;
 
       const playerObj = {
         hand: game.hand,
         id: playerId,
+        isCurrentPlayer: game.currentPlayerId === playerId,
         team: game.team,
       };
 
@@ -141,19 +146,20 @@ class GameView extends React.PureComponent {
 class OpponentView extends React.PureComponent {
   static propTypes = {
     id: PropTypes.string.isRequired,
+    isCurrentPlayer: PropTypes.bool.isRequired,
     numberOfCards: PropTypes.number.isRequired,
     team: PropTypes.oneOf(['red', 'green']).isRequired,
   };
 
   render() {
-    const { id, numberOfCards, team } = this.props;
+    const { id, isCurrentPlayer, numberOfCards, team } = this.props;
 
     const Card = () => <div className="card card-back"></div>;
     const Hand = () => Array(numberOfCards).fill().map((_, idx) => <Card key={idx} />);
 
     return (
       <div id="opponent" className="player" data-team={team}>
-        <span className="player-name">
+        <span className="player-name" data-current-player={isCurrentPlayer}>
           {id}
         </span>
 
@@ -238,6 +244,7 @@ class PlayerView extends React.PureComponent {
       rank: PropTypes.oneOf(['ace', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'jack', 'queen', 'king']).isRequired,
     })).isRequired,
     id: PropTypes.string.isRequired,
+    isCurrentPlayer: PropTypes.bool.isRequired,
     onCardClick: PropTypes.func.isRequired,
     selectedCard: PropTypes.shape({
       deckNo: PropTypes.oneOf(['one', 'two']).isRequired,
@@ -248,7 +255,7 @@ class PlayerView extends React.PureComponent {
   };
 
   render() {
-    const { hand, id, onCardClick, selectedCard, team } = this.props;
+    const { hand, id, isCurrentPlayer, onCardClick, selectedCard, team } = this.props;
 
     const Card = ({ card }) => {
       return (
@@ -266,7 +273,9 @@ class PlayerView extends React.PureComponent {
 
     return (
       <div id="user" className="player" data-team={team}>
-        <span className="player-name">{id}</span>
+        <span className="player-name" data-current-player={isCurrentPlayer}>
+          {id}
+        </span>
 
         <div id="user-hand" className="hand">
           <Hand />

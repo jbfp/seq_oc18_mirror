@@ -190,6 +190,11 @@ div[data-rank="king"]::after {
   width: 15%;
 }
 
+.player-name[data-current-player=true] {
+  font-weight: bold;
+  text-decoration: underline;
+}
+
 #opponent .player-name {
   bottom: 1em;
   right: 0;
