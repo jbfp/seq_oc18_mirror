@@ -48,7 +48,7 @@ class Home extends React.Component {
     const { games, opponent } = this.state;
 
     return (
-      <div id="home" style={{ 'display': 'flex' }}>
+      <div id="home">
         <div id="sidebar">
           <form onSubmit={this.handleLogout}>
             <button type="submit">
@@ -84,7 +84,7 @@ class Home extends React.Component {
           <Games games={games} />
         </div>
 
-        <div style={{ 'flex': 1 }}>
+        <div id="main">
           <Route path="/games/:id" render={props => <Game {...props} />} />
         </div>
       </div>

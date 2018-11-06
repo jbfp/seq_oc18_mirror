@@ -9,7 +9,16 @@ body {
 }
 
 #sidebar {
+  bottom: 0;
+  overflow-y: scroll;
   padding: 1em;
+  position: fixed;
+  top: 0;
+  width: 400px;
+}
+
+#main {
+  margin-left: 450px;
 }
 
 #board {
