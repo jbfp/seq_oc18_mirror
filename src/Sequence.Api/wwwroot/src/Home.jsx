@@ -16,6 +16,7 @@ class Home extends React.Component {
 
   state = {
     games: null,
+    opponent: '',
   };
 
   handleLogout = event => {
@@ -23,11 +24,29 @@ class Home extends React.Component {
     this.props.onLogout();
   };
 
-  async componentDidMount() {
+  handleOpponentChange = event => {
+    this.setState({ opponent: event.target.value });
+  };
+
+  createGame = async event => {
+    event.preventDefault();
+    const opponent = this.state.opponent;
+    this.setState({ opponent: '' });
+    await this.context.createGameAsync(opponent);
+    await this.loadGamesAsync();
+  };
+
+  async loadGamesAsync() {
     this.setState({ games: await this.context.getGamesAsync() });
   }
 
+  async componentDidMount() {
+    await this.loadGamesAsync();
+  }
+
   render() {
+    const { games, opponent } = this.state;
+
     return (
       <div id="home" style={{ 'display': 'flex' }}>
         <div id="sidebar">
@@ -37,7 +56,32 @@ class Home extends React.Component {
             </button>
           </form>
 
-          <Games games={this.state.games} />
+          <form onSubmit={this.createGame}>
+            <fieldset>
+              <legend>New game</legend>
+
+              <div>
+                <label>
+                  Opponent:&nbsp;
+                  <input
+                    name="opponent"
+                    type="text"
+                    value={opponent}
+                    onChange={this.handleOpponentChange}
+                    autoComplete="false"
+                  />
+                </label>
+              </div>
+
+              <div>
+                <button type="submit" disabled={!opponent}>
+                  Create game
+                </button>
+              </div>
+            </fieldset>
+          </form>
+
+          <Games games={games} />
         </div>
 
         <div style={{ 'flex': 1 }}>

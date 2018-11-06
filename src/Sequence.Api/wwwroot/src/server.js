@@ -13,6 +13,30 @@ class Server {
     return this._userName;
   }
 
+  async createGameAsync(opponent) {
+    if (!opponent) {
+      throw new Error(`'${opponent}' is not valid.`);
+    }
+
+    const response = await fetch('/api/games', {
+      body: JSON.stringify({
+        'opponent': opponent,
+      }),
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': this._userName,
+        'Content-Type': 'application/json',
+      },
+      method: 'POST',
+    });
+
+    if (!response.ok) {
+      const body = await response.json();
+      console.error(body);
+      throw new Error('Could not create game.');
+    }
+  }
+
   async getGamesAsync() {
     const response = await fetch('/api/games', {
       headers: {
