@@ -1,5 +1,5 @@
 using Microsoft.Data.Sqlite;
-using Sequence.Api.Sqlite;
+using Sequence.Sqlite;
 using System;
 using System.Threading;
 

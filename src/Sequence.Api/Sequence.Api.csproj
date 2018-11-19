@@ -6,14 +6,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dapper" Version="1.50.5" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
-    <PackageReference Include="Microsoft.Data.Sqlite" Version="2.1.0" />
-    <PackageReference Include="MongoDB.Driver" Version="2.7.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Sequence.Core\Sequence.Core.csproj" />
+    <ProjectReference Include="..\Sequence.Sqlite\Sequence.Sqlite.csproj" />
+    <ProjectReference Include="..\Sequence.Mongo\Sequence.Mongo.csproj" />
   </ItemGroup>
 
 </Project>

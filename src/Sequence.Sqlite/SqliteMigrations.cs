@@ -4,7 +4,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Sequence.Api.Sqlite
+namespace Sequence.Sqlite
 {
     public static class SqliteMigrations
     {

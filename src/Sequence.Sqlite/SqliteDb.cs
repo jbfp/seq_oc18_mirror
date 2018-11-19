@@ -14,9 +14,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Sequence.Api.Sqlite
+namespace Sequence.Sqlite
 {
-    internal sealed class SqliteDb : IGameEventStore, IGameProvider, IGameListProvider, IGameStore
+    public sealed class SqliteDb : IGameEventStore, IGameProvider, IGameListProvider, IGameStore
     {
         private static readonly Random _random = new Random();
 

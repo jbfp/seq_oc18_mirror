@@ -1,6 +1,6 @@
 using Microsoft.Data.Sqlite;
 
-namespace Sequence.Api.Sqlite
+namespace Sequence.Sqlite
 {
     public delegate SqliteConnection SqliteConnectionFactory();
 }

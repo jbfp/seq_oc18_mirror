@@ -11,14 +11,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Sequence.Api
+namespace Sequence.Mongo
 {
-    public sealed class MongoDbOptions
-    {
-        public string ConnectionString { get; set; }
-    }
-
-    internal sealed class MongoDb : IGameEventStore, IGameProvider, IGameListProvider, IGameStore
+    public sealed class MongoDb : IGameEventStore, IGameProvider, IGameListProvider, IGameStore
     {
         private static readonly Random _random = new Random();
 

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
-using Sequence.Api.Sqlite;
+using Sequence.Sqlite;
 using System.Threading;
 using System.Threading.Tasks;
 

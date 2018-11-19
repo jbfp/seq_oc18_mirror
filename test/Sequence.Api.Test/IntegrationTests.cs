@@ -4,7 +4,7 @@ using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Sequence.Api.Sqlite;
+using Sequence.Sqlite;
 using System;
 using System.IO;
 using System.Net;
