@@ -15,8 +15,6 @@ namespace Sequence.Mongo
 {
     public sealed class MongoDb : IGameEventStore, IGameProvider, IGameListProvider, IGameStore
     {
-        private static readonly Random _random = new Random();
-
         private readonly MongoClient _client;
         private readonly IMongoDatabase _db;
         private readonly IMongoCollection<BsonDocument> _games;
@@ -136,12 +134,11 @@ namespace Sequence.Mongo
             cancellationToken.ThrowIfCancellationRequested();
 
             var gameId = new GameId(Guid.NewGuid());
-            var seed = _random.Next();
 
             var document = new BsonDocument
             {
                 {"game_id", gameId.ToString()},
-                {"seed", seed},
+                {"seed", newGame.Seed.ToInt32()},
                 {"player1", newGame.Player1.ToString()},
                 {"player2", newGame.Player2.ToString()},
                 {"version", 1},

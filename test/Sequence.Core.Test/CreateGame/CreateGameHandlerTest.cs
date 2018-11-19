@@ -13,18 +13,27 @@ namespace Sequence.Core.Test.CreateGameA
         [Fact]
         public void Constructor_NullArgs()
         {
+            var seedProvider = Mock.Of<ISeedProvider>();
+            var store = Mock.Of<IGameStore>();
+
+            Assert.Throws<ArgumentNullException>(
+                paramName: "seedProvider",
+                () => new CreateGameHandler(seedProvider: null, store)
+            );
+
             Assert.Throws<ArgumentNullException>(
                 paramName: "store",
-                () => new CreateGameHandler(store: null)
+                () => new CreateGameHandler(seedProvider, store: null)
             );
         }
 
+        private readonly Mock<ISeedProvider> _seedProvider = new Mock<ISeedProvider>();
         private readonly Mock<IGameStore> _store = new Mock<IGameStore>();
         private readonly CreateGameHandler _sut;
 
         public CreateGameHandlerTest()
         {
-            _sut = new CreateGameHandler(_store.Object);
+            _sut = new CreateGameHandler(_seedProvider.Object, _store.Object);
         }
 
         [Fact]
@@ -42,6 +51,30 @@ namespace Sequence.Core.Test.CreateGameA
                 paramName: "player2",
                 testCode: () => _sut.CreateGameAsync(player1, null, CancellationToken.None)
             );
+        }
+
+        [Theory]
+        [InlineData(-60)]
+        [InlineData(42)]
+        [InlineData(100)]
+        public async Task CreateGameAsync_GetsSeedFromProvider(int seed)
+        {
+            // Given:
+            var expected = new Seed(seed);
+
+            _seedProvider
+                .Setup(s => s.GenerateSeedAsync(It.IsAny<CancellationToken>()))
+                .ReturnsAsync(expected)
+                .Verifiable();
+
+            var player1 = new PlayerId("Player 1");
+            var player2 = new PlayerId("Player 2");
+
+            // When:
+            await _sut.CreateGameAsync(player1, player2, CancellationToken.None);
+
+            // Then:
+            _seedProvider.VerifyAll();
         }
 
         [Theory]

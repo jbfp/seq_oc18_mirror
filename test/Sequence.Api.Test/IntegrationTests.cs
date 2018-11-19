@@ -4,6 +4,8 @@ using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Sequence.Core;
+using Sequence.Core.CreateGame;
 using Sequence.Sqlite;
 using System;
 using System.IO;
@@ -19,6 +21,7 @@ namespace Sequence.Api.Test
     public sealed class IntegrationTests : IClassFixture<WebApplicationFactory<Startup>>, IDisposable
     {
         private readonly InMemorySqlite _sqlite = new InMemorySqlite();
+        private readonly SeedProviderStub _seedProvider = new SeedProviderStub();
         private readonly WebApplicationFactory<Startup> _factory;
 
         public IntegrationTests(WebApplicationFactory<Startup> factory)
@@ -28,6 +31,7 @@ namespace Sequence.Api.Test
                 builder.ConfigureTestServices(services =>
                 {
                     services.AddSingleton<SqliteConnectionFactory>(_sqlite.CreateConnection);
+                    services.AddSingleton<ISeedProvider>(_seedProvider);
                 });
             });
         }
@@ -190,11 +194,12 @@ namespace Sequence.Api.Test
         public async Task Notifications()
         {
             // Given:
+            _seedProvider.Value = new Seed(42);
             var gamePath = await CreateGameAsync();
             var subscribePath = gamePath.ToString() + "/stream?playerId=dummy";
             var client = CreateAuthorizedClient();
             var response = await client.GetAsync(subscribePath, HttpCompletionOption.ResponseHeadersRead);
-            var body = new { card = new { deckNo = 0, suit = 0, rank = 0 }, column = 0, row = 0 };
+            var body = new { card = new { deckNo = 1, suit = 1, rank = 9 }, column = 8, row = 0 };
 
             // When:
             var r = await client.PostAsJsonAsync(gamePath, body);
@@ -228,6 +233,16 @@ namespace Sequence.Api.Test
             var form = new { opponent };
             var response = await client.PostAsJsonAsync("/api/games", form);
             return response.Headers.Location;
+        }
+
+        private sealed class SeedProviderStub : ISeedProvider
+        {
+            public Seed Value { get; set; } = new Seed(42);
+
+            public Task<Seed> GenerateSeedAsync(CancellationToken cancellationToken)
+            {
+                return Task.FromResult(Value);
+            }
         }
     }
 }

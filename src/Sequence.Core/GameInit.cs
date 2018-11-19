@@ -26,5 +26,7 @@ namespace Sequence.Core
         }
 
         public Random ToRandom() => new Random(_value);
+
+        public int ToInt32() => _value;
     }
 }

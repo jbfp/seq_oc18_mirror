@@ -18,8 +18,6 @@ namespace Sequence.Sqlite
 {
     public sealed class SqliteDb : IGameEventStore, IGameProvider, IGameListProvider, IGameStore
     {
-        private static readonly Random _random = new Random();
-
         private readonly SqliteConnectionFactory _connectionFactory;
 
         public SqliteDb(SqliteConnectionFactory connectionFactory)
@@ -183,7 +181,7 @@ namespace Sequence.Sqlite
                     gameId,
                     player1 = newGame.Player1.ToString(),
                     player2 = newGame.Player2.ToString(),
-                    seed = _random.Next(),
+                    seed = newGame.Seed.ToInt32(),
                     version = 1,
                 };
 

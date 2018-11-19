@@ -38,6 +38,8 @@ namespace Sequence.Api
             services.AddSingleton<SubscriptionHandler>(subscriptionHandler);
             services.AddSingleton<IGameUpdatedNotifier>(subscriptionHandler);
 
+            services.AddTransient<ISeedProvider, RandomSeedProvider>();
+
             return services;
         }
 
