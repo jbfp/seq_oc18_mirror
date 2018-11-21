@@ -209,9 +209,13 @@ namespace Sequence.Api.Test
             using (var stream = await response.Content.ReadAsStreamAsync())
             using (var reader = new StreamReader(stream))
             {
-                var expected = "event:game-updated";
-                var actual = await reader.ReadLineAsync();
-                Assert.Equal(expected, actual);
+                var line0 = await reader.ReadLineAsync();
+                var line1 = await reader.ReadLineAsync();
+                var line2 = await reader.ReadLineAsync();
+
+                Assert.Equal("event: game-updated", line0);
+                Assert.Equal("data: 1", line1);
+                Assert.Equal("", line2);
             }
         }
 

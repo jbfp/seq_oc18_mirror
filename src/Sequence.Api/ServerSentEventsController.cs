@@ -5,6 +5,7 @@ using Sequence.Core.Notifications;
 using System;
 using System.IO;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Sequence.Api
@@ -20,7 +21,7 @@ namespace Sequence.Api
         }
 
         [HttpGet("/api/games/{id}/stream")]
-        public void Get([FromRoute] string id, [FromQuery] string playerId)
+        public async Task Get([FromRoute] string id, [FromQuery] string playerId, CancellationToken cancellationToken)
         {
             if (string.IsNullOrWhiteSpace(playerId))
             {
@@ -30,27 +31,25 @@ namespace Sequence.Api
 
             Response.Headers["Cache-Control"] = "no-cache";
             Response.Headers["Content-Type"] = "text/event-stream";
-            Response.Headers["X-Accel-Buffering"] = "no";
-            Response.Body.Flush();
+            await Response.Body.FlushAsync(cancellationToken);
 
             var gameId = new GameId(id);
-            var subscriber = new Subscriber(Response.Body);
+            var subscriber = new Subscriber(Response);
 
             // TODO: Use player ID.
             using (var subscription = _handler.Subscribe(gameId, subscriber))
             {
-                // Wait until connection is closed.
-                HttpContext.RequestAborted.WaitHandle.WaitOne();
+                await cancellationToken.WaitAsync();
             }
         }
 
         private sealed class Subscriber : ISubscriber
         {
-            private readonly Stream _stream;
+            private readonly HttpResponse _response;
 
-            public Subscriber(Stream stream)
+            public Subscriber(HttpResponse response)
             {
-                _stream = stream ?? throw new ArgumentNullException(nameof(stream));
+                _response = response ?? throw new ArgumentNullException(nameof(response));
             }
 
             public async Task UpdateGameAsync(int version)
@@ -58,19 +57,21 @@ namespace Sequence.Api
                 await WriteEventAsync("game-updated", version.ToString());
             }
 
-            private async Task WriteEventAsync(string eventType, string data = "")
+            private async Task WriteEventAsync(string eventType, string data)
             {
-                using (var writer = new StreamWriter(_stream, Encoding.UTF8, 1024, leaveOpen: true))
+                if (string.IsNullOrWhiteSpace(data))
                 {
-                    if (!string.IsNullOrEmpty(eventType))
-                    {
-                        await writer.WriteLineAsync($"event:{eventType}");
-                    }
-
-                    await writer.WriteLineAsync($"data:{data}");
-                    await writer.WriteLineAsync("\n");
-                    await writer.FlushAsync();
+                    return;
                 }
+
+                if (!string.IsNullOrEmpty(eventType))
+                {
+                    await _response.WriteAsync($"event: {eventType}\n");
+                }
+
+                await _response.WriteAsync($"data: {data}\n");
+                await _response.WriteAsync("\n");
+                await _response.Body.FlushAsync();
             }
         }
     }
