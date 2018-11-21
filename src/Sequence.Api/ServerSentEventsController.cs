@@ -30,6 +30,7 @@ namespace Sequence.Api
 
             Response.Headers["Cache-Control"] = "no-cache";
             Response.Headers["Content-Type"] = "text/event-stream";
+            Response.Headers["X-Accel-Buffering"] = "no";
             Response.Body.Flush();
 
             var gameId = new GameId(id);
