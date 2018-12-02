@@ -10,7 +10,7 @@ yarn run build
 cd ../../../
 
 echo Running all tests...
-ls ./test/**/*.csproj | xargs -L1 dotnet test -c Release -v q --no-build
+ls ./test/**/*.csproj | xargs -L1 -P 0 dotnet test -c Release -v q --no-build
 
 echo Publishing...
 cd ./src/Sequence.Api/
