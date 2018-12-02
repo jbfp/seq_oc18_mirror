@@ -18,7 +18,10 @@
         },
         {
             "label": "test",
-            "command": "dotnet test",
+            "command": "/bin/bash",
+            "args": [
+                "${workspaceFolder}/test.sh"
+            ],
             "type": "shell",
             "group": {
                 "kind": "test",
