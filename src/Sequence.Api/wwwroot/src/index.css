@@ -89,6 +89,11 @@ body {
 
 .cell[data-joker]::after {
   content: "★";
+  display: flex;
+  font-size: 150%;
+  height: 100%;
+  line-height: 75%;
+  width: 50%;
 }
 
 .cell[data-joker]:nth-of-type(1),
