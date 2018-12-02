@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Sequence.Core;
@@ -32,6 +33,12 @@ namespace Sequence.Api.Test
                 {
                     services.AddSingleton<SqliteConnectionFactory>(_sqlite.CreateConnection);
                     services.AddSingleton<ISeedProvider>(_seedProvider);
+                    services.AddLogging(options =>
+                    {
+                        options.AddFilter("Default", LogLevel.Warning);
+                        options.AddFilter("Microsoft", LogLevel.Warning);
+                        options.AddFilter("System", LogLevel.Warning);
+                    });
                 });
             });
         }
