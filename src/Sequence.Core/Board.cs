@@ -5,9 +5,9 @@ using System.Linq;
 
 namespace Sequence.Core
 {
-    internal sealed class Board
+    public sealed class Board
     {
-        public static readonly ImmutableArray<ImmutableArray<(Suit, Rank)?>> TheBoard;
+        internal static readonly ImmutableArray<ImmutableArray<(Suit, Rank)?>> TheBoard;
 
         static Board()
         {
@@ -145,7 +145,7 @@ namespace Sequence.Core
                 .ToImmutableArray();
         }
 
-        public static bool Matches(Coord coord, Card card)
+        internal static bool Matches(Coord coord, Card card)
         {
             if (card == null)
             {
@@ -179,17 +179,17 @@ namespace Sequence.Core
                 && card.Rank == match.Value.Item2;
         }
 
-        public Board()
+        internal Board()
         {
             Chips = ImmutableDictionary<Coord, Team>.Empty;
         }
 
-        public IImmutableDictionary<Coord, Team> Chips { get; private set; }
-        public Sequence Sequence { get; private set; }
+        internal IImmutableDictionary<Coord, Team> Chips { get; private set; }
+        internal Sequence Sequence { get; private set; }
 
-        public bool IsOccupied(Coord coord) => Chips.ContainsKey(coord);
+        internal bool IsOccupied(Coord coord) => Chips.ContainsKey(coord);
 
-        public void Add(Coord coord, Team? chip)
+        internal void Add(Coord coord, Team? chip)
         {
             if (chip == null)
             {
@@ -198,59 +198,74 @@ namespace Sequence.Core
             else
             {
                 Chips = Chips.Add(coord, chip.Value);
+                Sequence = GetSequence(Chips, coord, chip.Value);
+            }
+        }
 
-                // Check for sequences.
-                var team = chip.Value;
-                var row = coord.Row;
-                var col = coord.Column;
+        public static Sequence GetSequence(
+            IImmutableDictionary<Coord, Team> chips,
+            Coord coord,
+            Team team)
+        {
+            // TODO: Allow use of corners in sequence.
 
-                bool TrySequence(IEnumerable<Coord> cs, out IImmutableList<Coord> seq)
+            if (chips == null)
+            {
+                throw new ArgumentNullException(nameof(chips));
+            }
+
+            var row = coord.Row;
+            var col = coord.Column;
+
+            bool TrySequence(IEnumerable<Coord> cs, out IImmutableList<Coord> seq)
+            {
+                seq = ImmutableList<Coord>.Empty;
+
+                foreach (var c in cs)
                 {
-                    seq = ImmutableList<Coord>.Empty;
-
-                    foreach (var c in cs)
+                    if (chips.TryGetValue(c, out var t) && team == t)
                     {
-                        if (Chips.TryGetValue(c, out var t) && team == t)
+                        seq = seq.Add(c);
+
+                        if (seq.Count == Sequence.DefaultLength)
                         {
-                            seq = seq.Add(c);
-                        }
-                        else
-                        {
-                            seq = ImmutableList<Coord>.Empty;
+                            return true;
                         }
                     }
-
-                    return seq.Count == Sequence.DefaultLength;
+                    else
+                    {
+                        seq = ImmutableList<Coord>.Empty;
+                    }
                 }
 
-                var range = Enumerable.Range(-5, 11);
-                var vertical = range.Select(d => new Coord(col, row + d));
-                var horizontal = range.Select(d => new Coord(col + d, row));
-                var diagonal1 = range.Select(d => new Coord(col + d, row + d));
-                var diagonal2 = range.Select(d => new Coord(col + d, row - d));
-
-                IImmutableList<Coord> coords;
-
-                if (TrySequence(vertical, out coords) ||
-                    TrySequence(horizontal, out coords) ||
-                    TrySequence(diagonal1, out coords) ||
-                    TrySequence(diagonal2, out coords))
-                {
-                    Sequence = new Sequence(team, coords);
-                }
-                else
-                {
-                    Sequence = null;
-                }
+                return false;
             }
+
+            var range = Enumerable.Range(-5, 11);
+            var vertical = range.Select(d => new Coord(col, row + d));
+            var horizontal = range.Select(d => new Coord(col + d, row));
+            var diagonal1 = range.Select(d => new Coord(col + d, row + d));
+            var diagonal2 = range.Select(d => new Coord(col + d, row - d));
+
+            IImmutableList<Coord> coords;
+
+            if (TrySequence(vertical, out coords) ||
+                TrySequence(horizontal, out coords) ||
+                TrySequence(diagonal1, out coords) ||
+                TrySequence(diagonal2, out coords))
+            {
+                return new Sequence(team, coords);
+            }
+
+            return null;
         }
     }
 
-    internal sealed class Sequence
+    public sealed class Sequence
     {
-        public const int DefaultLength = 5;
+        internal const int DefaultLength = 5;
 
-        public Sequence(Team team, IImmutableList<Coord> coords)
+        internal Sequence(Team team, IImmutableList<Coord> coords)
         {
             Team = team;
 
@@ -262,7 +277,7 @@ namespace Sequence.Core
             Coords = coords ?? throw new ArgumentNullException(nameof(coords));
         }
 
-        public Team Team { get; }
-        public IImmutableList<Coord> Coords { get; }
+        internal Team Team { get; }
+        internal IImmutableList<Coord> Coords { get; }
     }
 }
