@@ -34,6 +34,7 @@ namespace Sequence.Core.Test
 
         private readonly PlayerId _playerIdDummy = new PlayerId("dummy");
         private readonly Card _cardDummy = new Card(DeckNo.One, Suit.Spades, Rank.Ace);
+        private readonly Card _oneEyedJack = new Card(DeckNo.One, Suit.Hearts, Rank.Jack);
         private readonly Coord _coordDummy = new Coord(4, 2);
 
 
@@ -94,8 +95,10 @@ namespace Sequence.Core.Test
                 NextPlayerId = _player1,
             });
 
+            var card = new Card(DeckNo.Two, Suit.Spades, Rank.Ten);
+
             var ex = Assert.Throws<PlayCardFailedException>(
-                () => _sut.PlayCard(_player1, _cardDummy, _coordDummy)
+                () => _sut.PlayCard(_player1, card, _coordDummy)
             );
 
             Assert.Equal(PlayCardError.CoordIsOccupied, ex.Error);
@@ -146,6 +149,108 @@ namespace Sequence.Core.Test
             var actual = _sut.PlayCard(playerId, card, coord);
 
             // Then:
+            Assert.Equal(expected, actual, new GameEventEqualityComparer());
+        }
+
+        [Fact]
+        public void CannotPlayOneEyedJackIfCoordIsEmpty()
+        {
+            var playerId = _player1;
+            var card = _oneEyedJack;
+            var coord = _coordDummy;
+
+            // Add a one-eyed jack to Player1 to use for this test.
+            _sut.Apply(new GameEvent
+            {
+                ByPlayerId = _player1,
+                CardDrawn = card,
+                CardUsed = _cardDummy,
+                Chip = Team.Red,
+                Coord = new Coord(9, 9),
+                Index = 0,
+                NextPlayerId = _player1,
+            });
+
+            var ex = Assert.Throws<PlayCardFailedException>(
+                () => _sut.PlayCard(playerId, card, coord)
+            );
+
+            Assert.Equal(PlayCardError.CoordIsEmpty, ex.Error);
+        }
+
+        [Fact]
+        public void CannotPlayOneEyedJackIfCoordBelongsToPlayersOwnTeam()
+        {
+            var playerId = _player1;
+            var card = _oneEyedJack;
+            var coord = _coordDummy;
+
+            // Add a one-eyed jack to Player1 to use for this test.
+            _sut.Apply(new GameEvent
+            {
+                ByPlayerId = _player1,
+                CardDrawn = card,
+                CardUsed = _cardDummy,
+                Chip = Team.Red,
+                Coord = coord,
+                Index = 0,
+                NextPlayerId = _player1,
+            });
+
+            var ex = Assert.Throws<PlayCardFailedException>(
+                () => _sut.PlayCard(playerId, card, coord)
+            );
+
+            Assert.Equal(PlayCardError.ChipBelongsToPlayerTeam, ex.Error);
+        }
+
+        [Fact]
+        public void CanPlayOneEyedJack()
+        {
+            // Given:
+            var playerId = _player1;
+            var oneEyedJack = new Card(DeckNo.One, Suit.Hearts, Rank.Jack);
+            var coord = _coordDummy;
+
+            // Add a one-eyed jack to Player1 to use for this test.
+            _sut.Apply(new GameEvent
+            {
+                ByPlayerId = _player1,
+                CardDrawn = oneEyedJack,
+                CardUsed = _cardDummy,
+                Chip = Team.Red,
+                Coord = new Coord(9, 9),
+                Index = 0,
+                NextPlayerId = _player2,
+            });
+
+            // Add a Team Green chip to some coordinate that Team Red can remove.
+            _sut.Apply(new GameEvent
+            {
+                ByPlayerId = _player2,
+                CardDrawn = null,
+                CardUsed = _cardDummy,
+                Chip = Team.Green,
+                Coord = _coordDummy,
+                Index = 1,
+                NextPlayerId = _player1,
+            });
+
+            // When:
+            var actual = _sut.PlayCard(playerId, oneEyedJack, coord);
+
+            // Then:
+            var expected = new GameEvent
+            {
+                ByPlayerId = playerId,
+                CardDrawn = new Card(DeckNo.Two, Suit.Clubs, Rank.Ten),
+                CardUsed = oneEyedJack,
+                Chip = null,
+                Coord = coord,
+                Index = 2,
+                NextPlayerId = _player2,
+            };
+
             Assert.Equal(expected, actual, new GameEventEqualityComparer());
         }
 

@@ -38,6 +38,7 @@ namespace Sequence.Core
                 && Rank.Equals(other.Rank);
         }
 
+        internal bool IsOneEyedJack() => Rank == Rank.Jack && (Suit == Suit.Hearts || Suit == Suit.Spades);
         internal bool IsTwoEyedJack() => Rank == Rank.Jack && (Suit == Suit.Diamonds || Suit == Suit.Clubs);
     }
 

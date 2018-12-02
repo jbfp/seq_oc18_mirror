@@ -100,31 +100,59 @@ namespace Sequence.Core
                 throw new PlayCardFailedException(PlayCardError.PlayerIsNotCurrentPlayer);
             }
 
-            if (_board.IsOccupied(coord))
-            {
-                throw new PlayCardFailedException(PlayCardError.CoordIsOccupied);
-            }
-
             if (!_handByIdx[playerIdx].Contains(card))
             {
                 throw new PlayCardFailedException(PlayCardError.PlayerDoesNotHaveCard);
             }
 
-            if (!Board.Matches(coord, card))
+            if (card.IsOneEyedJack())
             {
-                throw new PlayCardFailedException(PlayCardError.CardDoesNotMatchCoord);
-            }
+                if (!_board.IsOccupied(coord))
+                {
+                    throw new PlayCardFailedException(PlayCardError.CoordIsEmpty);
+                }
 
-            return new GameEvent
+                if (_board.Chips.TryGetValue(coord, out var chip) && chip == _teamByIdx[playerIdx])
+                {
+                    throw new PlayCardFailedException(PlayCardError.ChipBelongsToPlayerTeam);
+                }
+
+                // TODO: Check chip is not part of sequence when multiple sequences are supported in future.
+
+                return new GameEvent
+                {
+                    ByPlayerId = playerId,
+                    CardDrawn = _deck.Top,
+                    CardUsed = card,
+                    Chip = null,
+                    Coord = coord,
+                    Index = _index + 1,
+                    NextPlayerId = _idxByPlayerId[(playerIdx + 1) % _idxByPlayerId.Length],
+                };
+            }
+            else
             {
-                ByPlayerId = playerId,
-                CardDrawn = _deck.Top,
-                CardUsed = card,
-                Chip = _teamByIdx[playerIdx],
-                Coord = coord,
-                Index = _index + 1,
-                NextPlayerId = _idxByPlayerId[(playerIdx + 1) % _idxByPlayerId.Length],
-            };
+                if (_board.IsOccupied(coord))
+                {
+                    throw new PlayCardFailedException(PlayCardError.CoordIsOccupied);
+                }
+
+                if (!Board.Matches(coord, card))
+                {
+                    throw new PlayCardFailedException(PlayCardError.CardDoesNotMatchCoord);
+                }
+
+                return new GameEvent
+                {
+                    ByPlayerId = playerId,
+                    CardDrawn = _deck.Top,
+                    CardUsed = card,
+                    Chip = _teamByIdx[playerIdx],
+                    Coord = coord,
+                    Index = _index + 1,
+                    NextPlayerId = _idxByPlayerId[(playerIdx + 1) % _idxByPlayerId.Length],
+                };
+            }
         }
 
         public GameView GetViewForPlayer(PlayerId playerId)
@@ -184,6 +212,8 @@ namespace Sequence.Core
         CoordIsOccupied,
         PlayerDoesNotHaveCard,
         CardDoesNotMatchCoord,
+        CoordIsEmpty,
+        ChipBelongsToPlayerTeam,
     }
 
     public enum Team
