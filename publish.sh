@@ -4,7 +4,7 @@ set -e # break on error.
 cd /home/jbfp/projects/dotnet/sequence/
 
 echo Building in Release mode...
-dotnet build -c Release
+dotnet build -c Release -v q
 cd ./src/Sequence.Api/wwwroot
 yarn run build
 cd ../../../
@@ -14,7 +14,7 @@ ls ./test/**/*.csproj | xargs -L1 dotnet test -c Release -v q --no-build
 
 echo Publishing...
 cd ./src/Sequence.Api/
-dotnet publish -c Release
+dotnet publish -c Release -v q
 cd ./bin/Release/netcoreapp2.1/publish/
 
 echo Killing remote server process...
