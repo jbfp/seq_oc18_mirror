@@ -33,7 +33,15 @@ class Home extends React.Component {
     event.preventDefault();
     const opponent = this.state.opponent;
     this.setState({ opponent: '' });
-    const gameId = await this.context.createGameAsync(opponent);
+    let gameId;
+
+    try {
+      gameId = await this.context.createGameAsync(opponent);
+    } catch (error) {
+      window.alert(error);
+      return;
+    }
+
     await this.loadGamesAsync();
     this.props.history.push(`/games/${gameId}`);
   };

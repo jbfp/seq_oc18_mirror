@@ -30,12 +30,12 @@ class Server {
       method: 'POST',
     });
 
+    const body = await response.json();
+
     if (response.ok) {
-      const body = await response.json();
       return body['gameId'];
     } else {
-      console.error(response);
-      throw new Error('Could not create game.');
+      throw new Error(body.error);
     }
   }
 

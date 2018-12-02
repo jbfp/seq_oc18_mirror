@@ -24,7 +24,18 @@ namespace Sequence.Api
         {
             var player1 = PlayerId;
             var player2 = new PlayerId(form.Opponent);
-            var gameId = await _handler.CreateGameAsync(player1, player2, cancellationToken);
+
+            GameId gameId;
+
+            try
+            {
+                gameId = await _handler.CreateGameAsync(player1, player2, cancellationToken);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+
             return Created($"/api/games/{gameId}", new { gameId });
         }
     }

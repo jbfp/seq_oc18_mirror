@@ -103,6 +103,30 @@ namespace Sequence.Api.Test
         }
 
         [Fact]
+        public async Task CreateGameReturnsBadRequestIfPlayer1AndPlayer2AreSame()
+        {
+            // Given:
+            var playerId = "test_player";
+
+            var body = new
+            {
+                opponent = playerId
+            };
+
+            var client = CreateAuthorizedClient(playerId);
+
+            // When:
+            var response = await client.PostAsJsonAsync("/api/games", body);
+
+            // Then:
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            Assert.Equal("application/json", response.Content.Headers.ContentType.MediaType);
+            var json = await response.Content.ReadAsStringAsync();
+            var obj = JsonConvert.DeserializeAnonymousType(json, new { error = "" });
+            Assert.Equal("Player 1 and Player 2 must not be the same player.", obj.error);
+        }
+
+        [Fact]
         public async Task PlayIsProtected()
         {
             // Given:

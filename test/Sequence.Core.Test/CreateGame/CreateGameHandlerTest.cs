@@ -77,6 +77,16 @@ namespace Sequence.Core.Test.CreateGameA
             _seedProvider.VerifyAll();
         }
 
+        [Fact]
+        public async Task CreateGameAsync_FailsIfPlayer1AndPlayer2AreSame()
+        {
+            var playerId = new PlayerId("player");
+
+            await Assert.ThrowsAsync<ArgumentException>(
+                testCode: () => _sut.CreateGameAsync(playerId, playerId, CancellationToken.None)
+            );
+        }
+
         [Theory]
         [InlineData("123")]
         [InlineData(42)]
