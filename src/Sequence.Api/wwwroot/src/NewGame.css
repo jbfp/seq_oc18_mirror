@@ -1,0 +1,9 @@
+.new-game-submit {
+    margin: 1em 0 0 0;
+}
+
+.new-game-error {
+    color: red;
+    display: inline-block;
+    margin: 1em 0 0 0;
+}

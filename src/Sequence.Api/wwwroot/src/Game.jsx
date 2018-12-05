@@ -1,6 +1,8 @@
 import PropTypes from 'prop-types';
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { ServerContext } from "./contexts";
+import './Game.css';
 
 class Game extends React.Component {
   static contextType = ServerContext;
@@ -128,7 +130,9 @@ class GameView extends React.PureComponent {
       };
 
       return (
-        <div id="game">
+        <div className="game">
+          <Link to="/">Go back</Link>
+          <hr />
           <OpponentView {...opponentObj} />
           <BoardView board={game.board} chips={game.chips} onCoordClick={onCoordClick} />
           <PlayerView onCardClick={onCardClick} selectedCard={selectedCard} {...playerObj} />
@@ -158,12 +162,12 @@ class OpponentView extends React.PureComponent {
     const Hand = () => Array(numberOfCards).fill().map((_, idx) => <Card key={idx} />);
 
     return (
-      <div id="opponent" className="player" data-team={team}>
+      <div className="player opponent" data-team={team}>
         <span className="player-name" data-current-player={isCurrentPlayer}>
           {id}
         </span>
 
-        <div id="opponent-hand" className="hand">
+        <div className="hand opponent-hand">
           <Hand />
         </div>
       </div>
@@ -229,7 +233,7 @@ class BoardView extends React.PureComponent {
     });
 
     return (
-      <div id="board" style={style}>
+      <div className="board" style={style}>
         {cells}
       </div>
     )
@@ -272,12 +276,12 @@ class PlayerView extends React.PureComponent {
     const Hand = () => hand.map((card, idx) => <Card key={idx} card={card} />);
 
     return (
-      <div id="user" className="player" data-team={team}>
+      <div className="player user" data-team={team}>
         <span className="player-name" data-current-player={isCurrentPlayer}>
           {id}
         </span>
 
-        <div id="user-hand" className="hand">
+        <div className="hand user-hand">
           <Hand />
         </div>
       </div>
@@ -299,7 +303,7 @@ class DeckView extends React.PureComponent {
     const { numberOfCardsInDeck } = this.props;
 
     return (
-      <div id="deck" className="card card-back" title={`${numberOfCardsInDeck} cards remain in the deck.`}>
+      <div className="deck card card-back" title={`${numberOfCardsInDeck} cards remain in the deck.`}>
         {numberOfCardsInDeck}
       </div>
     );

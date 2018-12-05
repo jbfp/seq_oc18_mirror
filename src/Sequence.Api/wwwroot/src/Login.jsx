@@ -1,56 +1,64 @@
-import PropTypes from 'prop-types';
 import React from 'react';
-import { Redirect } from 'react-router-dom';
+import { Redirect } from "react-router-dom";
+import './Login.css';
 
 class Login extends React.Component {
-  static propTypes = {
-    location: PropTypes.object.isRequired,
-    onLogin: PropTypes.func.isRequired,
-  };
+    state = {
+        redirectToReferrer: false,
+        userName: '',
+    };
 
-  state = {
-    redirectToReferrer: false,
-    userName: "",
-  };
+    handleSubmit = event => {
+        event.preventDefault();
 
-  handleChange = e => {
-    this.setState({ userName: e.target.value });
-  };
+        this.props.onLogin(this.state.userName);
 
-  handleSubmit = e => {
-    e.preventDefault();
-    this.props.onLogin({ userName: this.state.userName });
-    this.setState({ redirectToReferrer: true });
-  };
+        this.setState({
+            redirectToReferrer: true,
+            userName: ''
+        });
+    };
 
-  render() {
-    const { from } = this.props.location.state || { from: { pathname: "/" } };
+    handleUserNameChange = event => {
+        event.preventDefault();
+        this.setState({ userName: event.target.value });
+    };
 
-    if (this.state.redirectToReferrer) {
-      return <Redirect to={from} />
-    } else {
-      return (
-        <div id="login">
-          <form id="login-form" onSubmit={this.handleSubmit}>
-            <label>
-              User Name:&nbsp;
-              <input
-                id="login-form-userName"
-                type="text"
-                autoFocus={true}
-                value={this.state.userName}
-                onChange={this.handleChange}
-              />
-            </label>
+    render() {
+        const { redirectToReferrer, userName } = this.state;
 
-            <button id="login-form-submit" type="submit">
-              Sign in
-          </button>
-          </form>
-        </div>
-      );
+        if (redirectToReferrer) {
+            const { from } = this.props.location.state || { from: { pathname: '/' } };
+            return <Redirect to={from} />;
+        }
+
+        const disabled = userName.length === 0;
+
+        return (
+            <div>
+                <form onSubmit={this.handleSubmit}>
+                    <p>
+                        Please sign in to continue
+                    </p>
+
+                    <div>
+                        <input
+                            type="text"
+                            value={userName}
+                            onChange={this.handleUserNameChange}
+                            placeholder="Pick a user name"
+                        />
+                    </div>
+
+                    <div>
+                        <button className="login-submit" type="submit" disabled={disabled}>
+                            Sign in
+                        </button>
+                    </div>
+                </form>
+            </div>
+        );
     }
-  }
 }
 
 export default Login;

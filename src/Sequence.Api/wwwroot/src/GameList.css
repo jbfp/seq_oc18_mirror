@@ -1,0 +1,12 @@
+.game-list {
+    padding: 0;
+}
+
+.game-list-item {
+    list-style: none;
+}
+
+.game-list-empty {
+    color: #666666;
+    display: inline-block;
+}
