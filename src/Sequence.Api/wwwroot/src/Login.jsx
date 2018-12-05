@@ -1,22 +1,17 @@
 import React from 'react';
-import { Redirect } from "react-router-dom";
 import './Login.css';
 
 class Login extends React.Component {
     state = {
-        redirectToReferrer: false,
         userName: '',
     };
 
     handleSubmit = event => {
         event.preventDefault();
-
+        const { from } = this.props.location.state || { from: { pathname: '/' } };
         this.props.onLogin(this.state.userName);
-
-        this.setState({
-            redirectToReferrer: true,
-            userName: ''
-        });
+        this.setState({ userName: '' });
+        this.props.history.push(from);
     };
 
     handleUserNameChange = event => {
@@ -25,13 +20,7 @@ class Login extends React.Component {
     };
 
     render() {
-        const { redirectToReferrer, userName } = this.state;
-
-        if (redirectToReferrer) {
-            const { from } = this.props.location.state || { from: { pathname: '/' } };
-            return <Redirect to={from} />;
-        }
-
+        const { userName } = this.state;
         const disabled = userName.length === 0;
 
         return (
