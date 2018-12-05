@@ -8,9 +8,15 @@ class Login extends React.Component {
 
     handleSubmit = event => {
         event.preventDefault();
-        const { from } = this.props.location.state || { from: { pathname: '/' } };
         this.props.onLogin(this.state.userName);
         this.setState({ userName: '' });
+
+        const { from } = this.props.location.state || { from: { pathname: '/' } };
+
+        if (from.pathname === '/login') {
+            from.pathname = '/';
+        }
+
         this.props.history.push(from);
     };
 
