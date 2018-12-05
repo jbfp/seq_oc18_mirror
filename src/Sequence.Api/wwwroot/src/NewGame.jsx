@@ -21,12 +21,10 @@ class NewGame extends React.Component {
 
         try {
             gameId = await this.context.createGameAsync(this.state.opponent);
-            this.setState({ opponent: '' });
+            this.setState({ busy: false, opponent: '' });
             this.props.history.push(`/games/${gameId}`);
         } catch (e) {
-            this.setState({ error: e.toString() });
-        } finally {
-            this.setState({ busy: false });
+            this.setState({ busy: false, error: e.toString() });
         }
     };
 
