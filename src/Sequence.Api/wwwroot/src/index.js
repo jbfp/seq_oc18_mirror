@@ -76,23 +76,17 @@ const ProtectedRoute = ({ component: Component, layout, ...rest }) => {
         </ServerContext.Provider>
     );
 
+    const render = (props) => (
+        auth.isAuthenticated
+            ? ComponentWithContext(props)
+            : RedirectToLogin(props)
+    );
+
     if (layout) {
-        return (
-            <RouteWithLayout {...rest} render={(props) => (
-                auth.isAuthenticated
-                    ? ComponentWithContext(props)
-                    : RedirectToLogin(props)
-            )} />
-        );
+        return <RouteWithLayout {...rest} render={render} />;
     }
 
-    return (
-        <Route {...rest} render={(props) => (
-            auth.isAuthenticated
-                ? ComponentWithContext(props)
-                : RedirectToLogin(props)
-        )} />
-    );
+    return <Route {...rest} render={render} />;
 };
 
 const LoginWithAuth = props => (
