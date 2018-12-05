@@ -5,15 +5,21 @@ cd /home/jbfp/projects/dotnet/sequence/
 
 echo Building in Release mode...
 dotnet build -c Release -v q
-cd ./src/Sequence.Api/wwwroot
-yarn run build
-cd ../../../
 
 echo Running all tests...
 ls ./test/**/*.csproj | xargs -L1 -P 0 dotnet test -c Release -v q --no-build
 
-echo Publishing...
 cd ./src/Sequence.Api/
+
+echo Cleaning previous publish output...
+rm -rf ./bin/Release/netcoreapp2.2/publish
+
+echo Building wwwroot...
+cd ./wwwroot
+yarn run build
+cd ../
+
+echo Publishing...
 dotnet publish -c Release -v q
 cd ./bin/Release/netcoreapp2.2/publish/
 
