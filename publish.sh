@@ -15,7 +15,7 @@ ls ./test/**/*.csproj | xargs -L1 -P 0 dotnet test -c Release -v q --no-build
 echo Publishing...
 cd ./src/Sequence.Api/
 dotnet publish -c Release -v q
-cd ./bin/Release/netcoreapp2.1/publish/
+cd ./bin/Release/netcoreapp2.2/publish/
 
 echo Killing remote server process...
 ssh jbfp@jbfp.dk pkill -x dotnet || true

@@ -9,7 +9,7 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/src/Sequence.Api/bin/Debug/netcoreapp2.1/Sequence.Api.dll",
+            "program": "${workspaceFolder}/src/Sequence.Api/bin/Debug/netcoreapp2.2/Sequence.Api.dll",
             "args": [],
             "cwd": "${workspaceFolder}/src/Sequence.Api",
             "stopAtEntry": false,
