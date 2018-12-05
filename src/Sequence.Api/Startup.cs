@@ -38,6 +38,7 @@ namespace Sequence.Api
                 })
                 .SetCompatibilityVersion(CompatibilityVersion.Latest);
 
+            services.AddHealthChecks();
             services.AddSpaStaticFiles(options => options.RootPath = "wwwroot/build");
             services.AddSequence(_configuration);
         }
@@ -59,6 +60,8 @@ namespace Sequence.Api
 
             app.UseStaticFiles();
             app.UseSpaStaticFiles();
+
+            app.UseHealthChecks("/health");
 
             app.UseMvc();
 
