@@ -114,6 +114,7 @@ class GameView extends React.PureComponent {
 
   render() {
     const { game, onCardClick, onCoordClick, playerId, selectedCard } = this.props;
+    let $body;
 
     if (game) {
       const opponentObj = {
@@ -129,8 +130,8 @@ class GameView extends React.PureComponent {
         team: game.team,
       };
 
-      return (
-        <div className="game">
+      $body = (
+        <div>
           <Link to="/">Go back</Link>
           <hr />
           <OpponentView {...opponentObj} />
@@ -140,10 +141,16 @@ class GameView extends React.PureComponent {
         </div>
       );
     } else {
-      return (
+      $body = (
         <div>Loading...</div>
       );
     }
+
+    return (
+      <div className="game">
+        {$body}
+      </div>
+    )
   }
 }
 
