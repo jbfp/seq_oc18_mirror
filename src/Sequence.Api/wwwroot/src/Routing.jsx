@@ -57,7 +57,7 @@ export const RouteWithLayout = ({ component: Component, render, hash, title, ...
     );
 };
 
-export const ProtectedRoute = ({ component: Component, layout, ...rest }) => {
+export const ProtectedRoute = ({ component: Component, ...rest }) => {
     const RedirectToLogin = ({ location }) => (
         <Redirect to={{
             pathname: "/login",
@@ -77,11 +77,7 @@ export const ProtectedRoute = ({ component: Component, layout, ...rest }) => {
             : RedirectToLogin(props)
     );
 
-    if (layout) {
-        return <RouteWithLayout {...rest} render={render} />;
-    }
-
-    return <Route {...rest} render={render} />;
+    return <RouteWithLayout {...rest} render={render} />;
 };
 
 export const LoginWithAuth = props => (

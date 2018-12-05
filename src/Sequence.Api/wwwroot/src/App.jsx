@@ -25,10 +25,10 @@ class App extends React.Component {
         return (
             <Router>
                 <div>
-                    <RouteWithLayout path="/login" layout={true} component={LoginWithAuth} hash={hash} title="sign in" />
-                    <ProtectedRoute exact path="/" layout={true} component={GameList} hash={hash} title="games" />
-                    <ProtectedRoute exact path="/new-game" layout={true} component={NewGame} hash={hash} title="new game" />
-                    <ProtectedRoute path="/games/:id" layout={false} component={Game} hash={hash} title="play" />
+                    <RouteWithLayout path="/login" component={LoginWithAuth} hash={hash} title="sign in" />
+                    <ProtectedRoute exact path="/" component={GameList} hash={hash} title="games" />
+                    <ProtectedRoute exact path="/new-game" component={NewGame} hash={hash} title="new game" />
+                    <ProtectedRoute path="/games/:id" component={Game} hash={hash} title="play" />
                 </div>
             </Router>
         );
