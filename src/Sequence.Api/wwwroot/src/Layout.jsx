@@ -5,13 +5,13 @@ import './Layout.css';
 
 class Layout extends React.Component {
     static propTypes = {
+        hash: PropTypes.string,
         onLogout: PropTypes.func,
         title: PropTypes.string,
         userName: PropTypes.string,
     };
 
     state = {
-        hash: null,
         redirectToLogin: false,
     };
 
@@ -21,22 +21,14 @@ class Layout extends React.Component {
         this.setState({ redirectToLogin: true });
     }
 
-    async componentDidMount() {
-        window
-            .fetch('/hash.txt', { headers: { 'Accept': 'text/plain' } })
-            .then(response => response.ok ? response.text() : Promise.reject())
-            .then(hash => hash.trim().substr(0, 7))
-            .then(hash => this.setState({ hash }));
-    }
-
     render() {
-        const { hash, redirectToLogin } = this.state;
+        const { redirectToLogin } = this.state;
 
         if (redirectToLogin) {
             return <Redirect to="/login" />;
         }
 
-        const { title, userName } = this.props;
+        const { hash, title, userName } = this.props;
 
         const $signOut = !!userName
             ? (
