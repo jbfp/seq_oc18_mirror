@@ -66,7 +66,7 @@ export const ProtectedRoute = ({ component: Component, ...rest }) => {
     );
 
     const ComponentWithContext = props => (
-        <ServerContext.Provider value={new Server(auth.userName)}>
+        <ServerContext.Provider value={new Server(window.env.api, auth.userName)}>
             <Component {...props} />
         </ServerContext.Provider>
     );

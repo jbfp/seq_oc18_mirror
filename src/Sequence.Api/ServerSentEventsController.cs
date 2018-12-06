@@ -20,7 +20,7 @@ namespace Sequence.Api
             _handler = handler ?? throw new ArgumentNullException(nameof(handler));
         }
 
-        [HttpGet("/api/games/{id}/stream")]
+        [HttpGet("/games/{id}/stream")]
         public async Task Get([FromRoute] string id, [FromQuery] string playerId, CancellationToken cancellationToken)
         {
             if (string.IsNullOrWhiteSpace(playerId))

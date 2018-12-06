@@ -13,16 +13,13 @@ namespace Sequence.Api
 {
     public sealed class Startup
     {
+        private readonly IHostingEnvironment _env;
         private readonly IConfiguration _configuration;
 
-        public Startup(IConfiguration configuration)
+        public Startup(IHostingEnvironment env, IConfiguration configuration)
         {
-            if (configuration == null)
-            {
-                throw new ArgumentNullException(nameof(configuration));
-            }
-
-            _configuration = configuration;
+            _env = env ?? throw new ArgumentNullException(nameof(env));
+            _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         }
 
         public void ConfigureServices(IServiceCollection services)
@@ -39,41 +36,41 @@ namespace Sequence.Api
                 .SetCompatibilityVersion(CompatibilityVersion.Latest);
 
             services.AddHealthChecks();
-            services.AddSpaStaticFiles(options => options.RootPath = "wwwroot/build");
             services.AddSequence(_configuration);
+
+            if (_env.IsDevelopment())
+            {
+                services.AddSpaStaticFiles(options => options.RootPath = "wwwroot/build");
+            }
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app)
         {
-            if (env.IsProduction())
+            if (_env.IsProduction())
             {
                 app.UseForwardedHeaders(new ForwardedHeadersOptions
                 {
                     ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
                 });
             }
-
-            if (env.IsDevelopment())
+            else if (_env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                app.UseStaticFiles();
+                app.UseSpaStaticFiles();
             }
 
-            app.UseStaticFiles();
-            app.UseSpaStaticFiles();
-
             app.UseHealthChecks("/health");
-
             app.UseMvc();
 
-            app.UseSpa(spa =>
+            if (_env.IsDevelopment())
             {
-                spa.Options.SourcePath = "wwwroot";
-
-                if (env.IsDevelopment())
+                app.UseSpa(spa =>
                 {
+                    spa.Options.SourcePath = "wwwroot";
                     spa.UseReactDevelopmentServer(npmScript: "start");
-                }
-            });
+                });
+            }
         }
     }
 }

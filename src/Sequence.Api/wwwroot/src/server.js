@@ -1,11 +1,17 @@
 class Server {
+  _endpoint = null;
   _userName = null;
 
-  constructor(userName) {
+  constructor(endpoint, userName) {
+    if (!endpoint) {
+      throw new Error(`Endpoint '${endpoint}' is not valid.`);
+    }
+
     if (!userName) {
       throw new Error(`User name '${userName}' is not valid.`);
     }
 
+    this._endpoint = endpoint;
     this._userName = userName;
   }
 
@@ -18,7 +24,7 @@ class Server {
       throw new Error(`'${opponent}' is not valid.`);
     }
 
-    const response = await fetch('/api/games', {
+    const response = await fetch(`${this._endpoint}/games`, {
       body: JSON.stringify({
         'opponent': opponent,
       }),
@@ -40,7 +46,7 @@ class Server {
   }
 
   async getGamesAsync() {
-    const response = await fetch('/api/games', {
+    const response = await fetch(`${this._endpoint}/games`, {
       headers: {
         'Accept': 'application/json',
         'Authorization': this._userName,
@@ -58,7 +64,7 @@ class Server {
       throw new Error(`Game ID '${id}' is not valid.`);
     }
 
-    const response = await fetch(`/api/games/${id}`, {
+    const response = await fetch(`${this._endpoint}/games/${id}`, {
       headers: {
         'Accept': 'application/json',
         'Authorization': this._userName,
@@ -84,7 +90,7 @@ class Server {
       throw new Error(`Coord '${coord}' is not valid.`);
     }
 
-    const response = await fetch(`/api/games/${id}`, {
+    const response = await fetch(`${this._endpoint}/games/${id}`, {
       body: JSON.stringify({
         card, ...coord
       }),

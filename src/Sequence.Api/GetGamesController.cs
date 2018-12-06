@@ -18,7 +18,7 @@ namespace Sequence.Api
             _handler = handler ?? throw new ArgumentNullException(nameof(handler));
         }
 
-        [HttpGet("/api/games")]
+        [HttpGet("/games")]
         public async Task<ActionResult<GetGamesResult>> Get(CancellationToken cancellationToken)
         {
             var gameIds = await _handler.GetGamesForPlayerAsync(PlayerId, cancellationToken);

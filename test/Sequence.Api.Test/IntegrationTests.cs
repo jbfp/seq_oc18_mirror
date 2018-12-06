@@ -49,8 +49,8 @@ namespace Sequence.Api.Test
         }
 
         [Theory]
-        [InlineData("/api/games")]
-        [InlineData("/api/games/123456")]
+        [InlineData("/games")]
+        [InlineData("/games/123456")]
         public async Task GetResourceIsProtected(string path)
         {
             // Given:
@@ -75,7 +75,7 @@ namespace Sequence.Api.Test
             var client = _factory.CreateClient();
 
             // When:
-            var response = await client.PostAsJsonAsync("/api/games", body);
+            var response = await client.PostAsJsonAsync("/games", body);
 
             // Then:
             Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
@@ -93,7 +93,7 @@ namespace Sequence.Api.Test
             var client = CreateAuthorizedClient();
 
             // When:
-            var response = await client.PostAsJsonAsync("/api/games", body);
+            var response = await client.PostAsJsonAsync("/games", body);
 
             // Then:
             Assert.Equal(HttpStatusCode.Created, response.StatusCode);
@@ -116,7 +116,7 @@ namespace Sequence.Api.Test
             var client = CreateAuthorizedClient(playerId);
 
             // When:
-            var response = await client.PostAsJsonAsync("/api/games", body);
+            var response = await client.PostAsJsonAsync("/games", body);
 
             // Then:
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
@@ -134,7 +134,7 @@ namespace Sequence.Api.Test
             var body = new { card = new { deckNo = 0, suit = 0, rank = 0 }, column = 0, row = 0 };
 
             // When:
-            var response = await client.PostAsJsonAsync("/api/games/1234", body);
+            var response = await client.PostAsJsonAsync("/games/1234", body);
 
             // Then:
             Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
@@ -148,7 +148,7 @@ namespace Sequence.Api.Test
             var body = new { card = new { deckNo = 0, suit = 0, rank = 0 }, column = 0, row = 0 };
 
             // When:
-            var response = await client.PostAsJsonAsync("/api/games/idontexistforsure", body);
+            var response = await client.PostAsJsonAsync("/games/idontexistforsure", body);
 
             // Then:
             Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
@@ -161,7 +161,7 @@ namespace Sequence.Api.Test
             var client = CreateAuthorizedClient();
 
             // When:
-            var response = await client.GetAsync("/api/games/idontexistforsure");
+            var response = await client.GetAsync("/games/idontexistforsure");
 
             // Then:
             Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
@@ -188,7 +188,7 @@ namespace Sequence.Api.Test
             var client = CreateAuthorizedClient();
 
             // When:
-            var response = await client.GetAsync("/api/games");
+            var response = await client.GetAsync("/games");
 
             // Then:
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -202,7 +202,7 @@ namespace Sequence.Api.Test
             var client = CreateAuthorizedClient();
 
             // When:
-            var result = JObject.Parse(await client.GetStringAsync("/api/games"));
+            var result = JObject.Parse(await client.GetStringAsync("/games"));
 
             // Then:
             Assert.NotEmpty(result["gameIds"].ToObject<string[]>());
@@ -215,7 +215,7 @@ namespace Sequence.Api.Test
             var client = _factory.CreateClient();
 
             // When:
-            var response = await client.GetAsync("/api/games/1234/stream", HttpCompletionOption.ResponseHeadersRead);
+            var response = await client.GetAsync("/games/1234/stream", HttpCompletionOption.ResponseHeadersRead);
 
             // Then:
             Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
@@ -266,7 +266,7 @@ namespace Sequence.Api.Test
         {
             var client = CreateAuthorizedClient();
             var form = new { opponent };
-            var response = await client.PostAsJsonAsync("/api/games", form);
+            var response = await client.PostAsJsonAsync("/games", form);
             return response.Headers.Location;
         }
 

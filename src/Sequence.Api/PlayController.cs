@@ -17,7 +17,7 @@ namespace Sequence.Api
             _handler = handler ?? throw new ArgumentNullException(nameof(handler));
         }
 
-        [HttpPost("/api/games/{id}")]
+        [HttpPost("/games/{id}")]
         [PlayCardFailedExceptionFilter]
         public async Task<ActionResult<PlayCardResult>> Post(
             [FromRoute] string id,

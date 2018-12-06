@@ -17,7 +17,7 @@ namespace Sequence.Api
             _handler = handler ?? throw new ArgumentNullException(nameof(handler));
         }
 
-        [HttpPost("/api/games")]
+        [HttpPost("/games")]
         public async Task<ActionResult> Post(
             [FromBody] CreateGameForm form,
             CancellationToken cancellationToken)
@@ -36,7 +36,7 @@ namespace Sequence.Api
                 return BadRequest(new { error = ex.Message });
             }
 
-            return Created($"/api/games/{gameId}", new { gameId });
+            return Created($"/games/{gameId}", new { gameId });
         }
     }
 
