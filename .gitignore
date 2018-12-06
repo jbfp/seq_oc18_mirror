@@ -232,3 +232,7 @@ _Pvt_Extensions
 
 # Database files
 *.db
+
+# Environment configurations
+.env
+.env.*
