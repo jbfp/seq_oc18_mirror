@@ -28,7 +28,7 @@ ssh jbfp@jbfp.dk pkill -x dotnet || true
 
 echo Copying files...
 git rev-parse HEAD > ./wwwroot/build/hash.txt
-rsync -ru --delete --progress ./* jbfp@jbfp.dk:/home/jbfp/sequence
+rsync -ru --progress ./* jbfp@jbfp.dk:/home/jbfp/sequence
 
 echo Starting remote server process...
 ssh jbfp@jbfp.dk screen -S sequence -d -m "/home/jbfp/run.sh"
