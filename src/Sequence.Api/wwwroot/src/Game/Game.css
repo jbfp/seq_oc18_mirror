@@ -221,6 +221,7 @@ div[data-rank="king"]::after {
     background-color: #FFFFFF;
     border: 1px black solid;
     border-radius: 7.5%;
+    box-sizing: content-box;
     display: flex;
     flex-direction: column;
     justify-content: center;
