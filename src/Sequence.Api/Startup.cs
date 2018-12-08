@@ -1,9 +1,7 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Converters;
@@ -40,7 +38,7 @@ namespace Sequence.Api
 
             if (_env.IsDevelopment())
             {
-                services.AddSpaStaticFiles(options => options.RootPath = "wwwroot/build");
+                services.AddCors();
             }
         }
 
@@ -55,22 +53,17 @@ namespace Sequence.Api
             }
             else if (_env.IsDevelopment())
             {
+                app.UseCors(policy => policy
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .AllowAnyOrigin()
+                    .AllowCredentials());
+
                 app.UseDeveloperExceptionPage();
-                app.UseStaticFiles();
-                app.UseSpaStaticFiles();
             }
 
             app.UseHealthChecks("/health");
             app.UseMvc();
-
-            if (_env.IsDevelopment())
-            {
-                app.UseSpa(spa =>
-                {
-                    spa.Options.SourcePath = "wwwroot";
-                    spa.UseReactDevelopmentServer(npmScript: "start");
-                });
-            }
         }
     }
 }
