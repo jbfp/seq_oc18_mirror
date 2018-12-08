@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
 import { LoginWithAuth, ProtectedRoute, RouteWithLayout } from './Routing';
-import Game from './Game';
+import { Game } from './Game';
 import GameList from './GameList';
 import NewGame from './NewGame';
 

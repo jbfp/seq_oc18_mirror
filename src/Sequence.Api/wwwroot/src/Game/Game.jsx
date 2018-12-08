@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ServerContext } from "./contexts";
+import { ServerContext } from "../contexts";
 import './Game.css';
 
 class Game extends React.Component {
