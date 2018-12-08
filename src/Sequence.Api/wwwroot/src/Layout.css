@@ -25,6 +25,11 @@ button {
     width: 100%;
 }
 
+hr {
+    margin-left: 0;
+    margin-right: 0;
+}
+
 .layout {
     box-sizing: border-box;
     display: flex;
