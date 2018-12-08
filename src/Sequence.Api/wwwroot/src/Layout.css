@@ -70,6 +70,15 @@ hr {
     justify-content: space-evenly;
 }
 
+@media only screen and (max-width: 375px) {
+    .layout-footer {
+        flex-direction: column;
+    }
+    .layout-footer>* {
+        padding: 0.25em;
+    }
+}
+
 .layout-footer>* {
     display: inline-block;
     text-align: center;
