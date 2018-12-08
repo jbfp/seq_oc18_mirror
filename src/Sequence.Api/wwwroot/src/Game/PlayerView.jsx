@@ -37,12 +37,12 @@ class PlayerView extends React.PureComponent {
         const Hand = () => hand.map((card, idx) => <Card key={idx} card={card} />);
 
         return (
-            <div className="player user" data-team={team}>
+            <div className="player" data-team={team}>
                 <span className="player-name" data-current-player={isCurrentPlayer}>
                     {id}
                 </span>
 
-                <div className="hand user-hand">
+                <div className="hand">
                     <Hand />
                 </div>
             </div>

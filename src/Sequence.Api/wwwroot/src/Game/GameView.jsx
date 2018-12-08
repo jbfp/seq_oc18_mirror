@@ -3,8 +3,8 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import BoardView from './BoardView';
 import DeckView from './DeckView';
-import OpponentView from './OpponentView';
 import PlayerView from './PlayerView';
+import PlayersView from './PlayersView';
 import './Game.css';
 
 class GameView extends React.PureComponent {
@@ -21,11 +21,12 @@ class GameView extends React.PureComponent {
         let $body;
 
         if (game) {
-            const opponentObj = {
-                ...game.players.find(p => p.id !== playerId),
-            };
-
-            opponentObj.isCurrentPlayer = game.currentPlayerId === opponentObj.id;
+            const players = game.players.map(player => {
+                return {
+                    ...player,
+                    isCurrentPlayer: game.currentPlayerId === player.id
+                };
+            });
 
             const playerObj = {
                 hand: game.hand,
@@ -38,7 +39,7 @@ class GameView extends React.PureComponent {
                 <div>
                     <Link to="/">Go back</Link>
                     <hr />
-                    <OpponentView {...opponentObj} />
+                    <PlayersView players={players} />
                     <BoardView board={game.board} chips={game.chips} onCoordClick={onCoordClick} />
                     <PlayerView onCardClick={onCardClick} selectedCard={selectedCard} {...playerObj} />
                     <DeckView discards={game.discards} numberOfCardsInDeck={game.numberOfCardsInDeck} />

@@ -204,13 +204,7 @@ div[data-rank="king"]::after {
     text-decoration: underline;
 }
 
-.opponent .player-name {
-    bottom: 1em;
-    right: 0;
-    text-align: left;
-}
-
-.user .player-name {
+.player-name {
     left: 0;
     text-align: right;
 }
@@ -262,4 +256,55 @@ div[data-rank="king"]::after {
 .deck {
     color: #FFFFFF;
     margin: 1em 0 0 0;
+}
+
+.players {
+    display: flex;
+}
+
+.players-player {
+    display: inline-block;
+    flex: 1;
+    font-weight: bold;
+    padding: 0.5em;
+    text-align: center;
+    overflow: hidden;
+}
+
+.players-player[data-current-player='true'] {
+    text-overflow: ellipsis;
+    text-overflow: '… <';
+}
+
+.players-player[data-current-player='true']>div {
+    display: inline-block;
+    max-width: 75%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: text-bottom;
+    white-space: nowrap;
+}
+
+.players-player[data-current-player='true']::before {
+    content: '> ';
+}
+
+.players-player[data-current-player='true']::after {
+    content: ' <';
+}
+
+.players-player[data-current-player='false'][data-team='red'] {
+    color: #FF000088;
+}
+
+.players-player[data-current-player='false'][data-team='green'] {
+    color: #00800088;
+}
+
+.players-player[data-current-player='true'][data-team='red'] {
+    background-color: #FF000088;
+}
+
+.players-player[data-current-player='true'][data-team='green'] {
+    background-color: #00800088;
 }
