@@ -92,6 +92,7 @@ hr {
 .sign-out-btn {
     background: none;
     border: none;
+    color: #777777;
     cursor: pointer;
     display: inline-block;
     font-family: inherit;
