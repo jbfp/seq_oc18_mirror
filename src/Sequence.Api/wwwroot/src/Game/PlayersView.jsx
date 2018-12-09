@@ -2,7 +2,7 @@ import React from 'react';
 
 class PlayersView extends React.PureComponent {
     render() {
-        const { players } = this.props;
+        const { players, winner } = this.props;
 
         const $players = players.map((player, i) => {
             return (
@@ -11,6 +11,7 @@ class PlayersView extends React.PureComponent {
                     className="players-player"
                     data-team={player.team}
                     data-current-player={player.isCurrentPlayer}
+                    data-winner={player.team === (winner || {}).team}
                 >
                     <div>
                         {player.id}

@@ -39,7 +39,7 @@ class GameView extends React.PureComponent {
                 <div>
                     <Link to="/">Go back</Link>
                     <hr />
-                    <PlayersView players={players} />
+                    <PlayersView players={players} winner={game.winner} />
                     <BoardView board={game.board} chips={game.chips} onCoordClick={onCoordClick} />
                     <PlayerView onCardClick={onCardClick} selectedCard={selectedCard} {...playerObj} />
                     <DeckView discards={game.discards} numberOfCardsInDeck={game.numberOfCardsInDeck} />

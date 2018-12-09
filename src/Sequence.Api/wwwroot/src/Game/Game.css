@@ -272,7 +272,7 @@ div[data-rank="king"]::after {
     overflow: hidden;
 }
 
-.players-player[data-current-player='true'] {
+.players-player {
     text-overflow: ellipsis;
     text-overflow: '… <';
 }
@@ -286,11 +286,11 @@ div[data-rank="king"]::after {
     white-space: nowrap;
 }
 
-.players-player[data-current-player='false'][data-team='red'] {
+.players-player[data-team='red'] {
     color: #FF000088;
 }
 
-.players-player[data-current-player='false'][data-team='green'] {
+.players-player[data-team='green'] {
     color: #00800088;
 }
 
@@ -306,10 +306,22 @@ div[data-rank="king"]::after {
     content: ' < ';
 }
 
-.players-player[data-current-player='true'][data-team='red'] {
+.players-player[data-current-player='true'],
+.players-player[data-winner=true] {
+    color: inherit;
+}
+
+.players-player[data-current-player='true'][data-team='red'],
+.players-player[data-winner='true'][data-team='red'] {
     background-color: #FF000088;
 }
 
-.players-player[data-current-player='true'][data-team='green'] {
+.players-player[data-current-player='true'][data-team='green'],
+.players-player[data-winner='true'][data-team='green'] {
     background-color: #00800088;
+}
+
+.players-player[data-winner='true']::before,
+.players-player[data-winner='true']::after {
+    content: ' 👑 ';
 }
