@@ -3,6 +3,9 @@ import React from 'react';
 import { ServerContext } from "../contexts";
 import GameView from './GameView';
 
+// Keys that respond to a card in hand.
+const numberKeys = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
+
 class Game extends React.Component {
   static contextType = ServerContext;
 
@@ -50,6 +53,20 @@ class Game extends React.Component {
     }
   };
 
+  handleKeyboardInput = event => {
+    const { key } = event;
+
+    if (numberKeys.includes(key)) {
+      const num = Number.parseInt(key, 10);
+      const { hand } = this.state.game;
+
+      if (num <= hand.length) {
+        event.preventDefault();
+        this.handleCardClick(hand[num - 1]);
+      }
+    }
+  };
+
   async loadGameAsync() {
     const gameId = this.props.match.params.id;
     const game = await this.context.getGameByIdAsync(gameId);
@@ -73,6 +90,7 @@ class Game extends React.Component {
 
   async componentDidMount() {
     await this.initAsync();
+    window.addEventListener('keypress', this.handleKeyboardInput);
   }
 
   async componentDidUpdate(prevProps) {
@@ -86,6 +104,7 @@ class Game extends React.Component {
   }
 
   componentWillUnmount() {
+    window.removeEventListener('keypress', this.handleKeyboardInput);
     this.closeSse();
   }
 
