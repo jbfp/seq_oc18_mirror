@@ -277,10 +277,11 @@ div[data-rank="king"]::after {
     text-overflow: '… <';
 }
 
-.players-player[data-current-player='true']>div {
+.players-player[data-current-player='true']>* {
     display: inline-block;
     max-width: 75%;
     overflow: hidden;
+    text-decoration: underline;
     text-overflow: ellipsis;
     vertical-align: text-bottom;
     white-space: nowrap;
