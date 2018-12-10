@@ -1,7 +1,7 @@
 #!/bin/bash
 
 set -e # break on error.
-cd /home/jbfp/projects/dotnet/sequence/
+cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" # cd to script location.
 
 echo Building in Release mode...
 dotnet build -c Release -v q
