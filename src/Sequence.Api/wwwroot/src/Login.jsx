@@ -42,6 +42,7 @@ class Login extends React.Component {
                             value={userName}
                             onChange={this.handleUserNameChange}
                             placeholder="Pick a user name"
+                            autoFocus="true"
                         />
                     </div>
 
