@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Sequence.Core;
 using Sequence.Core.CreateGame;
 using System;
@@ -11,10 +12,12 @@ namespace Sequence.Api
     public sealed class CreateGameController : SequenceControllerBase
     {
         private readonly CreateGameHandler _handler;
+        private readonly ILogger _logger;
 
-        public CreateGameController(CreateGameHandler handler)
+        public CreateGameController(CreateGameHandler handler, ILogger<CreateGameController> logger)
         {
             _handler = handler ?? throw new ArgumentNullException(nameof(handler));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         [HttpPost("/games")]

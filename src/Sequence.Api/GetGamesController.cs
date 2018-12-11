@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Sequence.Core;
 using Sequence.Core.GetGames;
 using System;
@@ -12,10 +13,12 @@ namespace Sequence.Api
     public sealed class GetGamesController : SequenceControllerBase
     {
         private readonly GetGamesHandler _handler;
+        private readonly ILogger _logger;
 
-        public GetGamesController(GetGamesHandler handler)
+        public GetGamesController(GetGamesHandler handler, ILogger<GetGamesController> logger)
         {
             _handler = handler ?? throw new ArgumentNullException(nameof(handler));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         [HttpGet("/games")]

@@ -1,28 +1,28 @@
 using Microsoft.Extensions.Logging;
 using Moq;
 using Sequence.Core;
-using Sequence.Core.GetGame;
+using Sequence.Core.Notifications;
 using System;
 using Xunit;
 
 namespace Sequence.Api.Test
 {
-    public sealed class GetGameControllerTest
+    public sealed class ServerSentEventsControllerTest
     {
         [Fact]
         public void Constructor_ThrowsIfArgsAreNull()
         {
-            var handler = new GetGameHandler(Mock.Of<IGameProvider>());
-            var logger = Mock.Of<ILogger<GetGameController>>();
+            var handler = new SubscriptionHandler();
+            var logger = Mock.Of<ILogger<ServerSentEventsController>>();
 
             Assert.Throws<ArgumentNullException>(
                 paramName: "handler",
-                testCode: () => new GetGameController(handler: null, logger)
+                testCode: () => new ServerSentEventsController(handler: null, logger)
             );
 
             Assert.Throws<ArgumentNullException>(
                 paramName: "logger",
-                testCode: () => new GetGameController(handler, logger: null)
+                testCode: () => new ServerSentEventsController(handler, logger: null)
             );
         }
     }

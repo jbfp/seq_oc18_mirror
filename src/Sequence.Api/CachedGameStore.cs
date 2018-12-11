@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using Sequence.Core;
 using Sequence.Core.Play;
 using System;
@@ -11,13 +12,18 @@ namespace Sequence.Api
     {
         private readonly IGameProvider _gameProvider;
         private readonly IGameEventStore _gameEventStore;
+        private readonly ILogger _logger;
 
         private readonly Dictionary<GameId, Game> _cache = new Dictionary<GameId, Game>();
 
-        public CachedGameStore(IGameProvider gameProvider, IGameEventStore gameEventStore)
+        public CachedGameStore(
+            IGameProvider gameProvider,
+            IGameEventStore gameEventStore,
+            ILogger<CachedGameStore> logger)
         {
             _gameProvider = gameProvider ?? throw new ArgumentNullException(nameof(gameProvider));
             _gameEventStore = gameEventStore ?? throw new ArgumentNullException(nameof(gameEventStore));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public async Task AddEventAsync(GameId gameId, GameEvent gameEvent, CancellationToken cancellationToken)
