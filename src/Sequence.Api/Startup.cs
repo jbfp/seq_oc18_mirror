@@ -56,7 +56,7 @@ namespace Sequence.Api
                 app.UseCors(policy => policy
                     .AllowAnyHeader()
                     .AllowAnyMethod()
-                    .AllowAnyOrigin()
+                    .WithOrigins("http://localhost:3000")
                     .AllowCredentials());
 
                 app.UseDeveloperExceptionPage();
