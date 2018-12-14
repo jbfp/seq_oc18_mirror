@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Sequence.Core;
 using Sequence.Core.Notifications;
 using System;
@@ -14,10 +15,14 @@ namespace Sequence.Api
     public sealed class ServerSentEventsController : ControllerBase
     {
         private readonly SubscriptionHandler _handler;
+        private readonly ILogger _logger;
 
-        public ServerSentEventsController(SubscriptionHandler handler)
+        public ServerSentEventsController(
+            SubscriptionHandler handler,
+            ILogger<ServerSentEventsController> logger)
         {
             _handler = handler ?? throw new ArgumentNullException(nameof(handler));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         [HttpGet("/games/{id}/stream")]
