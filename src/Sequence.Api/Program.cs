@@ -63,6 +63,7 @@ namespace Sequence.Api
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) => WebHost
             .CreateDefaultBuilder(args)
             .UseStartup<Startup>()
-            .UseSerilog();
+            .UseSerilog()
+            .UseUrls("http://localhost:5000");
     }
 }
