@@ -40,10 +40,21 @@ namespace Sequence.Api
             {
                 services.AddCors();
             }
+
+            services
+                .AddAuthentication("Bearer")
+                .AddIdentityServerAuthentication(options =>
+                {
+                    options.ApiName = "api";
+                    options.Authority = "http://localhost:5001";
+                    options.RequireHttpsMetadata = false;
+                });
         }
 
         public void Configure(IApplicationBuilder app)
         {
+            app.UseAuthentication();
+
             if (_env.IsProduction())
             {
                 app.UseForwardedHeaders(new ForwardedHeadersOptions
