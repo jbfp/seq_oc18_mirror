@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
-using Sequence.Sqlite;
 using Serilog;
 using Serilog.Events;
 using Serilog.Formatting.Compact;
@@ -10,7 +9,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Sequence.Api
+namespace Sequence.Auth
 {
     public static class Program
     {
@@ -31,17 +30,6 @@ namespace Sequence.Api
 
                 using (var host = builder.Build())
                 {
-                    using (var scope = host.Services.CreateScope())
-                    {
-                        var sqlite = scope.ServiceProvider.GetService<SqliteConnectionFactory>();
-
-                        if (sqlite != null)
-                        {
-                            Log.Information("Upgrading SQLite database if necessary");
-                            await SqliteMigrations.UpgradeDatabaseAsync(sqlite, CancellationToken.None);
-                        }
-                    }
-
                     Log.Information("Starting web host");
                     await host.RunAsync(CancellationToken.None);
                 }
@@ -64,6 +52,6 @@ namespace Sequence.Api
             .CreateDefaultBuilder(args)
             .UseStartup<Startup>()
             .UseSerilog()
-            .UseUrls("http://localhost:5000");
+            .UseUrls("http://localhost:5001");
     }
 }
