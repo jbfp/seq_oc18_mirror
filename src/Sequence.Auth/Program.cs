@@ -1,0 +1,57 @@
+﻿using Microsoft.AspNetCore;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
+using Serilog;
+using Serilog.Events;
+using Serilog.Formatting.Compact;
+using Serilog.Sinks.SystemConsole.Themes;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace Sequence.Auth
+{
+    public static class Program
+    {
+        public static async Task<int> Main(string[] args)
+        {
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Debug()
+                .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+                .Enrich.FromLogContext()
+                .WriteTo.Console(theme: AnsiConsoleTheme.Code)
+                .WriteTo.File(new CompactJsonFormatter(), "./log.json")
+                .CreateLogger();
+
+            try
+            {
+                Log.Information("Building web host");
+                var builder = CreateWebHostBuilder(args);
+
+                using (var host = builder.Build())
+                {
+                    Log.Information("Starting web host");
+                    await host.RunAsync(CancellationToken.None);
+                }
+
+                Log.Information("Goodbye");
+                return 0;
+            }
+            catch (Exception ex)
+            {
+                Log.Fatal(ex, "Host terminated unexpectedly");
+                return 1;
+            }
+            finally
+            {
+                Log.CloseAndFlush();
+            }
+        }
+
+        public static IWebHostBuilder CreateWebHostBuilder(string[] args) => WebHost
+            .CreateDefaultBuilder(args)
+            .UseStartup<Startup>()
+            .UseSerilog()
+            .UseUrls("http://localhost:5001");
+    }
+}
