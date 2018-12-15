@@ -17,8 +17,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Sequence.Core\Sequence.Core.csproj" />
-    <ProjectReference Include="..\Sequence.Sqlite\Sequence.Sqlite.csproj" />
     <ProjectReference Include="..\Sequence.Mongo\Sequence.Mongo.csproj" />
+    <ProjectReference Include="..\Sequence.Postgres\Sequence.Postgres.csproj" />
+    <ProjectReference Include="..\Sequence.Sqlite\Sequence.Sqlite.csproj" />
   </ItemGroup>
 
 </Project>

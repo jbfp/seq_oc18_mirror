@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using Sequence.Postgres;
 using Sequence.Sqlite;
 using Serilog;
 using Serilog.Events;
@@ -33,12 +34,12 @@ namespace Sequence.Api
                 {
                     using (var scope = host.Services.CreateScope())
                     {
-                        var sqlite = scope.ServiceProvider.GetService<SqliteConnectionFactory>();
+                        var postgres = scope.ServiceProvider.GetService<PostgresMigrations>();
 
-                        if (sqlite != null)
+                        if (postgres != null)
                         {
-                            Log.Information("Upgrading SQLite database if necessary");
-                            await SqliteMigrations.UpgradeDatabaseAsync(sqlite, CancellationToken.None);
+                            Log.Information("Upgrading Postgres database if necessary");
+                            await postgres.UpgradeDatabaseAsync(CancellationToken.None);
                         }
                     }
 

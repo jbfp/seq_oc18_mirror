@@ -1,13 +1,13 @@
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
-using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Sequence.Core;
 using Sequence.Core.CreateGame;
-using Sequence.Sqlite;
+using Sequence.Core.GetGames;
+using Sequence.Core.Play;
 using System;
 using System.IO;
 using System.Net;
@@ -19,9 +19,9 @@ using Xunit;
 
 namespace Sequence.Api.Test
 {
-    public sealed class IntegrationTests : IClassFixture<WebApplicationFactory<Startup>>, IDisposable
+    public sealed class IntegrationTests : IClassFixture<WebApplicationFactory<Startup>>
     {
-        private readonly InMemorySqlite _sqlite = new InMemorySqlite();
+        private readonly InMemoryDatabase _database = new InMemoryDatabase();
         private readonly SeedProviderStub _seedProvider = new SeedProviderStub();
         private readonly WebApplicationFactory<Startup> _factory;
 
@@ -31,7 +31,10 @@ namespace Sequence.Api.Test
             {
                 builder.ConfigureTestServices(services =>
                 {
-                    services.AddSingleton<SqliteConnectionFactory>(_sqlite.CreateConnection);
+                    services.AddSingleton<IGameEventStore>(_database);
+                    services.AddSingleton<IGameProvider>(_database);
+                    services.AddSingleton<IGameListProvider>(_database);
+                    services.AddSingleton<IGameStore>(_database);
                     services.AddSingleton<ISeedProvider>(_seedProvider);
                     services.AddLogging(options =>
                     {
@@ -41,11 +44,6 @@ namespace Sequence.Api.Test
                     });
                 });
             });
-        }
-
-        public void Dispose()
-        {
-            _sqlite.Dispose();
         }
 
         [Theory]
