@@ -8,6 +8,7 @@ using Sequence.Core.GetGames;
 using Sequence.Core.Notifications;
 using Sequence.Core.Play;
 using Sequence.Mongo;
+using Sequence.Postgres;
 using Sequence.Sqlite;
 using System;
 
@@ -27,7 +28,7 @@ namespace Sequence.Api
                 throw new ArgumentNullException(nameof(configuration));
             }
 
-            services.AddSqlite(configuration);
+            services.AddPostgres(configuration);
 
             services.AddTransient<CreateGameHandler>();
             services.AddTransient<GetGameHandler>();
@@ -51,6 +52,20 @@ namespace Sequence.Api
             services.AddTransient<IGameProvider, MongoDb>();
             services.AddTransient<IGameListProvider, MongoDb>();
             services.AddTransient<IGameStore, MongoDb>();
+
+            return services;
+        }
+
+        private static IServiceCollection AddPostgres(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.Configure<PostgresOptions>(configuration.GetSection("Postgres"));
+
+            services.AddTransient<IGameEventStore, PostgresAdapter>();
+            services.AddTransient<IGameProvider, PostgresAdapter>();
+            services.AddTransient<IGameListProvider, PostgresAdapter>();
+            services.AddTransient<IGameStore, PostgresAdapter>();
+
+            services.AddSingleton<PostgresMigrations>();
 
             return services;
         }
