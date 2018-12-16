@@ -70,7 +70,7 @@ class Layout extends React.Component {
                     <span>By <a href="mailto:jakobp10@gmail.com">Jakob Pedersen</a></span>
                     <a href="https://www.linkedin.com/in/jakob-pedersen-835a824b" target="_blank" rel="noopener noreferrer">LinkedIn</a>
                     <a href="https://github.com/jbfp" target="_blank" rel="noopener noreferrer">GitHub</a>
-                    {!!hash ? <a href={`https://bitbucket.org/jbfp/sequence_oct18/commits/${hash}`} target="_blank" rel="noopener noreferrer">{hash}</a> : null}
+                    {!!hash ? <a href={`https://github.com/jbfp/seq_oc18_mirror/commit/${hash}`} target="_blank" rel="noopener noreferrer">{hash}</a> : null}
                 </div>
             </div>
         )
