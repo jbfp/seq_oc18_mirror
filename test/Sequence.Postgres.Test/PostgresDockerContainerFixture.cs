@@ -20,22 +20,41 @@ namespace Sequence.Postgres.Test
         public const int Port = 15432;
 
         private readonly string _containerId;
+        private readonly string _connectionString = $"Host=localhost; Port={Port}; Database=postgres; User ID=postgres;";
 
         public PostgresDockerContainerFixture()
         {
             _containerId = $"docker run --rm -d -p {Port}:5432 postgres".Bash().Trim();
+
+            // Try connecting until database is ready.
+            while (true)
+            {
+                using (var connection = new NpgsqlConnection(_connectionString))
+                {
+                    try
+                    {
+                        connection.Open();
+                        break;
+                    }
+                    catch (NpgsqlException)
+                    {
+                        // Try again.
+                        Thread.Sleep(500);
+                    }
+                }
+            }
         }
 
         public async Task<IOptions<PostgresOptions>> CreateDatabaseAsync(CancellationToken cancellationToken)
         {
             // Create test database.
-            var connectionString = $"Server=localhost; Port={Port}; Database=postgres; User ID=postgres;";
             var databaseSuffix = Guid.NewGuid();
             var databaseName = $"sequence_{databaseSuffix:N}";
 
-            using (var connection = new NpgsqlConnection(connectionString))
+            string connectionString;
+
+            using (var connection = new NpgsqlConnection(_connectionString))
             {
-                await Task.Delay(1000, cancellationToken); // Hopefully resolves timing issue.
                 await connection.OpenAsync(cancellationToken);
                 await connection.ExecuteAsync($"CREATE DATABASE {databaseName};");
                 connection.ChangeDatabase(databaseName);
