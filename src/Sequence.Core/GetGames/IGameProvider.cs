@@ -6,7 +6,7 @@ namespace Sequence.Core.GetGames
 {
     public interface IGameListProvider
     {
-        Task<IReadOnlyList<GameId>> GetGamesForPlayerAsync(
+        Task<GameList> GetGamesForPlayerAsync(
             PlayerId playerId,
             CancellationToken cancellationToken);
     }

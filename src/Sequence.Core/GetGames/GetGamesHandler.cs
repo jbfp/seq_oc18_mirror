@@ -14,7 +14,7 @@ namespace Sequence.Core.GetGames
             _provider = provider ?? throw new ArgumentNullException(nameof(provider));
         }
 
-        public async Task<IReadOnlyCollection<GameId>> GetGamesForPlayerAsync(
+        public async Task<GameList> GetGamesForPlayerAsync(
             PlayerId playerId,
             CancellationToken cancellationToken)
         {

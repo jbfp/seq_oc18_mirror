@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 
 namespace Sequence.Sqlite
 {
+    [Obsolete]
     public sealed class SqliteDb : IGameEventStore, IGameProvider, IGameListProvider, IGameStore
     {
         private readonly SqliteConnectionFactory _connectionFactory;
@@ -129,7 +130,7 @@ namespace Sequence.Sqlite
             return new Game(init, gameEvents);
         }
 
-        public async Task<IReadOnlyList<GameId>> GetGamesForPlayerAsync(PlayerId playerId, CancellationToken cancellationToken)
+        public Task<GameList> GetGamesForPlayerAsync(PlayerId playerId, CancellationToken cancellationToken)
         {
             if (playerId == null)
             {
@@ -138,23 +139,7 @@ namespace Sequence.Sqlite
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            IEnumerable<string> gameIds;
-
-            using (var connection = await CreateAndOpenAsync(cancellationToken))
-            {
-                var command = new CommandDefinition(
-                    commandText: "SELECT game_id FROM games WHERE player1 = @playerId OR player2 = @playerId;",
-                    parameters: new { playerId = playerId.ToString() },
-                    cancellationToken: cancellationToken
-                );
-
-                gameIds = await connection.QueryAsync<string>(command);
-            }
-
-            return gameIds
-                .Select(g => new GameId(g))
-                .ToList()
-                .AsReadOnly();
+            throw new NotImplementedException();
         }
 
         public async Task<GameId> PersistNewGameAsync(NewGame newGame, CancellationToken cancellationToken)

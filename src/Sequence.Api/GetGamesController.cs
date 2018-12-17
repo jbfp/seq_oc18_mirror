@@ -22,21 +22,9 @@ namespace Sequence.Api
         }
 
         [HttpGet("/games")]
-        public async Task<ActionResult<GetGamesResult>> Get(CancellationToken cancellationToken)
+        public async Task<ActionResult<GameList>> Get(CancellationToken cancellationToken)
         {
-            var gameIds = await _handler.GetGamesForPlayerAsync(PlayerId, cancellationToken);
-            var result = new GetGamesResult(gameIds);
-            return Ok(result);
+            return await _handler.GetGamesForPlayerAsync(PlayerId, cancellationToken);
         }
-    }
-
-    public sealed class GetGamesResult
-    {
-        public GetGamesResult(IReadOnlyCollection<GameId> gameIds)
-        {
-            GameIds = gameIds ?? throw new ArgumentNullException(nameof(gameIds));
-        }
-
-        public IReadOnlyCollection<GameId> GameIds { get; }
     }
 }

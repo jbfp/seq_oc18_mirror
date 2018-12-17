@@ -211,7 +211,7 @@ namespace Sequence.Postgres
             return new Game(init, gameEvents);
         }
 
-        public async Task<IReadOnlyList<GameId>> GetGamesForPlayerAsync(PlayerId playerId, CancellationToken cancellationToken)
+        public async Task<GameList> GetGamesForPlayerAsync(PlayerId playerId, CancellationToken cancellationToken)
         {
             if (playerId == null)
             {
@@ -220,23 +220,33 @@ namespace Sequence.Postgres
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            IEnumerable<Guid> gameIds;
+            IReadOnlyList<GameListItem> gameListItems;
 
             using (var connection = await CreateAndOpenAsync(cancellationToken))
             {
                 var command = new CommandDefinition(
-                    commandText: "SELECT game_id FROM game WHERE player1 = @playerId OR player2 = @playerId;",
+                    commandText: "SELECT public.get_game_list_for_player(@playerId);",
                     parameters: new { playerId = playerId.ToString() },
                     cancellationToken: cancellationToken
                 );
 
-                gameIds = await connection.QueryAsync<Guid>(command);
+                var rows = await connection.QueryAsync<dynamic>(command);
+
+                GameListItem MapRowToGameListItem(dynamic row)
+                {
+                    object[] result = row.get_game_list_for_player;
+                    var gameId = new GameId((Guid)result[0]);
+                    var nextPlayerId = result[1] == null ? null : new PlayerId((string)result[1]);
+                    return new GameListItem(gameId, nextPlayerId);
+                }
+
+                gameListItems = rows
+                    .Select(MapRowToGameListItem)
+                    .ToList()
+                    .AsReadOnly();
             }
 
-            return gameIds
-                .Select(g => new GameId(g))
-                .ToList()
-                .AsReadOnly();
+            return new GameList(gameListItems);
         }
 
         public async Task<GameId> PersistNewGameAsync(NewGame newGame, CancellationToken cancellationToken)

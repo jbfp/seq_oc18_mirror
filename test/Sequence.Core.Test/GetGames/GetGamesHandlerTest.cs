@@ -55,7 +55,7 @@ namespace Sequence.Core.Test.GetGames
         {
             // Given:
             var playerId = new PlayerId(player);
-            var expected = new GameId[0];
+            var expected = new GameList(new GameListItem[0]);
 
             _provider
                 .Setup(p => p.GetGamesForPlayerAsync(playerId, It.IsAny<CancellationToken>()))

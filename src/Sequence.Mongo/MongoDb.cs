@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 
 namespace Sequence.Mongo
 {
+    [Obsolete]
     public sealed class MongoDb : IGameEventStore, IGameProvider, IGameListProvider, IGameStore
     {
         private readonly MongoClient _client;
@@ -91,7 +92,7 @@ namespace Sequence.Mongo
             return new Game(init);
         }
 
-        public async Task<IReadOnlyList<GameId>> GetGamesForPlayerAsync(PlayerId playerId, CancellationToken cancellationToken)
+        public Task<GameList> GetGamesForPlayerAsync(PlayerId playerId, CancellationToken cancellationToken)
         {
             if (playerId == null)
             {
@@ -100,28 +101,7 @@ namespace Sequence.Mongo
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            var filter = Builders<BsonDocument>.Filter.Or(
-                Builders<BsonDocument>.Filter.Eq("player1", playerId.ToString()),
-                Builders<BsonDocument>.Filter.Eq("player2", playerId.ToString())
-            );
-
-            var projection = Builders<BsonDocument>.Projection
-                .Exclude("_id")
-                .Include("game_id");
-
-            var sort = Builders<BsonDocument>.Sort
-                .Descending("_id");
-
-            var gameIds = await _games
-                .Find(filter)
-                .Project(projection)
-                .Sort(sort)
-                .ToListAsync(cancellationToken);
-
-            return gameIds
-                .Select(x => new GameId(x["game_id"].AsGuid))
-                .ToList()
-                .AsReadOnly();
+            throw new NotImplementedException();
         }
 
         public async Task<GameId> PersistNewGameAsync(NewGame newGame, CancellationToken cancellationToken)

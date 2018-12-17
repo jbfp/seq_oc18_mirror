@@ -203,7 +203,11 @@ namespace Sequence.Api.Test
             var result = JObject.Parse(await client.GetStringAsync("/games"));
 
             // Then:
-            Assert.NotEmpty(result["gameIds"].ToObject<string[]>());
+            var games = result["games"].ToObject<JArray>();
+            Assert.NotEmpty(games);
+            var game = games[0].ToObject<JObject>();
+            Assert.NotNull(game["gameId"]);
+            Assert.Equal("test_player", game["nextPlayerId"]);
         }
 
         [Fact]

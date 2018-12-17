@@ -71,7 +71,7 @@ namespace Sequence.Api.Test
             return Task.FromResult(game);
         }
 
-        public Task<IReadOnlyList<GameId>> GetGamesForPlayerAsync(PlayerId playerId, CancellationToken cancellationToken)
+        public Task<GameList> GetGamesForPlayerAsync(PlayerId playerId, CancellationToken cancellationToken)
         {
             if (playerId == null)
             {
@@ -80,13 +80,39 @@ namespace Sequence.Api.Test
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            IReadOnlyList<GameId> gameIds = _games
+            var gameListItems = new List<GameListItem>();
+
+            var gameIds = _games
                 .Where(kvp => kvp.Value.Player1.ToString() == playerId.ToString() || kvp.Value.Player2.ToString() == playerId.ToString())
-                .Select(kvp => new GameId(kvp.Key))
+                .Select(kvp => kvp.Key)
                 .ToList()
                 .AsReadOnly();
 
-            return Task.FromResult(gameIds);
+            foreach (var gameId in gameIds)
+            {
+                PlayerId nextPlayerId = null;
+
+                var latestGameEventIdx = _gameEvents.Keys
+                    .Where(key => key.Item1 == gameId.ToString())
+                    .OrderByDescending(key => key.Item2)
+                    .Select(key => key.Item2)
+                    .FirstOrDefault();
+
+                if (_gameEvents.TryGetValue((gameId, latestGameEventIdx), out var gameEvent))
+                {
+                    nextPlayerId = gameEvent.NextPlayerId;
+                }
+                else
+                {
+                    nextPlayerId = _games[gameId].Player1;
+                }
+
+                var typedGameId = new GameId(gameId);
+                var gameListItem = new GameListItem(typedGameId, nextPlayerId);
+                gameListItems.Add(gameListItem);
+            }
+
+            return Task.FromResult(new GameList(gameListItems.AsReadOnly()));
         }
 
         public Task<GameId> PersistNewGameAsync(NewGame newGame, CancellationToken cancellationToken)

@@ -78,11 +78,14 @@ namespace Sequence.Postgres.Test
         public async Task CanGetGameList()
         {
             var options = await _fixture.CreateDatabaseAsync(CancellationToken.None);
-            await CreateGameAsync(options, CancellationToken.None);
+            var gameId = await CreateGameAsync(options, CancellationToken.None);
             var playerId = new PlayerId("player 1");
             var sut = new PostgresAdapter(options, _logger);
-            var games = await sut.GetGamesForPlayerAsync(playerId, CancellationToken.None);
-            Assert.Single(games);
+            var gameList = await sut.GetGamesForPlayerAsync(playerId, CancellationToken.None);
+            Assert.NotNull(gameList);
+            var gameListItem = Assert.Single(gameList.Games);
+            Assert.Equal(gameId, gameListItem.GameId);
+            Assert.Equal(playerId, gameListItem.NextPlayerId);
         }
 
         [Fact]
