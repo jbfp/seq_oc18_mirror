@@ -25,15 +25,9 @@ echo Publishing API...
 dotnet publish -c Release -v q
 cd ./bin/Release/netcoreapp2.2/publish/
 
-echo Killing remote server processes...
-ssh jbfp@jbfp.dk "pkill -x 'dotnet Sequence.Api.dll'" || true
-
 echo Copying files...
 git rev-parse HEAD > ./wwwroot/build/hash.txt
 rsync -ru --progress ./* jbfp@jbfp.dk:/home/jbfp/sequence
-
-echo Starting remote API process...
-ssh jbfp@jbfp.dk screen -S sequence -d -m "/home/jbfp/run-sequence.sh"
 
 cd $script_path
 
@@ -43,14 +37,11 @@ cd ./src/Sequence.Auth/
 dotnet publish -c Release -v q
 cd ./bin/Release/netcoreapp2.2/publish/
 
-echo Killing remote server processes...
-ssh jbfp@jbfp.dk "pkill -x 'dotnet Sequence.Auth.dll'" || true
-
 echo Copying files...
 rsync -ru --progress ./* jbfp@jbfp.dk:/home/jbfp/auth
 
-echo Starting remote auth process...
-ssh jbfp@jbfp.dk screen -S auth -d -m "/home/jbfp/run-auth.sh"
+echo Restarting server processes...
+ssh jbfp@jbfp.dk "pkill dotnet" || true
 
 echo Done!
 
