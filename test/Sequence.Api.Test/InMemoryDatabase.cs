@@ -90,6 +90,8 @@ namespace Sequence.Api.Test
 
             foreach (var gameId in gameIds)
             {
+                var game = _games[gameId];
+
                 PlayerId nextPlayerId = null;
 
                 var latestGameEventIdx = _gameEvents.Keys
@@ -108,7 +110,8 @@ namespace Sequence.Api.Test
                 }
 
                 var typedGameId = new GameId(gameId);
-                var gameListItem = new GameListItem(typedGameId, nextPlayerId);
+                var opponent = game.Player1 == playerId ? game.Player2 : game.Player1;
+                var gameListItem = new GameListItem(typedGameId, nextPlayerId, opponent);
                 gameListItems.Add(gameListItem);
             }
 

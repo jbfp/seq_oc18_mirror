@@ -225,7 +225,7 @@ namespace Sequence.Postgres
             using (var connection = await CreateAndOpenAsync(cancellationToken))
             {
                 var command = new CommandDefinition(
-                    commandText: "SELECT game_id, next_player_id FROM public.get_game_list_for_player(@playerId);",
+                    commandText: "SELECT game_id, next_player_id, opponent FROM public.get_game_list_for_player(@playerId);",
                     parameters: new { playerId = playerId.ToString() },
                     cancellationToken: cancellationToken
                 );
@@ -236,7 +236,8 @@ namespace Sequence.Postgres
                 {
                     var gameId = new GameId(row.game_id);
                     var nextPlayerId = row.next_player_id == null ? null : new PlayerId(row.next_player_id);
-                    return new GameListItem(gameId, nextPlayerId);
+                    var opponent = new PlayerId(row.opponent);
+                    return new GameListItem(gameId, nextPlayerId, opponent);
                 }
 
                 gameListItems = rows
@@ -297,10 +298,11 @@ namespace Sequence.Postgres
             return connection;
         }
 
-        private sealed class get_game_list_for_player
+        internal sealed class get_game_list_for_player
         {
             public Guid game_id;
             public string next_player_id;
+            public string opponent;
         }
     }
 }
