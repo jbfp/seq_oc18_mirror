@@ -4,15 +4,15 @@ namespace Sequence.Core.GetGames
 {
     public sealed class GameListItem
     {
-        public GameListItem(GameId gameId, PlayerId nextPlayerId, PlayerId opponent)
+        public GameListItem(GameId gameId, PlayerId currentPlayer, PlayerId opponent)
         {
             GameId = gameId ?? throw new ArgumentNullException(nameof(gameId));
-            NextPlayerId = nextPlayerId;
+            CurrentPlayer = currentPlayer;
             Opponent = opponent ?? throw new ArgumentNullException(nameof(opponent));
         }
 
         public GameId GameId { get; }
-        public PlayerId NextPlayerId { get; }
+        public PlayerId CurrentPlayer { get; }
         public PlayerId Opponent { get; }
     }
 }

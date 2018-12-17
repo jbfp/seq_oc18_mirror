@@ -207,7 +207,7 @@ namespace Sequence.Api.Test
             Assert.NotEmpty(games);
             var game = games[0].ToObject<JObject>();
             Assert.NotNull(game["gameId"]);
-            Assert.Equal("test_player", game["nextPlayerId"].ToObject<string>());
+            Assert.Equal("test_player", game["currentPlayer"].ToObject<string>());
             Assert.Equal("test_player", game["opponent"].ToObject<string>());
         }
 

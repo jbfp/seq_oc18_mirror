@@ -85,7 +85,7 @@ namespace Sequence.Postgres.Test
             Assert.NotNull(gameList);
             var gameListItem = Assert.Single(gameList.Games);
             Assert.Equal(gameId, gameListItem.GameId);
-            Assert.Equal(playerId, gameListItem.NextPlayerId);
+            Assert.Equal(playerId, gameListItem.CurrentPlayer);
             Assert.Equal("player 2", gameListItem.Opponent.ToString());
         }
 
