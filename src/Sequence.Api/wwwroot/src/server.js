@@ -56,7 +56,7 @@ class Server {
 
     const body = await response.json();
 
-    return body['gameIds'];
+    return body['games'];
   }
 
   async getGameByIdAsync(id) {

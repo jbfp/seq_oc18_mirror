@@ -21,15 +21,15 @@ class GameList extends React.Component {
 
         if (games) {
             const GameListImpl = () => (
-                <ul className="game-list">
-                    {games.map((game, i) => (
-                        <li className="game-list-item" key={i}>
-                            <Link to={`/games/${game}`}>
-                                {game}
+                <ol className="game-list">
+                    {games.map(game => (
+                        <li className="game-list-item" key={game.gameId}>
+                            <Link to={`/games/${game.gameId}`}>
+                                {game.nextPlayerId} ({game.gameId})
                             </Link>
                         </li>
                     ))}
-                </ul>
+                </ol>
             );
 
             const EmptyGameList = () => (
