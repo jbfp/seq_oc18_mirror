@@ -50,7 +50,7 @@ class NewGame extends React.Component {
                         onChange={this.handleOpponentChange}
                         placeholder="Opponent name"
                         readOnly={busy}
-                        autoFocus="true"
+                        autoFocus={true}
                     />
 
                     <button className="new-game-submit" type="submit" disabled={disabled}>
