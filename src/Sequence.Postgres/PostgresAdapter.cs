@@ -225,18 +225,17 @@ namespace Sequence.Postgres
             using (var connection = await CreateAndOpenAsync(cancellationToken))
             {
                 var command = new CommandDefinition(
-                    commandText: "SELECT public.get_game_list_for_player(@playerId);",
+                    commandText: "SELECT game_id, next_player_id FROM public.get_game_list_for_player(@playerId);",
                     parameters: new { playerId = playerId.ToString() },
                     cancellationToken: cancellationToken
                 );
 
-                var rows = await connection.QueryAsync<dynamic>(command);
+                var rows = await connection.QueryAsync<get_game_list_for_player>(command);
 
-                GameListItem MapRowToGameListItem(dynamic row)
+                GameListItem MapRowToGameListItem(get_game_list_for_player row)
                 {
-                    object[] result = row.get_game_list_for_player;
-                    var gameId = new GameId((Guid)result[0]);
-                    var nextPlayerId = result[1] == null ? null : new PlayerId((string)result[1]);
+                    var gameId = new GameId(row.game_id);
+                    var nextPlayerId = row.next_player_id == null ? null : new PlayerId(row.next_player_id);
                     return new GameListItem(gameId, nextPlayerId);
                 }
 
@@ -296,6 +295,12 @@ namespace Sequence.Postgres
             var connection = new NpgsqlConnection(connectionString);
             await connection.OpenAsync(cancellationToken);
             return connection;
+        }
+
+        private sealed class get_game_list_for_player
+        {
+            public Guid game_id;
+            public string next_player_id;
         }
     }
 }
