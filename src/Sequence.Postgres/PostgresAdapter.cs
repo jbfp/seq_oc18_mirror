@@ -298,11 +298,13 @@ namespace Sequence.Postgres
             return connection;
         }
 
-        internal sealed class get_game_list_for_player
+#pragma warning disable CS0649
+        private sealed class get_game_list_for_player
         {
             public Guid game_id;
             public string next_player_id;
             public string opponent;
         }
+#pragma warning restore CS0649
     }
 }
