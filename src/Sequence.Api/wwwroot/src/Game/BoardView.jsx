@@ -21,7 +21,7 @@ class BoardView extends React.PureComponent {
     };
 
     render() {
-        const { board, chips, onCoordClick } = this.props;
+        const { board, chips, highlightedCellValue, onCoordClick } = this.props;
 
         const numRows = board.length;
         const numCols = Math.max.apply(Math, board.map(r => r.length));
@@ -32,13 +32,36 @@ class BoardView extends React.PureComponent {
         };
 
         const Cell = ({ tile, row, column, chip, ...rest }) => {
+            const classes = ['cell'];
+
             if (tile) {
                 chip = chip || { team: null, isLocked: false };
+
+                if (highlightedCellValue) {
+                    const matchesTile =
+                        tile[0] === highlightedCellValue.suit &&
+                        tile[1] === highlightedCellValue.rank;
+
+                    const isTwoEyedJack =
+                        highlightedCellValue.rank === 'jack' &&
+                        (highlightedCellValue.suit === 'diamonds' || highlightedCellValue.suit === 'clubs') &&
+                        chip.team === null;
+
+                    // TODO: Make sure we don't show the player's own teams' chips.
+                    const isOneEyedJack =
+                        highlightedCellValue.rank === 'jack' &&
+                        (highlightedCellValue.suit === 'hearts' || highlightedCellValue.suit === 'spades') &&
+                        chip.team;
+
+                    if (!isOneEyedJack && !matchesTile && !isTwoEyedJack) {
+                        classes.push('dimmed');
+                    }
+                }
 
                 return (
                     <div
                         {...rest}
-                        className="cell"
+                        className={classes.join(' ')}
                         data-suit={tile[0]}
                         data-rank={tile[1]}
                         data-chip={chip.team}
@@ -47,7 +70,7 @@ class BoardView extends React.PureComponent {
                     </div>
                 );
             } else {
-                return <div {...rest} className="cell" data-joker></div>;
+                return <div {...rest} className={classes.join(' ')} data-joker></div>;
             }
         };
 

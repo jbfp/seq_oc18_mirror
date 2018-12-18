@@ -18,6 +18,11 @@
     padding: 8pt;
 }
 
+.cell.dimmed::before,
+.cell.dimmed::after {
+    opacity: 0;
+}
+
 .cell:nth-of-type(10n) {
     border-right-width: 2px;
 }
