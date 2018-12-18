@@ -31,20 +31,13 @@ class BoardView extends React.PureComponent {
             'gridTemplateRows': `repeat(${numRows}, 50px)`,
         };
 
-        // TODO: Memoize cells.
-        const cells = board.map((cells, row) => {
-            return cells.map((cell, column) => {
-                const chip = chips.find(chip => chip.coord.row === row && chip.coord.column === column);
-                const tile = cell === null ? null : { ...cell };
-                return { tile, row, column, chip };
-            });
-        }).flat().map(({ tile, row, column, chip }, idx) => {
+        const Cell = ({ tile, row, column, chip, ...rest }) => {
             if (tile) {
                 chip = chip || { team: null, isLocked: false };
 
                 return (
                     <div
-                        key={idx}
+                        {...rest}
                         className="cell"
                         data-suit={tile[0]}
                         data-rank={tile[1]}
@@ -54,9 +47,18 @@ class BoardView extends React.PureComponent {
                     </div>
                 );
             } else {
-                return <div key={idx} className="cell" data-joker></div>;
+                return <div {...rest} className="cell" data-joker></div>;
             }
-        });
+        };
+
+        // TODO: Memoize cells.
+        const cells = board.map((cells, row) => {
+            return cells.map((cell, column) => {
+                const chip = chips.find(chip => chip.coord.row === row && chip.coord.column === column);
+                const tile = cell === null ? null : { ...cell };
+                return { tile, row, column, chip };
+            });
+        }).flat().map((cell, idx) => <Cell key={idx} {...cell} />);
 
         return (
             <div className="board" style={style}>
