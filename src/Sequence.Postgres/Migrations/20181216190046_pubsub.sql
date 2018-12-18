@@ -11,5 +11,3 @@ AFTER INSERT
 ON public.game_event
 FOR EACH ROW
 EXECUTE PROCEDURE notify_game_event_inserted();
-
-INSERT INTO public.migration (name) VALUES ('20181216190046_pubsub');

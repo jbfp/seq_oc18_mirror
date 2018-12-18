@@ -61,5 +61,3 @@ CREATE TABLE public.game_event
 , PRIMARY KEY (game_id)
 , UNIQUE (game_id, idx)
 );
-
-INSERT INTO public.migration (name) VALUES ('20181215121402_initial');

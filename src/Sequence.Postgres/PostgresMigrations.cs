@@ -107,13 +107,26 @@ namespace Sequence.Postgres
                             _logger.LogInformation("Applying migration '{Migration}'", file);
                             _logger.LogDebug("{Sql}", sql);
 
-                            var command = new CommandDefinition(
-                                commandText: sql,
-                                transaction: transaction,
-                                cancellationToken: cancellationToken
-                            );
+                            {
+                                var command = new CommandDefinition(
+                                    commandText: sql,
+                                    transaction: transaction,
+                                    cancellationToken: cancellationToken
+                                );
 
-                            await connection.ExecuteAsync(command);
+                                await connection.ExecuteAsync(command);
+                            }
+
+                            {
+                                var command = new CommandDefinition(
+                                    commandText: "INSERT INTO public.migration (name) VALUES (@migrationName);",
+                                    parameters: new { migrationName = file },
+                                    transaction: transaction,
+                                    cancellationToken: cancellationToken
+                                );
+
+                                await connection.ExecuteAsync(command);
+                            }
                         }
 
                         _logger.LogInformation("Finished applying all migrations");

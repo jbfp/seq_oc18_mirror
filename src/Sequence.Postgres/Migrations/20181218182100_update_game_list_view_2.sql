@@ -22,5 +22,3 @@ BEGIN
     ORDER BY ge.timestamp DESC;
 END
 $$ LANGUAGE 'plpgsql' STABLE STRICT;
-
-INSERT INTO public.migration (name) VALUES ('20181217174021_update_game_list_view_2');
