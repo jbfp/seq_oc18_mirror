@@ -207,8 +207,6 @@ namespace Sequence.Core
             Coord coord,
             Team team)
         {
-            // TODO: Allow use of corners in sequence.
-
             if (chips == null)
             {
                 throw new ArgumentNullException(nameof(chips));
@@ -223,7 +221,12 @@ namespace Sequence.Core
 
                 foreach (var c in cs)
                 {
-                    if (chips.TryGetValue(c, out var t) && team == t)
+                    var isCorner =
+                        (c.Row >= 0 && c.Row < TheBoard.Length) &&
+                        (c.Column >= 0 && c.Column < TheBoard[c.Row].Length) &&
+                        TheBoard[c.Row][c.Column] == null;
+
+                    if (isCorner || chips.TryGetValue(c, out var t) && team == t)
                     {
                         seq = seq.Add(c);
 
