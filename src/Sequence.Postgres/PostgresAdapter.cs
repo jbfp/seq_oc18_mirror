@@ -95,7 +95,7 @@ namespace Sequence.Postgres
                         chip = gameEvent.Chip?.ToString().ToLowerInvariant(),
                         coordCol = gameEvent.Coord.Column,
                         coordRow = gameEvent.Coord.Row,
-                        nextPlayerId = gameEvent.NextPlayerId.ToString(),
+                        nextPlayerId = gameEvent.NextPlayerId?.ToString(),
                     };
 
                     var command = new CommandDefinition(

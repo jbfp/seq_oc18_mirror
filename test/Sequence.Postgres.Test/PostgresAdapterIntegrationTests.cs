@@ -141,6 +141,28 @@ namespace Sequence.Postgres.Test
             Assert.NotNull(game);
         }
 
+        [Fact]
+        public async Task GameList_NextPlayerIdIsNullWhenGameIsOver()
+        {
+            var options = await _fixture.CreateDatabaseAsync(CancellationToken.None);
+            var gameId = await CreateGameAsync(options, CancellationToken.None);
+            var playerId = new PlayerId("player 1");
+            var sut = new PostgresAdapter(options, _logger);
+            var gameEvent = new GameEvent
+            {
+                ByPlayerId = playerId,
+                CardUsed = new Card(DeckNo.One, Suit.Spades, Rank.Ace),
+                Chip = Team.Red,
+                Coord = new Coord(4, 2),
+                Index = 1,
+                NextPlayerId = null
+            };
+            await sut.AddEventAsync(gameId, gameEvent, CancellationToken.None);
+            var gameList = await sut.GetGamesForPlayerAsync(playerId, CancellationToken.None);
+            var gameListItem = Assert.Single(gameList.Games);
+            Assert.Null(gameListItem.CurrentPlayer);
+        }
+
         private async Task<GameId> CreateGameAsync(
             IOptions<PostgresOptions> options,
             CancellationToken cancellationToken)
