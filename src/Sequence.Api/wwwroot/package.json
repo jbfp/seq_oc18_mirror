@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "dependencies": {
+    "array.prototype.flat": "^1.2.1",
     "prop-types": "^15.6.2",
     "react": "^16.6.0",
     "react-dom": "^16.6.0",
