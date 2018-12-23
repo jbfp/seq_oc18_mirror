@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
 import React from 'react';
+import CellView from './CellView';
 
 class BoardView extends React.PureComponent {
     static propTypes = {
@@ -31,13 +32,15 @@ class BoardView extends React.PureComponent {
             'gridTemplateRows': `repeat(${numRows}, 50px)`,
         };
 
-        const Cell = ({ tile, row, column, chip, ...rest }) => {
-            const classes = ['cell'];
+        // TODO: Memoize cells.
+        const cells = board.map((cells, row) => {
+            return cells.map((cell, column) => {
+                const chip = chips.find(chip => chip.coord.row === row && chip.coord.column === column) || { team: null, isLocked: false };
+                const tile = cell === null ? null : { ...cell };
 
-            if (tile) {
-                chip = chip || { team: null, isLocked: false };
+                let isHighlighted = null;
 
-                if (highlightedCellValue) {
+                if (tile && highlightedCellValue) {
                     const matchesTile =
                         tile[0] === highlightedCellValue.suit &&
                         tile[1] === highlightedCellValue.rank;
@@ -53,35 +56,12 @@ class BoardView extends React.PureComponent {
                         (highlightedCellValue.suit === 'hearts' || highlightedCellValue.suit === 'spades') &&
                         chip.team;
 
-                    if (!isOneEyedJack && !matchesTile && !isTwoEyedJack) {
-                        classes.push('dimmed');
-                    }
+                    isHighlighted = matchesTile || isTwoEyedJack || isOneEyedJack;
                 }
 
-                return (
-                    <div
-                        {...rest}
-                        className={classes.join(' ')}
-                        data-suit={tile[0]}
-                        data-rank={tile[1]}
-                        data-chip={chip.team}
-                        data-sequence={chip.isLocked}
-                        onClick={() => onCoordClick({ column, row })}>
-                    </div>
-                );
-            } else {
-                return <div {...rest} className={classes.join(' ')} data-joker></div>;
-            }
-        };
-
-        // TODO: Memoize cells.
-        const cells = board.map((cells, row) => {
-            return cells.map((cell, column) => {
-                const chip = chips.find(chip => chip.coord.row === row && chip.coord.column === column);
-                const tile = cell === null ? null : { ...cell };
-                return { tile, row, column, chip };
+                return { tile, row, column, chip, onCoordClick, isHighlighted };
             });
-        }).flat().map((cell, idx) => <Cell key={idx} {...cell} />);
+        }).flat().map((cell, idx) => <CellView key={idx} {...cell} />);
 
         return (
             <div className="board" style={style}>
