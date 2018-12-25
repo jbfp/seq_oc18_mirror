@@ -4,12 +4,10 @@ using Microsoft.Extensions.Options;
 using Npgsql;
 using Sequence.Core;
 using Sequence.Core.CreateGame;
-using Sequence.Core.GetGame;
 using Sequence.Core.GetGames;
 using Sequence.Core.Play;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -18,6 +16,21 @@ namespace Sequence.Postgres
 {
     public sealed class PostgresAdapter : IGameEventStore, IGameProvider, IGameListProvider, IGameStore
     {
+        static PostgresAdapter()
+        {
+            NpgsqlConnection.GlobalTypeMapper.MapEnum<DeckNo>("deckno");
+            NpgsqlConnection.GlobalTypeMapper.MapEnum<Rank>("rank");
+            NpgsqlConnection.GlobalTypeMapper.MapEnum<Suit>("suit");
+            NpgsqlConnection.GlobalTypeMapper.MapEnum<Team>("chip");
+
+            NpgsqlConnection.GlobalTypeMapper.MapComposite<CardComposite>("card");
+            NpgsqlConnection.GlobalTypeMapper.MapComposite<CoordComposite>("coord");
+
+            SqlMapper.AddTypeHandler<GameId>(new GameIdTypeHandler());
+            SqlMapper.AddTypeHandler<PlayerId>(new PlayerIdTypeHandler());
+            SqlMapper.AddTypeHandler<Seed>(new SeedTypeHandler());
+        }
+
         private readonly IOptions<PostgresOptions> _options;
         private readonly ILogger _logger;
 
@@ -47,13 +60,9 @@ namespace Sequence.Postgres
                 int actualGameId;
 
                 {
-                    var commandText = "SELECT id FROM game WHERE game_id = CAST(@gameId AS UUID);";
-
-                    var parameters = new { gameId = gameId.ToString() };
-
                     var command = new CommandDefinition(
-                        commandText,
-                        parameters,
+                        commandText: "SELECT id FROM game WHERE game_id = @gameId;",
+                        parameters: new { gameId },
                         transaction,
                         cancellationToken: cancellationToken
                     );
@@ -61,51 +70,27 @@ namespace Sequence.Postgres
                     actualGameId = await connection.QuerySingleAsync<int>(command);
                 }
 
+                // Couldn't figure out how to support INSERT with composite types with Dapper, so ADO.NET to the rescue.
+                using (var command = connection.CreateCommand())
                 {
-                    string commandText;
+                    var commandText = @"
+                        INSERT INTO
+                            game_event (game_id, idx, by_player_id, card_drawn, card_used, chip, coord, next_player_id)
+                        VALUES
+                            (@gameId, @idx, @byPlayerId, @cardDrawn, @cardUsed, @chip, @coord, @nextPlayerId);";
 
-                    if (gameEvent.CardDrawn == null)
-                    {
-                        commandText = @"
-                            INSERT INTO
-                                game_event (game_id, idx, by_player_id, card_used, chip, coord, next_player_id)
-                            VALUES
-                                (@gameId, @idx, @byPlayerId, CAST(ROW(@cardUsedDeckNo, @cardUsedSuit, @cardUsedRank) AS card), CAST(@chip AS chip), CAST(ROW(@coordCol, @coordRow) AS coord), @nextPlayerId);";
-                    }
-                    else
-                    {
-                        commandText = @"
-                            INSERT INTO
-                                game_event (game_id, idx, by_player_id, card_drawn, card_used, chip, coord, next_player_id)
-                            VALUES
-                                (@gameId, @idx, @byPlayerId, CAST(ROW(@cardDrawnDeckNo, @cardDrawnSuit, @cardDrawnRank) AS card), CAST(ROW(@cardUsedDeckNo, @cardUsedSuit, @cardUsedRank) AS card), CAST(@chip AS chip), CAST(ROW(@coordCol, @coordRow) AS coord), @nextPlayerId);";
-                    }
+                    command.CommandText = commandText;
+                    command.Parameters.AddWithValue("@gameId", actualGameId);
+                    command.Parameters.AddWithValue("@idx", gameEvent.Index);
+                    command.Parameters.AddWithValue("@byPlayerId", gameEvent.ByPlayerId.ToString());
+                    command.Parameters.AddWithValue("@cardDrawn", (object)CardComposite.FromCard(gameEvent.CardDrawn) ?? DBNull.Value);
+                    command.Parameters.AddWithValue("@cardUsed", CardComposite.FromCard(gameEvent.CardUsed));
+                    command.Parameters.AddWithValue("@chip", (object)gameEvent.Chip ?? DBNull.Value);
+                    command.Parameters.AddWithValue("@coord", CoordComposite.FromCoord(gameEvent.Coord));
+                    command.Parameters.AddWithValue("@nextPlayerId", (object)gameEvent.NextPlayerId?.ToString() ?? DBNull.Value);
+                    command.Transaction = transaction;
 
-                    var parameters = new
-                    {
-                        gameId = actualGameId,
-                        idx = gameEvent.Index,
-                        byPlayerId = gameEvent.ByPlayerId.ToString(),
-                        cardDrawnDeckNo = gameEvent.CardDrawn?.DeckNo.ToString().ToLowerInvariant(),
-                        cardDrawnSuit = gameEvent.CardDrawn?.Suit.ToString().ToLowerInvariant(),
-                        cardDrawnRank = gameEvent.CardDrawn?.Rank.ToString().ToLowerInvariant(),
-                        cardUsedDeckNo = gameEvent.CardUsed.DeckNo.ToString().ToLowerInvariant(),
-                        cardUsedSuit = gameEvent.CardUsed.Suit.ToString().ToLowerInvariant(),
-                        cardUsedRank = gameEvent.CardUsed.Rank.ToString().ToLowerInvariant(),
-                        chip = gameEvent.Chip?.ToString().ToLowerInvariant(),
-                        coordCol = gameEvent.Coord.Column,
-                        coordRow = gameEvent.Coord.Row,
-                        nextPlayerId = gameEvent.NextPlayerId?.ToString(),
-                    };
-
-                    var command = new CommandDefinition(
-                        commandText,
-                        parameters,
-                        transaction,
-                        cancellationToken: cancellationToken
-                    );
-
-                    await connection.ExecuteAsync(command);
+                    await command.ExecuteNonQueryAsync(cancellationToken);
                 }
 
                 await transaction.CommitAsync(cancellationToken);
@@ -129,25 +114,20 @@ namespace Sequence.Postgres
             {
                 {
                     var command = new CommandDefinition(
-                        commandText: "SELECT player1, player2, first_player_id, seed FROM game WHERE game_id = CAST(@gameId AS UUID);",
-                        parameters: new { gameId = gameId.ToString() },
+                        commandText: "SELECT player1, player2, first_player_id, seed FROM game WHERE game_id = @gameId;",
+                        parameters: new { gameId },
                         transaction,
                         cancellationToken: cancellationToken
                     );
 
-                    var result = await connection.QuerySingleOrDefaultAsync<dynamic>(command);
+                    var result = await connection.QuerySingleOrDefaultAsync<get_game_init_by_id>(command);
 
                     if (result == null)
                     {
                         return null;
                     }
 
-                    init = new GameInit(
-                        new PlayerId((string)result.player1),
-                        new PlayerId((string)result.player2),
-                        new PlayerId((string)result.first_player_id),
-                        new Seed((int)result.seed)
-                    );
+                    init = new GameInit(result.player1, result.player2, result.first_player_id, result.seed);
                 }
 
                 {
@@ -155,16 +135,16 @@ namespace Sequence.Postgres
                         SELECT
                           idx
                         , by_player_id
-                        , card_drawn::TEXT
-                        , card_used::TEXT
-                        , chip::TEXT
-                        , coord::TEXT
+                        , card_drawn
+                        , card_used
+                        , chip
+                        , coord
                         , next_player_id
                         FROM game_event AS ge
                         INNER JOIN game AS g ON g.id = ge.game_id
-                        WHERE g.game_id = CAST(@gameId AS UUID);";
+                        WHERE g.game_id = @gameId;";
 
-                    var parameters = new { gameId = gameId.ToString() };
+                    var parameters = new { gameId = gameId };
 
                     var command = new CommandDefinition(
                         commandText,
@@ -173,36 +153,17 @@ namespace Sequence.Postgres
                         cancellationToken: cancellationToken
                     );
 
-                    var rows = await connection.QueryAsync(command);
-
-                    Card MapTextToCard(string value)
-                    {
-                        var trim = value.Trim('(', ')');
-                        var split = trim.Split(',');
-                        var deckNo = (DeckNo)Enum.Parse(typeof(DeckNo), split[0], ignoreCase: true);
-                        var suit = (Suit)Enum.Parse(typeof(Suit), split[1], ignoreCase: true);
-                        var rank = (Rank)Enum.Parse(typeof(Rank), split[2], ignoreCase: true);
-                        return new Card(deckNo, suit, rank);
-                    }
-
-                    Coord MapTextToCoord(string value)
-                    {
-                        var trim = value.Trim('(', ')');
-                        var split = trim.Split(',');
-                        var column = int.Parse(split[0]);
-                        var row = int.Parse(split[1]);
-                        return new Coord(column, row);
-                    }
+                    var rows = await connection.QueryAsync<get_game_event_by_game_id>(command);
 
                     gameEvents = rows.Select(row => new GameEvent
                     {
-                        ByPlayerId = new PlayerId((string)row.by_player_id),
-                        CardDrawn = row.card_drawn == null ? null : MapTextToCard(row.card_drawn),
-                        CardUsed = MapTextToCard(row.card_used),
-                        Chip = row.chip == null ? (Team?)null : (Team)Enum.Parse(typeof(Team), row.chip, ignoreCase: true),
-                        Coord = MapTextToCoord(row.coord),
-                        Index = (int)row.idx,
-                        NextPlayerId = new PlayerId((string)row.next_player_id),
+                        ByPlayerId = row.by_player_id,
+                        CardDrawn = row.card_drawn?.ToCard(),
+                        CardUsed = row.card_used.ToCard(),
+                        Chip = row.chip,
+                        Coord = row.coord.ToCoord(),
+                        Index = row.idx,
+                        NextPlayerId = row.next_player_id,
                     }).ToArray();
                 }
 
@@ -227,22 +188,14 @@ namespace Sequence.Postgres
             {
                 var command = new CommandDefinition(
                     commandText: "SELECT game_id, next_player_id, opponent FROM public.get_game_list_for_player(@playerId);",
-                    parameters: new { playerId = playerId.ToString() },
+                    parameters: new { playerId },
                     cancellationToken: cancellationToken
                 );
 
                 var rows = await connection.QueryAsync<get_game_list_for_player>(command);
 
-                GameListItem MapRowToGameListItem(get_game_list_for_player row)
-                {
-                    var gameId = new GameId(row.game_id);
-                    var nextPlayerId = row.next_player_id == null ? null : new PlayerId(row.next_player_id);
-                    var opponent = new PlayerId(row.opponent);
-                    return new GameListItem(gameId, nextPlayerId, opponent);
-                }
-
                 gameListItems = rows
-                    .Select(MapRowToGameListItem)
+                    .Select(row => new GameListItem(row.game_id, row.next_player_id, row.opponent))
                     .ToList()
                     .AsReadOnly();
             }
@@ -259,7 +212,7 @@ namespace Sequence.Postgres
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            Guid gameId;
+            GameId gameId;
 
             using (var connection = await CreateAndOpenAsync(cancellationToken))
             {
@@ -272,11 +225,10 @@ namespace Sequence.Postgres
 
                 var parameters = new
                 {
-                    gameId,
-                    player1 = newGame.Player1.ToString(),
-                    player2 = newGame.Player2.ToString(),
-                    firstPlayerId = newGame.FirstPlayerId.ToString(),
-                    seed = newGame.Seed.ToInt32(),
+                    player1 = newGame.Player1,
+                    player2 = newGame.Player2,
+                    firstPlayerId = newGame.FirstPlayerId,
+                    seed = newGame.Seed,
                     version = 1,
                 };
 
@@ -286,10 +238,10 @@ namespace Sequence.Postgres
                     cancellationToken: cancellationToken
                 );
 
-                gameId = await connection.QuerySingleAsync<Guid>(command);
+                gameId = await connection.QuerySingleAsync<GameId>(command);
             }
 
-            return new GameId(gameId);
+            return gameId;
         }
 
         private async Task<NpgsqlConnection> CreateAndOpenAsync(CancellationToken cancellationToken)
@@ -303,9 +255,28 @@ namespace Sequence.Postgres
 #pragma warning disable CS0649
         private sealed class get_game_list_for_player
         {
-            public Guid game_id;
-            public string next_player_id;
-            public string opponent;
+            public GameId game_id;
+            public PlayerId next_player_id;
+            public PlayerId opponent;
+        }
+
+        private sealed class get_game_init_by_id
+        {
+            public PlayerId player1;
+            public PlayerId player2;
+            public PlayerId first_player_id;
+            public Seed seed;
+        }
+
+        private sealed class get_game_event_by_game_id
+        {
+            public int idx;
+            public PlayerId by_player_id;
+            public CardComposite card_drawn;
+            public CardComposite card_used;
+            public Team? chip;
+            public CoordComposite coord;
+            public PlayerId next_player_id;
         }
 #pragma warning restore CS0649
     }

@@ -141,6 +141,8 @@ namespace Sequence.Postgres
                     await transaction.CommitAsync(cancellationToken);
                 }
 
+                connection.ReloadTypes();
+
                 _logger.LogInformation("Database {Database}@{Host} upgraded successfully", connection.Database, connection.Host);
             }
         }
