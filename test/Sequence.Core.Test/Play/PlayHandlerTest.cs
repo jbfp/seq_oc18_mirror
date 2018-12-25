@@ -104,6 +104,7 @@ namespace Sequence.Core.Test
                 new GameInit(
                     _playerId,
                     new PlayerId("dummy"),
+                    new PlayerId("dummy"),
                     new Seed(42)));
 
             _provider
@@ -125,6 +126,7 @@ namespace Sequence.Core.Test
             var game = new Game(
                 new GameInit(
                     _playerId,
+                    new PlayerId("dummy"),
                     new PlayerId("dummy"),
                     new Seed(42)));
 

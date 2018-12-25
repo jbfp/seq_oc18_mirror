@@ -12,6 +12,7 @@ namespace Sequence.Core.Test
             var init = new GameInit(
                 new PlayerId("player 1"),
                 new PlayerId("player 2"),
+                new PlayerId("oewfwoeoi"),
                 new Seed(42)
             );
 
@@ -43,7 +44,8 @@ namespace Sequence.Core.Test
             _sut = new Game(
                 new GameInit(
                     _player1,
-                     _player2,
+                    _player2,
+                    _player1,
                     new Seed(42)));
         }
 

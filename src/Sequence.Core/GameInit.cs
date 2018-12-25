@@ -4,15 +4,17 @@ namespace Sequence.Core
 {
     public sealed class GameInit
     {
-        public GameInit(PlayerId player1, PlayerId player2, Seed seed)
+        public GameInit(PlayerId player1, PlayerId player2, PlayerId firstPlayer, Seed seed)
         {
             Player1 = player1 ?? throw new ArgumentNullException(nameof(player1));
             Player2 = player2 ?? throw new ArgumentNullException(nameof(player2));
+            FirstPlayer = firstPlayer ?? throw new ArgumentNullException(nameof(firstPlayer));
             Seed = seed;
         }
 
         public PlayerId Player1 { get; }
         public PlayerId Player2 { get; }
+        public PlayerId FirstPlayer { get; }
         public Seed Seed { get; }
     }
 

@@ -129,7 +129,7 @@ namespace Sequence.Postgres
             {
                 {
                     var command = new CommandDefinition(
-                        commandText: "SELECT player1, player2, seed FROM game WHERE game_id = CAST(@gameId AS UUID);",
+                        commandText: "SELECT player1, player2, first_player_id, seed FROM game WHERE game_id = CAST(@gameId AS UUID);",
                         parameters: new { gameId = gameId.ToString() },
                         transaction,
                         cancellationToken: cancellationToken
@@ -145,6 +145,7 @@ namespace Sequence.Postgres
                     init = new GameInit(
                         new PlayerId((string)result.player1),
                         new PlayerId((string)result.player2),
+                        new PlayerId((string)result.first_player_id),
                         new Seed((int)result.seed)
                     );
                 }
@@ -264,9 +265,9 @@ namespace Sequence.Postgres
             {
                 var commandText = @"
                     INSERT INTO
-                        game (player1, player2, seed, version)
+                        game (player1, player2, first_player_id, seed, version)
                     VALUES
-                        (@player1, @player2, @seed, @version)
+                        (@player1, @player2, @firstPlayerId, @seed, @version)
                     RETURNING game_id;";
 
                 var parameters = new
@@ -274,6 +275,7 @@ namespace Sequence.Postgres
                     gameId,
                     player1 = newGame.Player1.ToString(),
                     player2 = newGame.Player2.ToString(),
+                    firstPlayerId = newGame.FirstPlayerId.ToString(),
                     seed = newGame.Seed.ToInt32(),
                     version = 1,
                 };

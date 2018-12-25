@@ -55,7 +55,7 @@ namespace Sequence.Mongo
             await _games.UpdateOneAsync(filter, update, options: null, cancellationToken);
         }
 
-        public async Task<Game> GetGameByIdAsync(GameId gameId, CancellationToken cancellationToken)
+        public Task<Game> GetGameByIdAsync(GameId gameId, CancellationToken cancellationToken)
         {
             if (gameId == null)
             {
@@ -64,32 +64,7 @@ namespace Sequence.Mongo
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            var filter = Builders<BsonDocument>.Filter
-                .Eq("game_id", gameId.ToString());
-
-            var projection = Builders<BsonDocument>.Projection
-                .Exclude("_id")
-                .Include("player1")
-                .Include("player2")
-                .Include("seed");
-
-            var document = await _games
-                .Find(filter)
-                .Project(projection)
-                .SingleOrDefaultAsync(cancellationToken);
-
-            if (document == null)
-            {
-                return null;
-            }
-
-            var init = new GameInit(
-                player1: new PlayerId(document["player1"].AsString),
-                player2: new PlayerId(document["player2"].AsString),
-                seed: new Seed(document["seed"].AsInt32)
-            );
-
-            return new Game(init);
+            throw new NotImplementedException();
         }
 
         public Task<GameList> GetGamesForPlayerAsync(PlayerId playerId, CancellationToken cancellationToken)

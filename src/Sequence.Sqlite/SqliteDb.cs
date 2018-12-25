@@ -1,16 +1,12 @@
 using Dapper;
 using Microsoft.Data.Sqlite;
-using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Sequence.Core;
 using Sequence.Core.CreateGame;
-using Sequence.Core.GetGame;
 using Sequence.Core.GetGames;
 using Sequence.Core.Play;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -70,7 +66,7 @@ namespace Sequence.Sqlite
             }
         }
 
-        public async Task<Game> GetGameByIdAsync(GameId gameId, CancellationToken cancellationToken)
+        public Task<Game> GetGameByIdAsync(GameId gameId, CancellationToken cancellationToken)
         {
             if (gameId == null)
             {
@@ -79,55 +75,7 @@ namespace Sequence.Sqlite
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            GameInit init;
-            GameEvent[] gameEvents;
-
-            using (var connection = await CreateAndOpenAsync(cancellationToken))
-            {
-                {
-                    var command = new CommandDefinition(
-                        commandText: "SELECT player1, player2, seed FROM games WHERE game_id = @gameId;",
-                        parameters: new { gameId = gameId.ToString() },
-                        cancellationToken: cancellationToken
-                    );
-
-                    var result = await connection.QuerySingleOrDefaultAsync<dynamic>(command);
-
-                    if (result == null)
-                    {
-                        return null;
-                    }
-
-                    init = new GameInit(
-                        new PlayerId((string)result.player1),
-                        new PlayerId((string)result.player2),
-                        new Seed((int)result.seed)
-                    );
-                }
-
-                {
-                    var command = new CommandDefinition(
-                        commandText: "SELECT * FROM game_events WHERE game_id = @gameId;",
-                        parameters: new { gameId = gameId.ToString() },
-                        cancellationToken: cancellationToken
-                    );
-
-                    var rows = await connection.QueryAsync(command);
-
-                    gameEvents = rows.Select(row => new GameEvent
-                    {
-                        ByPlayerId = new PlayerId((string)row.by_player_id),
-                        CardDrawn = row.card_drawn == null ? null : JsonConvert.DeserializeObject<Card>((string)row.card_drawn),
-                        CardUsed = JsonConvert.DeserializeObject<Card>((string)row.card_used),
-                        Chip = (Team?)row.chip,
-                        Coord = JsonConvert.DeserializeObject<Coord>((string)row.coord),
-                        Index = (int)row.idx,
-                        NextPlayerId = new PlayerId((string)row.next_player_id),
-                    }).ToArray();
-                }
-            }
-
-            return new Game(init, gameEvents);
+            throw new NotImplementedException();
         }
 
         public Task<GameList> GetGamesForPlayerAsync(PlayerId playerId, CancellationToken cancellationToken)

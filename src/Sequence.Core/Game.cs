@@ -31,7 +31,7 @@ namespace Sequence.Core
             }
 
             _board = new Board();
-            _currentPlayerId = init.Player1;
+            _currentPlayerId = init.FirstPlayer;
             _deck = new Deck(init.Seed);
             _discards = ImmutableStack<Card>.Empty;
             _idxByPlayerId = ImmutableArray.Create(init.Player1, init.Player2);

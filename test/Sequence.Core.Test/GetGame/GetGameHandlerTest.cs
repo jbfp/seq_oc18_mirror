@@ -87,6 +87,7 @@ namespace Sequence.Core.GetGame
                 new GameInit(
                     new PlayerId(player),
                     new PlayerId("player 2"),
+                    new PlayerId(player),
                     new Seed(42)));
 
             _provider

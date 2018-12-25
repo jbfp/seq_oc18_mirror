@@ -177,6 +177,7 @@ namespace Sequence.Postgres.Test
             var newGame = new NewGame(
                 player1: new PlayerId("player 1"),
                 player2: new PlayerId("player 2"),
+                firstPlayerId: new PlayerId("player 1"),
                 seed: new Seed(42)
             );
 

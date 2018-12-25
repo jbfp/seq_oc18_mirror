@@ -57,7 +57,7 @@ namespace Sequence.Api.Test
 
             if (_games.TryGetValue(gameId.ToString(), out var row))
             {
-                var init = new GameInit(row.Player1, row.Player2, row.Seed);
+                var init = new GameInit(row.Player1, row.Player2, row.FirstPlayerId, row.Seed);
 
                 var gameEvents = _gameEvents
                     .Where(kvp => kvp.Key.Item1 == gameId.ToString())

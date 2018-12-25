@@ -19,7 +19,7 @@ namespace Sequence.Core.CreateGame
         public async Task<GameId> CreateGameAsync(PlayerId player1, PlayerId player2, CancellationToken cancellationToken)
         {
             var seed = await _seedProvider.GenerateSeedAsync(cancellationToken);
-            var newGame = new NewGame(player1, player2, seed);
+            var newGame = new NewGame(player1, player2, player1, seed);
             return await _store.PersistNewGameAsync(newGame, cancellationToken);
         }
     }
