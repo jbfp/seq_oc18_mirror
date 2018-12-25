@@ -9,5 +9,6 @@ namespace Sequence.Core
         public Coord Coord { get; set; }
         public int Index { get; set; }
         public PlayerId NextPlayerId { get; set; }
+        public Seq Sequence { get; set; }
     }
 }

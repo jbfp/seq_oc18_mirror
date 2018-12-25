@@ -1,4 +1,6 @@
 using Sequence.Core;
+using System.Collections.Immutable;
+using System.Linq;
 
 namespace Sequence.Postgres
 {
@@ -39,6 +41,28 @@ namespace Sequence.Postgres
         };
 
         public Coord ToCoord() => new Coord(col, row);
+    }
+
+    internal sealed class SequenceComposite
+    {
+        public Team team;
+        public CoordComposite[] coords;
+
+        public static SequenceComposite FromSequence(Seq sequence)
+        {
+            if (sequence == null)
+            {
+                return null;
+            }
+
+            return new SequenceComposite
+            {
+                team = sequence.Team,
+                coords = sequence.Coords.Select(CoordComposite.FromCoord).ToArray(),
+            };
+        }
+
+        public Seq ToSequence() => new Seq(team, coords.Select(c => c.ToCoord()).ToImmutableList());
     }
 #pragma warning restore CS0649
 }

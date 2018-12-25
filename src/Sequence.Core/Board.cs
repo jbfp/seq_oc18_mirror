@@ -185,7 +185,6 @@ namespace Sequence.Core
         }
 
         internal IImmutableDictionary<Coord, Team> Chips { get; private set; }
-        internal Sequence Sequence { get; private set; }
 
         internal bool IsOccupied(Coord coord) => Chips.ContainsKey(coord);
 
@@ -198,11 +197,10 @@ namespace Sequence.Core
             else
             {
                 Chips = Chips.Add(coord, chip.Value);
-                Sequence = GetSequence(Chips, coord, chip.Value);
             }
         }
 
-        public static Sequence GetSequence(
+        public static Seq GetSequence(
             IImmutableDictionary<Coord, Team> chips,
             Coord coord,
             Team team)
@@ -230,7 +228,7 @@ namespace Sequence.Core
                     {
                         seq = seq.Add(c);
 
-                        if (seq.Count == Sequence.DefaultLength)
+                        if (seq.Count == Seq.DefaultLength)
                         {
                             return true;
                         }
@@ -257,30 +255,10 @@ namespace Sequence.Core
                 TrySequence(diagonal1, out coords) ||
                 TrySequence(diagonal2, out coords))
             {
-                return new Sequence(team, coords);
+                return new Seq(team, coords);
             }
 
             return null;
         }
-    }
-
-    public sealed class Sequence
-    {
-        internal const int DefaultLength = 5;
-
-        internal Sequence(Team team, IImmutableList<Coord> coords)
-        {
-            Team = team;
-
-            if (coords.Count != DefaultLength)
-            {
-                throw new ArgumentException($"Must have {DefaultLength} coords.", nameof(coords));
-            }
-
-            Coords = coords ?? throw new ArgumentNullException(nameof(coords));
-        }
-
-        internal Team Team { get; }
-        internal IImmutableList<Coord> Coords { get; }
     }
 }

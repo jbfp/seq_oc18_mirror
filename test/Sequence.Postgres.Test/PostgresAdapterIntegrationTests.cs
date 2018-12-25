@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using Sequence.Core;
 using Sequence.Core.CreateGame;
 using System;
+using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -14,6 +15,14 @@ namespace Sequence.Postgres.Test
     public class PostgresAdapterIntegrationTests
     {
         private static readonly ILogger<PostgresAdapter> _logger = NullLogger<PostgresAdapter>.Instance;
+
+        private static readonly Seq _sequence = new Seq(Team.Blue, ImmutableList.Create(
+            new Coord(4, 2),
+            new Coord(5, 2),
+            new Coord(6, 2),
+            new Coord(7, 2),
+            new Coord(8, 2)
+        ));
 
         private readonly PostgresDockerContainerFixture _fixture;
 
@@ -69,6 +78,29 @@ namespace Sequence.Postgres.Test
                 Coord = new Coord(4, 2),
                 Index = 2,
                 NextPlayerId = new PlayerId("player 2"),
+            };
+
+            await sut.AddEventAsync(gameId, gameEvent, CancellationToken.None);
+        }
+
+        [Fact]
+        public async Task CanAddGameEventWithSequence()
+        {
+            var options = await _fixture.CreateDatabaseAsync(CancellationToken.None);
+            var gameId = await CreateGameAsync(options, CancellationToken.None);
+
+            var sut = new PostgresAdapter(options, _logger);
+
+            var gameEvent = new GameEvent
+            {
+                ByPlayerId = new PlayerId("player 1"),
+                CardDrawn = new Card(DeckNo.One, Suit.Spades, Rank.Five),
+                CardUsed = new Card(DeckNo.Two, Suit.Diamonds, Rank.King),
+                Chip = Team.Green,
+                Coord = new Coord(4, 2),
+                Index = 2,
+                NextPlayerId = new PlayerId("player 2"),
+                Sequence = _sequence,
             };
 
             await sut.AddEventAsync(gameId, gameEvent, CancellationToken.None);
@@ -135,6 +167,28 @@ namespace Sequence.Postgres.Test
                 Coord = new Coord(4, 2),
                 Index = 2,
                 NextPlayerId = new PlayerId("player 2"),
+            };
+            await sut.AddEventAsync(gameId, gameEvent, CancellationToken.None);
+            var game = await sut.GetGameByIdAsync(gameId, CancellationToken.None);
+            Assert.NotNull(game);
+        }
+
+        [Fact]
+        public async Task CanGetGameWithOneEventWithSequence()
+        {
+            var options = await _fixture.CreateDatabaseAsync(CancellationToken.None);
+            var gameId = await CreateGameAsync(options, CancellationToken.None);
+            var sut = new PostgresAdapter(options, _logger);
+            var gameEvent = new GameEvent
+            {
+                ByPlayerId = new PlayerId("player 1"),
+                CardDrawn = new Card(DeckNo.One, Suit.Spades, Rank.Five),
+                CardUsed = new Card(DeckNo.Two, Suit.Diamonds, Rank.King),
+                Chip = Team.Green,
+                Coord = new Coord(4, 2),
+                Index = 2,
+                NextPlayerId = new PlayerId("player 2"),
+                Sequence = _sequence,
             };
             await sut.AddEventAsync(gameId, gameEvent, CancellationToken.None);
             var game = await sut.GetGameByIdAsync(gameId, CancellationToken.None);

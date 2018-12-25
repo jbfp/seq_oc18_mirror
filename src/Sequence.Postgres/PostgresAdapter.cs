@@ -25,6 +25,7 @@ namespace Sequence.Postgres
 
             NpgsqlConnection.GlobalTypeMapper.MapComposite<CardComposite>("card");
             NpgsqlConnection.GlobalTypeMapper.MapComposite<CoordComposite>("coord");
+            NpgsqlConnection.GlobalTypeMapper.MapComposite<SequenceComposite>("sequence");
 
             SqlMapper.AddTypeHandler<GameId>(new GameIdTypeHandler());
             SqlMapper.AddTypeHandler<PlayerId>(new PlayerIdTypeHandler());
@@ -75,9 +76,9 @@ namespace Sequence.Postgres
                 {
                     var commandText = @"
                         INSERT INTO
-                            game_event (game_id, idx, by_player_id, card_drawn, card_used, chip, coord, next_player_id)
+                            game_event (game_id, idx, by_player_id, card_drawn, card_used, chip, coord, next_player_id, sequence)
                         VALUES
-                            (@gameId, @idx, @byPlayerId, @cardDrawn, @cardUsed, @chip, @coord, @nextPlayerId);";
+                            (@gameId, @idx, @byPlayerId, @cardDrawn, @cardUsed, @chip, @coord, @nextPlayerId, @sequence);";
 
                     command.CommandText = commandText;
                     command.Parameters.AddWithValue("@gameId", actualGameId);
@@ -88,6 +89,7 @@ namespace Sequence.Postgres
                     command.Parameters.AddWithValue("@chip", (object)gameEvent.Chip ?? DBNull.Value);
                     command.Parameters.AddWithValue("@coord", CoordComposite.FromCoord(gameEvent.Coord));
                     command.Parameters.AddWithValue("@nextPlayerId", (object)gameEvent.NextPlayerId?.ToString() ?? DBNull.Value);
+                    command.Parameters.AddWithValue("@sequence", (object)SequenceComposite.FromSequence(gameEvent.Sequence) ?? DBNull.Value);
                     command.Transaction = transaction;
 
                     await command.ExecuteNonQueryAsync(cancellationToken);
@@ -140,6 +142,7 @@ namespace Sequence.Postgres
                         , chip
                         , coord
                         , next_player_id
+                        , sequence
                         FROM game_event AS ge
                         INNER JOIN game AS g ON g.id = ge.game_id
                         WHERE g.game_id = @gameId;";
@@ -164,6 +167,7 @@ namespace Sequence.Postgres
                         Coord = row.coord.ToCoord(),
                         Index = row.idx,
                         NextPlayerId = row.next_player_id,
+                        Sequence = row.sequence?.ToSequence(),
                     }).ToArray();
                 }
 
@@ -277,6 +281,7 @@ namespace Sequence.Postgres
             public Team? chip;
             public CoordComposite coord;
             public PlayerId next_player_id;
+            public SequenceComposite sequence;
         }
 #pragma warning restore CS0649
     }
