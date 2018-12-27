@@ -17,22 +17,15 @@ namespace Sequence.Core.CreateGame
             _store = store ?? throw new ArgumentNullException(nameof(store));
         }
 
-        public async Task<GameId> CreateGameAsync(PlayerId player1, PlayerId player2, CancellationToken cancellationToken)
+        public async Task<GameId> CreateGameAsync(PlayerList players, CancellationToken cancellationToken)
         {
-            if (player1 == null)
+            if (players == null)
             {
-                throw new ArgumentNullException(nameof(player1));
+                throw new ArgumentNullException(nameof(players));
             }
 
-            if (player2 == null)
-            {
-                throw new ArgumentNullException(nameof(player2));
-            }
-
-            var players = ImmutableList.Create(player1, player2);
-            var firstPlayerId = player1;
             var seed = await _seedProvider.GenerateSeedAsync(cancellationToken);
-            var newGame = new NewGame(players, firstPlayerId, seed);
+            var newGame = new NewGame(players, seed);
             return await _store.PersistNewGameAsync(newGame, cancellationToken);
         }
     }

@@ -121,7 +121,7 @@ namespace Sequence.Api.Test
             Assert.Equal("application/json", response.Content.Headers.ContentType.MediaType);
             var json = await response.Content.ReadAsStringAsync();
             var obj = JsonConvert.DeserializeAnonymousType(json, new { error = "" });
-            Assert.Equal("Player 1 and Player 2 must not be the same player.", obj.error);
+            Assert.Equal("Duplicate players are not allowed.", obj.error);
         }
 
         [Fact]

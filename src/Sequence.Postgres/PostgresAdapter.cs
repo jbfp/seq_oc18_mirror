@@ -299,7 +299,7 @@ namespace Sequence.Postgres
                         gameId = result.game_id;
                     }
 
-                    foreach (var playerId in newGame.Players)
+                    foreach (var playerId in newGame.PlayerList)
                     {
                         var commandText = @"
                             INSERT INTO

@@ -28,13 +28,13 @@ namespace Sequence.Api
             var player1 = PlayerId;
             var player2 = new PlayerId(form.Opponent);
 
-            GameId gameId;
+            PlayerList players;
 
             _logger.LogInformation("Attempting to create game for {Player1} vs {Player2}", player1, player2);
 
             try
             {
-                gameId = await _handler.CreateGameAsync(player1, player2, cancellationToken);
+                players = new PlayerList(player1, player2);
             }
             catch (ArgumentException ex)
             {
@@ -44,6 +44,8 @@ namespace Sequence.Api
 
                 return BadRequest(new { error = ex.Message });
             }
+
+            var gameId = await _handler.CreateGameAsync(players, cancellationToken);
 
             _logger.LogInformation(
                 "Successfully created game with ID {GameId} for {Player1} vs {Player2}",

@@ -252,8 +252,7 @@ namespace Sequence.Postgres.Test
             var sut = new PostgresAdapter(options, _logger);
 
             var newGame = new NewGame(
-                players: ImmutableList.Create(new PlayerId("player 1"), new PlayerId("player 2")),
-                firstPlayerId: new PlayerId("player 1"),
+                players: new PlayerList(new PlayerId("player 1"), new PlayerId("player 2")),
                 seed: new Seed(42)
             );
 

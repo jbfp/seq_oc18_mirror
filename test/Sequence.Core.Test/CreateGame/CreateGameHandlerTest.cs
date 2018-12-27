@@ -2,6 +2,7 @@ using Moq;
 using Sequence.Core;
 using Sequence.Core.CreateGame;
 using System;
+using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -27,6 +28,10 @@ namespace Sequence.Core.Test.CreateGame
             );
         }
 
+        private static readonly PlayerList _twoPlayers = new PlayerList(
+            new PlayerId("player 1"),
+            new PlayerId("player 2"));
+
         private readonly Mock<ISeedProvider> _seedProvider = new Mock<ISeedProvider>();
         private readonly Mock<IGameStore> _store = new Mock<IGameStore>();
         private readonly CreateGameHandler _sut;
@@ -39,17 +44,11 @@ namespace Sequence.Core.Test.CreateGame
         [Fact]
         public async Task CreateGameAsync_NullArgs()
         {
-            var player1 = new PlayerId("player 1");
-            var player2 = new PlayerId("player 2");
+            var players = ImmutableList<PlayerId>.Empty;
 
             await Assert.ThrowsAsync<ArgumentNullException>(
-                paramName: "player1",
-                testCode: () => _sut.CreateGameAsync(null, player2, CancellationToken.None)
-            );
-
-            await Assert.ThrowsAsync<ArgumentNullException>(
-                paramName: "player2",
-                testCode: () => _sut.CreateGameAsync(player1, null, CancellationToken.None)
+                paramName: "players",
+                testCode: () => _sut.CreateGameAsync(null, CancellationToken.None)
             );
         }
 
@@ -67,24 +66,11 @@ namespace Sequence.Core.Test.CreateGame
                 .ReturnsAsync(expected)
                 .Verifiable();
 
-            var player1 = new PlayerId("Player 1");
-            var player2 = new PlayerId("Player 2");
-
             // When:
-            await _sut.CreateGameAsync(player1, player2, CancellationToken.None);
+            await _sut.CreateGameAsync(_twoPlayers, CancellationToken.None);
 
             // Then:
             _seedProvider.VerifyAll();
-        }
-
-        [Fact]
-        public async Task CreateGameAsync_FailsIfPlayer1AndPlayer2AreSame()
-        {
-            var playerId = new PlayerId("player");
-
-            await Assert.ThrowsAsync<ArgumentException>(
-                testCode: () => _sut.CreateGameAsync(playerId, playerId, CancellationToken.None)
-            );
         }
 
         [Theory]
@@ -99,10 +85,7 @@ namespace Sequence.Core.Test.CreateGame
                 .Setup(s => s.PersistNewGameAsync(It.IsAny<NewGame>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(expected);
 
-            var player1 = new PlayerId("Player 1");
-            var player2 = new PlayerId("Player 2");
-
-            var actual = await _sut.CreateGameAsync(player1, player2, CancellationToken.None);
+            var actual = await _sut.CreateGameAsync(_twoPlayers, CancellationToken.None);
 
             Assert.Equal(expected, actual);
         }
