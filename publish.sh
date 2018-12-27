@@ -9,9 +9,9 @@ echo Building in Release mode...
 dotnet build -c Release -v q
 
 echo Running all tests...
-ls ./test/**/*.csproj | xargs -L1 -P 0 dotnet test -c Release -v q --no-build
+ls ./**/*.Test/*.csproj | xargs -L1 -P 0 dotnet test -c Release -v q --no-build
 
-cd ./src/Sequence.Api/
+cd ./api/Sequence.Api/
 
 echo Cleaning previous publish output...
 rm -rf ./bin/Release/netcoreapp2.2/publish
@@ -32,7 +32,7 @@ rsync -ru --progress ./* jbfp@jbfp.dk:/home/jbfp/sequence
 cd $script_path
 
 echo Publishing Auth...
-cd ./src/Sequence.Auth/
+cd ./auth/Sequence.Auth/
 
 dotnet publish -c Release -v q
 cd ./bin/Release/netcoreapp2.2/publish/
