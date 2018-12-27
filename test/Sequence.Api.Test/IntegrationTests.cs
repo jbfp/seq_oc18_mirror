@@ -67,7 +67,7 @@ namespace Sequence.Api.Test
             // Given:
             var body = new
             {
-                opponent = "test"
+                opponents = new[] { "test" }
             };
 
             var client = _factory.CreateClient();
@@ -85,7 +85,7 @@ namespace Sequence.Api.Test
             // Given:
             var body = new
             {
-                opponent = "test"
+                opponents = new[] { "test" }
             };
 
             var client = CreateAuthorizedClient();
@@ -101,6 +101,30 @@ namespace Sequence.Api.Test
         }
 
         [Fact]
+        public async Task CreateGameReturnsBadRequestIfGameSizeIsInvalid()
+        {
+            // Given:
+            var playerId = "test_player";
+
+            var body = new
+            {
+                opponents = new[] { "fail1", "fail2", "fail3", "fail4" }
+            };
+
+            var client = CreateAuthorizedClient(playerId);
+
+            // When:
+            var response = await client.PostAsJsonAsync("/games", body);
+
+            // Then:
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            Assert.Equal("application/json", response.Content.Headers.ContentType.MediaType);
+            var json = await response.Content.ReadAsStringAsync();
+            var obj = JsonConvert.DeserializeAnonymousType(json, new { error = "" });
+            Assert.Equal("Game size is invalid.", obj.error);
+        }
+
+        [Fact]
         public async Task CreateGameReturnsBadRequestIfPlayer1AndPlayer2AreSame()
         {
             // Given:
@@ -108,7 +132,7 @@ namespace Sequence.Api.Test
 
             var body = new
             {
-                opponent = playerId
+                opponents = new[] { playerId }
             };
 
             var client = CreateAuthorizedClient(playerId);
@@ -268,7 +292,7 @@ namespace Sequence.Api.Test
         private async Task<Uri> CreateGameAsync(string opponent = "test")
         {
             var client = CreateAuthorizedClient();
-            var form = new { opponent };
+            var form = new { opponents = new[] { opponent } };
             var response = await client.PostAsJsonAsync("/games", form);
             return response.Headers.Location;
         }

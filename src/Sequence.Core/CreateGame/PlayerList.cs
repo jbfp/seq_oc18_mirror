@@ -8,11 +8,20 @@ namespace Sequence.Core.CreateGame
 {
     public sealed class PlayerList : IEnumerable<PlayerId>
     {
+        private static readonly ImmutableArray<int> _allowedGameSizes = ImmutableArray.Create(
+            2, 3, 4, 6
+        );
+
         public PlayerList(params PlayerId[] players)
         {
             if (players == null)
             {
                 throw new ArgumentNullException(nameof(players));
+            }
+
+            if (!_allowedGameSizes.Contains(players.Length))
+            {
+                throw new ArgumentOutOfRangeException(nameof(players), players.Length, "Game size is not valid.");
             }
 
             var duplicatePlayers = players

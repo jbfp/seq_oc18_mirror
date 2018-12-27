@@ -4,6 +4,7 @@ using Sequence.Core;
 using Sequence.Core.CreateGame;
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -25,31 +26,35 @@ namespace Sequence.Api
             [FromBody] CreateGameForm form,
             CancellationToken cancellationToken)
         {
-            var player1 = PlayerId;
-            var player2 = new PlayerId(form.Opponent);
+            var players = form.Opponents
+                .Select(opponent => new PlayerId(opponent))
+                .Prepend(PlayerId)
+                .ToArray();
 
-            PlayerList players;
+            PlayerList playerList;
 
-            _logger.LogInformation("Attempting to create game for {Player1} vs {Player2}", player1, player2);
+            _logger.LogInformation("Attempting to create game for {Players}", players);
 
             try
             {
-                players = new PlayerList(player1, player2);
+                playerList = new PlayerList(players);
+            }
+            catch (ArgumentOutOfRangeException ex)
+            {
+                _logger.LogWarning(ex, "Game size invalid for {Players}", players);
+                return BadRequest(new { error = "Game size is invalid." });
             }
             catch (ArgumentException ex)
             {
-                _logger.LogWarning(ex,
-                    "Failed to create game for {Player1} vs {Player2}: {Error}",
-                    player1, player2, ex.Message);
-
-                return BadRequest(new { error = ex.Message });
+                _logger.LogWarning(ex, "Duplicate players in {Players}", players);
+                return BadRequest(new { error = "Duplicate players are not allowed." });
             }
 
-            var gameId = await _handler.CreateGameAsync(players, cancellationToken);
+            var gameId = await _handler.CreateGameAsync(playerList, cancellationToken);
 
             _logger.LogInformation(
-                "Successfully created game with ID {GameId} for {Player1} vs {Player2}",
-                gameId, player1, player2);
+                "Successfully created game with ID {GameId} for {Players}",
+                gameId, players);
 
             return Created($"/games/{gameId}", new { gameId });
         }
@@ -58,6 +63,6 @@ namespace Sequence.Api
     public sealed class CreateGameForm
     {
         [Required]
-        public string Opponent { get; set; }
+        public string[] Opponents { get; set; }
     }
 }

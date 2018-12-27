@@ -26,7 +26,7 @@ class Server {
 
     const response = await fetch(`${this._endpoint}/games`, {
       body: JSON.stringify({
-        'opponent': opponent,
+        'opponents': [opponent],
       }),
       headers: {
         'Accept': 'application/json',
