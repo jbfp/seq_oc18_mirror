@@ -9,9 +9,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="2.1.3" />
-    <PackageReference Include="Microsoft.Data.Sqlite" Version="2.1.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.8.0" />
-    <PackageReference Include="MongoDB.Driver" Version="2.7.0" />
     <PackageReference Include="Moq" Version="4.10.0" />
     <PackageReference Include="xunit" Version="2.3.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.3.1" />
@@ -19,7 +17,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Sequence.Api\Sequence.Api.csproj" />
-    <ProjectReference Include="..\..\src\Sequence.Sqlite\Sequence.Sqlite.csproj" />
   </ItemGroup>
 
 </Project>
