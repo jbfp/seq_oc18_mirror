@@ -208,7 +208,7 @@ namespace Sequence.Api.Test
             var game = games[0].ToObject<JObject>();
             Assert.NotNull(game["gameId"]);
             Assert.Equal("test_player", game["currentPlayer"].ToObject<string>());
-            Assert.Equal("test_player", game["opponent"].ToObject<string>());
+            Assert.Equal(new[] { "test" }, game["opponents"].ToObject<string[]>());
         }
 
         [Fact]

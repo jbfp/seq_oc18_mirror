@@ -242,7 +242,7 @@ namespace Sequence.Postgres
             using (var connection = await CreateAndOpenAsync(cancellationToken))
             {
                 var command = new CommandDefinition(
-                    commandText: "SELECT game_id, next_player_id, opponent FROM public.get_game_list_for_player(@playerId);",
+                    commandText: "SELECT * FROM public.get_game_list_for_player(@playerId);",
                     parameters: new { playerId },
                     cancellationToken: cancellationToken
                 );
@@ -250,7 +250,7 @@ namespace Sequence.Postgres
                 var rows = await connection.QueryAsync<get_game_list_for_player>(command);
 
                 gameListItems = rows
-                    .Select(row => new GameListItem(row.game_id, row.next_player_id, row.opponent))
+                    .Select(get_game_list_for_player.ToGameListItem)
                     .ToList()
                     .AsReadOnly();
             }
@@ -368,7 +368,16 @@ namespace Sequence.Postgres
         {
             public GameId game_id;
             public PlayerId next_player_id;
-            public PlayerId opponent;
+            public string[] opponents;
+
+            public static GameListItem ToGameListItem(get_game_list_for_player row)
+            {
+                return new GameListItem(
+                    row.game_id,
+                    row.next_player_id,
+                    row.opponents.Select(o => new PlayerId(o)).ToImmutableList()
+                );
+            }
         }
 
         private sealed class get_game_init_by_id

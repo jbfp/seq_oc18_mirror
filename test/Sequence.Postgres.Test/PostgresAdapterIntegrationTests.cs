@@ -134,13 +134,14 @@ namespace Sequence.Postgres.Test
             var options = await _fixture.CreateDatabaseAsync(CancellationToken.None);
             var gameId = await CreateGameAsync(options, CancellationToken.None);
             var playerId = new PlayerId("player 1");
+            var opponents = new[] { new PlayerId("player 2") };
             var sut = new PostgresAdapter(options, _logger);
             var gameList = await sut.GetGamesForPlayerAsync(playerId, CancellationToken.None);
             Assert.NotNull(gameList);
             var gameListItem = Assert.Single(gameList.Games);
             Assert.Equal(gameId, gameListItem.GameId);
             Assert.Equal(playerId, gameListItem.CurrentPlayer);
-            Assert.Equal("player 2", gameListItem.Opponent.ToString());
+            Assert.Equal(opponents, gameListItem.Opponents);
         }
 
         [Fact]

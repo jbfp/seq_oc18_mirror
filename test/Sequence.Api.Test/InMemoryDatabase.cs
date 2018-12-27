@@ -5,6 +5,7 @@ using Sequence.Core.Play;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -110,8 +111,8 @@ namespace Sequence.Api.Test
                 }
 
                 var typedGameId = new GameId(gameId);
-                var opponent = game.Players.First() == playerId ? game.Players.Last() : game.Players.First();
-                var gameListItem = new GameListItem(typedGameId, nextPlayerId, opponent);
+                var opponents = game.Players.Except(new[] { playerId }).ToImmutableList();
+                var gameListItem = new GameListItem(typedGameId, nextPlayerId, opponents);
                 gameListItems.Add(gameListItem);
             }
 

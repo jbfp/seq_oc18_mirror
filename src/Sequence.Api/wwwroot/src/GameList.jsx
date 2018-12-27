@@ -25,7 +25,7 @@ class GameList extends React.Component {
                     {games.map(game => (
                         <li className="game-list-item" key={game.gameId}>
                             <Link to={`/games/${game.gameId}`} title={game.gameId}>
-                                You vs {game.opponent}; current player is <strong>{game.currentPlayer === this.context.userName ? "you!" : game.currentPlayer}</strong>
+                                You vs {game.opponents.join(', ')}; current player is <strong>{game.currentPlayer === this.context.userName ? "you!" : game.currentPlayer}</strong>
                             </Link>
                         </li>
                     ))}
