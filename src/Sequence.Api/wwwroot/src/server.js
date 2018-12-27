@@ -19,14 +19,14 @@ class Server {
     return this._userName;
   }
 
-  async createGameAsync(opponent) {
-    if (!opponent) {
-      throw new Error(`'${opponent}' is not valid.`);
+  async createGameAsync(opponents) {
+    if (!opponents) {
+      throw new Error(`'${opponents}' is not valid.`);
     }
 
     const response = await fetch(`${this._endpoint}/games`, {
       body: JSON.stringify({
-        'opponents': [opponent],
+        'opponents': opponents,
       }),
       headers: {
         'Accept': 'application/json',

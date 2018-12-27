@@ -7,7 +7,7 @@ class NewGame extends React.Component {
     static contextType = ServerContext;
 
     state = {
-        opponent: '',
+        opponents: [],
         busy: false,
         error: null,
     };
@@ -20,22 +20,49 @@ class NewGame extends React.Component {
         this.setState({ busy: true, error: null });
 
         try {
-            gameId = await this.context.createGameAsync(this.state.opponent);
-            this.setState({ busy: false, opponent: '' });
+            gameId = await this.context.createGameAsync(this.state.opponents);
+            this.setState({ busy: false, opponents: [] });
             this.props.history.push(`/games/${gameId}`);
         } catch (e) {
             this.setState({ busy: false, error: e.toString() });
         }
     };
 
-    handleOpponentChange = event => {
-        event.preventDefault();
-        this.setState({ opponent: event.target.value });
+    handleOpponentChange = (i, event) => {
+        const opponents = this.state.opponents.map((o, j) => {
+            if (i === j) {
+                return event.target.value;
+            } else {
+                return o;
+            }
+        });
+
+        this.setState({ opponents });
+    };
+
+    setGameSize = numOpponents => {
+        const opponents = new Array(numOpponents);
+        opponents.fill('');
+        this.setState({ opponents })
     }
 
     render() {
-        const { opponent, busy, error } = this.state;
-        const disabled = opponent.length === 0 || busy;
+        const { opponents, busy, error } = this.state;
+        const disabled = opponents.length === 0
+            || opponents.includes('')
+            || busy;
+
+        const $opponents = opponents.map((_, i) => (
+            <div key={i} className="new-game-opponent">
+                <input
+                    type="text"
+                    value={opponents[i]}
+                    onChange={e => this.handleOpponentChange(i, e)}
+                    placeholder={`Opponent #${i + 1}`}
+                    readOnly={busy}
+                />
+            </div>
+        ));
 
         return (
             <div className="new-game">
@@ -44,14 +71,59 @@ class NewGame extends React.Component {
                 </p>
 
                 <form onSubmit={this.handleSubmit}>
-                    <input
-                        type="text"
-                        value={opponent}
-                        onChange={this.handleOpponentChange}
-                        placeholder="Opponent name"
-                        readOnly={busy}
-                        autoFocus={true}
-                    />
+                    <div>
+                        <label className="new-game-game-size">
+                            <input
+                                type="radio"
+                                name="num-opponents"
+                                onChange={() => this.setGameSize(1)}
+                            />
+
+                            <span className="new-game-game-size-text">1v1</span>
+                        </label>
+
+                        <label className="new-game-game-size">
+                            <input
+                                type="radio"
+                                name="num-opponents"
+                                onChange={() => this.setGameSize(2)}
+                            />
+
+                            <span className="new-game-game-size-text">1v1v1</span>
+                        </label>
+
+                        <label className="new-game-game-size">
+                            <input
+                                type="radio"
+                                name="num-opponents"
+                                onChange={() => this.setGameSize(3)}
+                            />
+
+                            <span className="new-game-game-size-text">2v2</span>
+                        </label>
+
+                        <label className="new-game-game-size">
+                            <input
+                                type="radio"
+                                name="num-opponents"
+                                onChange={() => this.setGameSize(5)}
+                            />
+
+                            <span className="new-game-game-size-text">2v2v2</span>
+                        </label>
+                    </div>
+
+                    <div>
+                        <div className="new-game-opponent">
+                            <input
+                                type="text"
+                                value="You"
+                                readOnly={true}
+                            />
+                        </div>
+
+                        {$opponents}
+                    </div>
 
                     <button className="new-game-submit" type="submit" disabled={disabled}>
                         Start game
