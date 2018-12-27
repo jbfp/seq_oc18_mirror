@@ -45,11 +45,13 @@ namespace Sequence.Core
 
         private readonly Random _rng;
         private readonly List<Card> _deck;
+        private readonly int _numPlayers;
 
-        public Deck(Seed seed)
+        public Deck(Seed seed, int numPlayers)
         {
             _rng = seed.ToRandom();
             _deck = _cards.ToList();
+            _numPlayers = numPlayers;
 
             // Shuffle with Fisher-Yates algorithm.
             var n = _deck.Count;
@@ -66,19 +68,41 @@ namespace Sequence.Core
 
         public Card Top => _deck.LastOrDefault();
 
-        public IImmutableList<Card> DealHand()
+        public IImmutableList<IImmutableList<Card>> DealHands()
         {
-            var builder = ImmutableList.CreateBuilder<Card>();
-
-            for (int i = 0; i < 7; i++)
+            int GetNumCards()
             {
-                var idx = _deck.Count - 1;
-                var card = _deck[idx];
-                builder.Add(card);
-                _deck.RemoveAt(idx);
+                switch (_numPlayers)
+                {
+                    case 2: return 7;
+                    case 3: return 6;
+                    case 4:
+                    case 6: return 5;
+                    default: throw new NotSupportedException();
+                }
             }
 
-            return builder.ToImmutable();
+            IImmutableList<Card> DealHand(int n)
+            {
+                var builder = ImmutableList.CreateBuilder<Card>();
+
+                for (int i = 0; i < n; i++)
+                {
+                    var idx = _deck.Count - 1;
+                    var card = _deck[idx];
+                    builder.Add(card);
+                    _deck.RemoveAt(idx);
+                }
+
+                return builder.ToImmutable();
+            }
+
+            int numCards = GetNumCards();
+
+            return Enumerable
+                .Range(0, _numPlayers)
+                .Select(_ => DealHand(numCards))
+                .ToImmutableList();
         }
 
         public void Remove(Card card)

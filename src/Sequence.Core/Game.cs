@@ -33,11 +33,24 @@ namespace Sequence.Core
 
             _board = new Board();
             _currentPlayerId = init.FirstPlayer;
-            _deck = new Deck(init.Seed);
+            _deck = new Deck(init.Seed, init.Players.Count);
             _discards = ImmutableStack<Card>.Empty;
             _idxByPlayerId = init.Players.ToImmutableArray();
-            _handByIdx = ImmutableArray.Create(_deck.DealHand(), _deck.DealHand());
-            _teamByIdx = ImmutableArray.Create(Team.Red, Team.Green);
+            _handByIdx = _deck.DealHands().ToImmutableArray();
+
+            ImmutableArray<Team> GetTeams()
+            {
+                switch (init.Players.Count)
+                {
+                    case 2: return ImmutableArray.Create(Team.Red, Team.Green);
+                    case 3: return ImmutableArray.Create(Team.Red, Team.Green, Team.Blue);
+                    case 4: return ImmutableArray.Create(Team.Red, Team.Green, Team.Red, Team.Green);
+                    case 6: return ImmutableArray.Create(Team.Red, Team.Green, Team.Blue, Team.Red, Team.Green, Team.Blue);
+                    default: throw new NotSupportedException();
+                }
+            }
+
+            _teamByIdx = GetTeams();
 
             foreach (var gameEvent in gameEvents)
             {
