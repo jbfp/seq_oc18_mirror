@@ -1,6 +1,7 @@
 using Moq;
 using Sequence.Core.Play;
 using System;
+using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -102,8 +103,9 @@ namespace Sequence.Core.Test
             // Given:
             var game = new Game(
                 new GameInit(
-                    _playerId,
-                    new PlayerId("dummy"),
+                    ImmutableList.Create(
+                        _playerId,
+                        new PlayerId("dummy")),
                     new PlayerId("dummy"),
                     new Seed(42)));
 
@@ -125,8 +127,9 @@ namespace Sequence.Core.Test
             // Given:
             var game = new Game(
                 new GameInit(
-                    _playerId,
-                    new PlayerId("dummy"),
+                    ImmutableList.Create(
+                        _playerId,
+                        new PlayerId("dummy")),
                     new PlayerId("dummy"),
                     new Seed(42)));
 

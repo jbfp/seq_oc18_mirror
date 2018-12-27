@@ -6,7 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Sequence.Core.Test.CreateGameA
+namespace Sequence.Core.Test.CreateGame
 {
     public sealed class CreateGameHandlerTest
     {

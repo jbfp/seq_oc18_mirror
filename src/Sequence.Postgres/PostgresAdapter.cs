@@ -8,6 +8,7 @@ using Sequence.Core.GetGames;
 using Sequence.Core.Play;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -58,7 +59,9 @@ namespace Sequence.Postgres
             using (var connection = await CreateAndOpenAsync(cancellationToken))
             using (var transaction = connection.BeginTransaction())
             {
-                int actualGameId;
+                int surrogateGameId;
+                int byPlayerId;
+                int? nextPlayerId = null;
 
                 {
                     var command = new CommandDefinition(
@@ -68,7 +71,30 @@ namespace Sequence.Postgres
                         cancellationToken: cancellationToken
                     );
 
-                    actualGameId = await connection.QuerySingleAsync<int>(command);
+                    surrogateGameId = await connection.QuerySingleAsync<int>(command);
+                }
+
+                {
+                    var command = new CommandDefinition(
+                        commandText: "SELECT id FROM game_player WHERE game_id = @gameId AND player_id = @playerId;",
+                        parameters: new { gameId = surrogateGameId, playerId = gameEvent.ByPlayerId },
+                        transaction,
+                        cancellationToken: cancellationToken
+                    );
+
+                    byPlayerId = await connection.QuerySingleAsync<int>(command);
+                }
+
+                if (gameEvent.NextPlayerId != null)
+                {
+                    var command = new CommandDefinition(
+                        commandText: "SELECT id FROM game_player WHERE game_id = @gameId AND player_id = @playerId;",
+                        parameters: new { gameId = surrogateGameId, playerId = gameEvent.NextPlayerId },
+                        transaction,
+                        cancellationToken: cancellationToken
+                    );
+
+                    nextPlayerId = await connection.QuerySingleOrDefaultAsync<int?>(command);
                 }
 
                 // Couldn't figure out how to support INSERT with composite types with Dapper, so ADO.NET to the rescue.
@@ -81,14 +107,14 @@ namespace Sequence.Postgres
                             (@gameId, @idx, @byPlayerId, @cardDrawn, @cardUsed, @chip, @coord, @nextPlayerId, @sequence);";
 
                     command.CommandText = commandText;
-                    command.Parameters.AddWithValue("@gameId", actualGameId);
+                    command.Parameters.AddWithValue("@gameId", surrogateGameId);
                     command.Parameters.AddWithValue("@idx", gameEvent.Index);
-                    command.Parameters.AddWithValue("@byPlayerId", gameEvent.ByPlayerId.ToString());
+                    command.Parameters.AddWithValue("@byPlayerId", byPlayerId);
                     command.Parameters.AddWithValue("@cardDrawn", (object)CardComposite.FromCard(gameEvent.CardDrawn) ?? DBNull.Value);
                     command.Parameters.AddWithValue("@cardUsed", CardComposite.FromCard(gameEvent.CardUsed));
                     command.Parameters.AddWithValue("@chip", (object)gameEvent.Chip ?? DBNull.Value);
                     command.Parameters.AddWithValue("@coord", CoordComposite.FromCoord(gameEvent.Coord));
-                    command.Parameters.AddWithValue("@nextPlayerId", (object)gameEvent.NextPlayerId?.ToString() ?? DBNull.Value);
+                    command.Parameters.AddWithValue("@nextPlayerId", (object)nextPlayerId ?? DBNull.Value);
                     command.Parameters.AddWithValue("@sequence", (object)SequenceComposite.FromSequence(gameEvent.Sequence) ?? DBNull.Value);
                     command.Transaction = transaction;
 
@@ -115,36 +141,61 @@ namespace Sequence.Postgres
             using (var transaction = connection.BeginTransaction())
             {
                 {
+                    get_game_init_by_id[] rows;
+
+                    var commandText = @"
+                        SELECT
+                          gp0.player_id AS first_player_id
+                        , gp1.player_id as player_id
+                        , g.seed
+                        FROM public.game AS g
+
+                        INNER JOIN public.game_player AS gp0
+                        ON gp0.id = g.first_player_id
+
+                        INNER JOIN public.game_player AS gp1
+                        ON gp1.game_id = g.id
+
+                        WHERE g.game_id = @gameId;";
+
                     var command = new CommandDefinition(
-                        commandText: "SELECT player1, player2, first_player_id, seed FROM game WHERE game_id = @gameId;",
+                        commandText,
                         parameters: new { gameId },
                         transaction,
                         cancellationToken: cancellationToken
                     );
 
-                    var result = await connection.QuerySingleOrDefaultAsync<get_game_init_by_id>(command);
+                    rows = await connection
+                        .QueryAsync<get_game_init_by_id>(command)
+                        .ContinueWith(t => t.Result.ToArray());
 
-                    if (result == null)
+                    if (rows.Length == 0)
                     {
                         return null;
                     }
 
-                    init = new GameInit(result.player1, result.player2, result.first_player_id, result.seed);
+                    init = new GameInit(
+                        players: rows.Select(row => row.player_id).ToImmutableList(),
+                        firstPlayer: rows[0].first_player_id,
+                        seed: rows[0].seed
+                    );
                 }
 
                 {
                     var commandText = @"
                         SELECT
                           idx
-                        , by_player_id
+                        , gp0.player_id AS by_player_id
                         , card_drawn
                         , card_used
                         , chip
                         , coord
-                        , next_player_id
+                        , gp1.player_id AS next_player_id
                         , sequence
-                        FROM game_event AS ge
-                        INNER JOIN game AS g ON g.id = ge.game_id
+                        FROM public.game_event AS ge
+                        INNER JOIN public.game AS g ON g.id = ge.game_id
+                        INNER JOIN public.game_player AS gp0 ON gp0.game_id = g.id AND gp0.id = ge.by_player_id
+                        LEFT JOIN public.game_player AS gp1 ON gp1.game_id = g.id AND gp1.id = ge.next_player_id
                         WHERE g.game_id = @gameId;";
 
                     var parameters = new { gameId = gameId };
@@ -219,30 +270,86 @@ namespace Sequence.Postgres
             GameId gameId;
 
             using (var connection = await CreateAndOpenAsync(cancellationToken))
+            using (var transaction = connection.BeginTransaction())
             {
-                var commandText = @"
-                    INSERT INTO
-                        game (player1, player2, first_player_id, seed, version)
-                    VALUES
-                        (@player1, @player2, @firstPlayerId, @seed, @version)
-                    RETURNING game_id;";
-
-                var parameters = new
+                try
                 {
-                    player1 = newGame.Player1,
-                    player2 = newGame.Player2,
-                    firstPlayerId = newGame.FirstPlayerId,
-                    seed = newGame.Seed,
-                    version = 1,
-                };
+                    int surrogateGameId = default;
+                    int firstPlayerId = default;
 
-                var command = new CommandDefinition(
-                    commandText,
-                    parameters,
-                    cancellationToken: cancellationToken
-                );
+                    {
+                        var commandText = @"
+                            INSERT INTO
+                                game (seed, version)
+                            VALUES
+                                (@seed, @version)
+                            RETURNING id, game_id;";
 
-                gameId = await connection.QuerySingleAsync<GameId>(command);
+                        var parameters = new { seed = newGame.Seed, version = 1 };
+
+                        var command = new CommandDefinition(
+                            commandText,
+                            parameters,
+                            transaction,
+                            cancellationToken: cancellationToken
+                        );
+
+                        var result = await connection.QuerySingleAsync<insert_into_game>(command);
+                        surrogateGameId = result.id;
+                        gameId = result.game_id;
+                    }
+
+                    foreach (var playerId in newGame.Players)
+                    {
+                        var commandText = @"
+                            INSERT INTO
+                                game_player (game_id, player_id)
+                            VALUES
+                                (@gameId, @playerId)
+                            RETURNING id;";
+
+                        var parameters = new { gameId = surrogateGameId, playerId };
+
+                        var command = new CommandDefinition(
+                            commandText,
+                            parameters,
+                            transaction,
+                            cancellationToken: cancellationToken
+                        );
+
+                        var result = await connection.QuerySingleAsync<int>(command);
+
+                        if (firstPlayerId == default)
+                        {
+                            firstPlayerId = result;
+                        }
+                    }
+
+                    {
+                        var commandText = @"
+                            UPDATE game
+                               SET first_player_id = @firstPlayerId
+                             WHERE id = @gameId;";
+
+                        var parameters = new { firstPlayerId, gameId = surrogateGameId };
+
+                        var command = new CommandDefinition(
+                            commandText,
+                            parameters,
+                            transaction,
+                            cancellationToken: cancellationToken
+                        );
+
+                        await connection.ExecuteAsync(command);
+                    }
+
+                    await transaction.CommitAsync(cancellationToken);
+                }
+                catch
+                {
+                    await transaction.RollbackAsync(cancellationToken);
+                    throw;
+                }
             }
 
             return gameId;
@@ -266,8 +373,7 @@ namespace Sequence.Postgres
 
         private sealed class get_game_init_by_id
         {
-            public PlayerId player1;
-            public PlayerId player2;
+            public PlayerId player_id;
             public PlayerId first_player_id;
             public Seed seed;
         }
@@ -282,6 +388,12 @@ namespace Sequence.Postgres
             public CoordComposite coord;
             public PlayerId next_player_id;
             public SequenceComposite sequence;
+        }
+
+        private sealed class insert_into_game
+        {
+            public int id;
+            public GameId game_id;
         }
 #pragma warning restore CS0649
     }

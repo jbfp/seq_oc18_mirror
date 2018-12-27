@@ -6,8 +6,6 @@ using Sequence.Core.CreateGame;
 using Sequence.Core.GetGames;
 using Sequence.Core.Play;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -79,7 +77,7 @@ namespace Sequence.Mongo
             throw new NotImplementedException();
         }
 
-        public async Task<GameId> PersistNewGameAsync(NewGame newGame, CancellationToken cancellationToken)
+        public Task<GameId> PersistNewGameAsync(NewGame newGame, CancellationToken cancellationToken)
         {
             if (newGame == null)
             {
@@ -88,20 +86,7 @@ namespace Sequence.Mongo
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            var gameId = new GameId(Guid.NewGuid());
-
-            var document = new BsonDocument
-            {
-                {"game_id", gameId.ToString()},
-                {"seed", newGame.Seed.ToInt32()},
-                {"player1", newGame.Player1.ToString()},
-                {"player2", newGame.Player2.ToString()},
-                {"version", 1},
-            };
-
-            await _games.InsertOneAsync(document, null, cancellationToken);
-
-            return gameId;
+            throw new NotImplementedException();
         }
     }
 }

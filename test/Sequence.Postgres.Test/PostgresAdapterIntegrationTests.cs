@@ -62,6 +62,28 @@ namespace Sequence.Postgres.Test
         }
 
         [Fact]
+        public async Task CanAddGameEventWithoutNextPlayer()
+        {
+            var options = await _fixture.CreateDatabaseAsync(CancellationToken.None);
+            var gameId = await CreateGameAsync(options, CancellationToken.None);
+
+            var sut = new PostgresAdapter(options, _logger);
+
+            var gameEvent = new GameEvent
+            {
+                ByPlayerId = new PlayerId("player 1"),
+                CardDrawn = null,
+                CardUsed = new Card(DeckNo.Two, Suit.Diamonds, Rank.King),
+                Chip = Team.Green,
+                Coord = new Coord(4, 2),
+                Index = 2,
+                NextPlayerId = null,
+            };
+
+            await sut.AddEventAsync(gameId, gameEvent, CancellationToken.None);
+        }
+
+        [Fact]
         public async Task CanAddGameEventWithCardDrawn()
         {
             var options = await _fixture.CreateDatabaseAsync(CancellationToken.None);
@@ -99,7 +121,7 @@ namespace Sequence.Postgres.Test
                 Chip = Team.Green,
                 Coord = new Coord(4, 2),
                 Index = 2,
-                NextPlayerId = new PlayerId("player 2"),
+                NextPlayerId = null,
                 Sequence = _sequence,
             };
 
@@ -229,8 +251,7 @@ namespace Sequence.Postgres.Test
             var sut = new PostgresAdapter(options, _logger);
 
             var newGame = new NewGame(
-                player1: new PlayerId("player 1"),
-                player2: new PlayerId("player 2"),
+                players: ImmutableList.Create(new PlayerId("player 1"), new PlayerId("player 2")),
                 firstPlayerId: new PlayerId("player 1"),
                 seed: new Seed(42)
             );

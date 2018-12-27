@@ -57,7 +57,7 @@ namespace Sequence.Api.Test
 
             if (_games.TryGetValue(gameId.ToString(), out var row))
             {
-                var init = new GameInit(row.Player1, row.Player2, row.FirstPlayerId, row.Seed);
+                var init = new GameInit(row.Players, row.FirstPlayerId, row.Seed);
 
                 var gameEvents = _gameEvents
                     .Where(kvp => kvp.Key.Item1 == gameId.ToString())
@@ -83,7 +83,7 @@ namespace Sequence.Api.Test
             var gameListItems = new List<GameListItem>();
 
             var gameIds = _games
-                .Where(kvp => kvp.Value.Player1.ToString() == playerId.ToString() || kvp.Value.Player2.ToString() == playerId.ToString())
+                .Where(kvp => kvp.Value.Players.Any(p => p.ToString() == playerId.ToString()))
                 .Select(kvp => kvp.Key)
                 .ToList()
                 .AsReadOnly();
@@ -106,11 +106,11 @@ namespace Sequence.Api.Test
                 }
                 else
                 {
-                    nextPlayerId = _games[gameId].Player1;
+                    nextPlayerId = _games[gameId].FirstPlayerId;
                 }
 
                 var typedGameId = new GameId(gameId);
-                var opponent = game.Player1 == playerId ? game.Player2 : game.Player1;
+                var opponent = game.Players.First() == playerId ? game.Players.Last() : game.Players.First();
                 var gameListItem = new GameListItem(typedGameId, nextPlayerId, opponent);
                 gameListItems.Add(gameListItem);
             }

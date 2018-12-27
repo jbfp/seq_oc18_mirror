@@ -2,6 +2,7 @@ using Moq;
 using Sequence.Core;
 using Sequence.Core.GetGame;
 using System;
+using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -85,8 +86,9 @@ namespace Sequence.Core.GetGame
             var playerId = new PlayerId(player);
             var game = new Game(
                 new GameInit(
-                    new PlayerId(player),
-                    new PlayerId("player 2"),
+                    ImmutableList.Create(
+                        new PlayerId(player),
+                        new PlayerId("player 2")),
                     new PlayerId(player),
                     new Seed(42)));
 

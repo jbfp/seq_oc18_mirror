@@ -1,19 +1,18 @@
 using System;
+using System.Collections.Immutable;
 
 namespace Sequence.Core
 {
     public sealed class GameInit
     {
-        public GameInit(PlayerId player1, PlayerId player2, PlayerId firstPlayer, Seed seed)
+        public GameInit(IImmutableList<PlayerId> players, PlayerId firstPlayer, Seed seed)
         {
-            Player1 = player1 ?? throw new ArgumentNullException(nameof(player1));
-            Player2 = player2 ?? throw new ArgumentNullException(nameof(player2));
+            Players = players ?? throw new ArgumentNullException(nameof(players));
             FirstPlayer = firstPlayer ?? throw new ArgumentNullException(nameof(firstPlayer));
             Seed = seed;
         }
 
-        public PlayerId Player1 { get; }
-        public PlayerId Player2 { get; }
+        public IImmutableList<PlayerId> Players { get; }
         public PlayerId FirstPlayer { get; }
         public Seed Seed { get; }
     }

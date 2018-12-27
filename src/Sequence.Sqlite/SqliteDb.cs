@@ -90,7 +90,7 @@ namespace Sequence.Sqlite
             throw new NotImplementedException();
         }
 
-        public async Task<GameId> PersistNewGameAsync(NewGame newGame, CancellationToken cancellationToken)
+        public Task<GameId> PersistNewGameAsync(NewGame newGame, CancellationToken cancellationToken)
         {
             if (newGame == null)
             {
@@ -99,35 +99,7 @@ namespace Sequence.Sqlite
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            var gameId = Guid.NewGuid().ToString();
-
-            using (var connection = await CreateAndOpenAsync(cancellationToken))
-            {
-                var commandText = @"
-                    INSERT INTO
-                        games (game_id, player1, player2, seed, version)
-                    VALUES
-                        (@gameId, @player1, @player2, @seed, @version);";
-
-                var parameters = new
-                {
-                    gameId,
-                    player1 = newGame.Player1.ToString(),
-                    player2 = newGame.Player2.ToString(),
-                    seed = newGame.Seed.ToInt32(),
-                    version = 1,
-                };
-
-                var command = new CommandDefinition(
-                    commandText,
-                    parameters,
-                    cancellationToken: cancellationToken
-                );
-
-                await connection.ExecuteAsync(command);
-            }
-
-            return new GameId(gameId);
+            throw new NotImplementedException();
         }
 
         private async Task<SqliteConnection> CreateAndOpenAsync(CancellationToken cancellationToken)

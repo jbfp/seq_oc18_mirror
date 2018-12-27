@@ -35,7 +35,7 @@ namespace Sequence.Core
             _currentPlayerId = init.FirstPlayer;
             _deck = new Deck(init.Seed);
             _discards = ImmutableStack<Card>.Empty;
-            _idxByPlayerId = ImmutableArray.Create(init.Player1, init.Player2);
+            _idxByPlayerId = init.Players.ToImmutableArray();
             _handByIdx = ImmutableArray.Create(_deck.DealHand(), _deck.DealHand());
             _teamByIdx = ImmutableArray.Create(Team.Red, Team.Green);
 
