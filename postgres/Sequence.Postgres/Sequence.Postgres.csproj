@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Sequence.Core\Sequence.Core.csproj" />
+    <ProjectReference Include="..\..\core\Sequence.Core\Sequence.Core.csproj" />
   </ItemGroup>
 
    <ItemGroup>

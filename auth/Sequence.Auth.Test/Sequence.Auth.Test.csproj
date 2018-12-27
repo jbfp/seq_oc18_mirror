@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Sequence.Auth\Sequence.Auth.csproj" />
+    <ProjectReference Include="..\Sequence.Auth\Sequence.Auth.csproj" />
   </ItemGroup>
 
 </Project>

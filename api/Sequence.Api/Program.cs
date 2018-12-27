@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Sequence.Postgres;
-using Sequence.Sqlite;
 using Serilog;
 using Serilog.Events;
 using Serilog.Formatting.Compact;

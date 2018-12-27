@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Sequence.Postgres\Sequence.Postgres.csproj" />
+    <ProjectReference Include="..\Sequence.Postgres\Sequence.Postgres.csproj" />
   </ItemGroup>
 
 </Project>
