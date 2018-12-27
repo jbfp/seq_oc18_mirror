@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Sequence.Core\Sequence.Core.csproj" />
+    <ProjectReference Include="..\..\src\Sequence.Core\Sequence.Core.csproj" />
     <ProjectReference Include="..\..\postgres\Sequence.Postgres\Sequence.Postgres.csproj" />
   </ItemGroup>
 

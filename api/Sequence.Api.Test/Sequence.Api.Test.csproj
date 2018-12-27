@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Sequence.Api\Sequence.Api.csproj" />
+    <ProjectReference Include="..\Sequence.Api\Sequence.Api.csproj" />
   </ItemGroup>
 
 </Project>
