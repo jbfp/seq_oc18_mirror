@@ -15,7 +15,7 @@ class BoardView extends React.PureComponent {
             }),
 
             isLocked: PropTypes.bool.isRequired,
-            team: PropTypes.oneOf(['red', 'green']).isRequired,
+            team: PropTypes.oneOf(['red', 'green', 'blue']).isRequired,
         })).isRequired,
 
         onCoordClick: PropTypes.func.isRequired,

@@ -44,12 +44,20 @@
     background-color: #008000;
 }
 
+.cell[data-chip="blue"] {
+    background-color: #01AAFE;
+}
+
 .cell[data-chip="red"][data-sequence=true] {
     background: repeating-linear-gradient( 45deg, #FF0000, #FF0000 10px, #FF000088 10px, #FF000088 20px);
 }
 
 .cell[data-chip="green"][data-sequence=true] {
     background: repeating-linear-gradient( 45deg, #008000, #008000 10px, #00800088 10px, #00800088 20px);
+}
+
+.cell[data-chip="blue"][data-sequence=true] {
+    background: repeating-linear-gradient( 45deg, #01AAFE, #01AAFE 10px, #00689B 10px, #00689B 20px);
 }
 
 .cell[data-joker] {
@@ -195,6 +203,10 @@ div[data-rank="king"]::after {
     background-color: #00800088;
 }
 
+.player[data-team='blue'] {
+    background-color: #01AAFE;
+}
+
 .player-name {
     font-size: 115%;
     overflow: hidden;
@@ -299,6 +311,10 @@ div[data-rank="king"]::after {
     color: #00800088;
 }
 
+.players-player[data-team='blue'] {
+    color: #01AAFE88;
+}
+
 .players-player[data-current-player='true'] {
     text-decoration: underline;
 }
@@ -324,6 +340,11 @@ div[data-rank="king"]::after {
 .players-player[data-current-player='true'][data-team='green'],
 .players-player[data-winner='true'][data-team='green'] {
     background-color: #00800088;
+}
+
+.players-player[data-current-player='true'][data-team='blue'],
+.players-player[data-winner='true'][data-team='blue'] {
+    background-color: #01AAFE88;
 }
 
 .players-player[data-winner='true']::before,

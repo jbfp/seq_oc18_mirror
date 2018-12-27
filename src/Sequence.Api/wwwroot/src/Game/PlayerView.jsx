@@ -16,7 +16,7 @@ class PlayerView extends React.PureComponent {
             suit: PropTypes.oneOf(['hearts', 'spades', 'diamonds', 'clubs']).isRequired,
             rank: PropTypes.oneOf(['ace', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'jack', 'queen', 'king']).isRequired,
         }),
-        team: PropTypes.oneOf(['red', 'green']).isRequired,
+        team: PropTypes.oneOf(['red', 'green', 'blue']).isRequired,
     };
 
     render() {
