@@ -13,6 +13,7 @@ namespace Sequence.Postgres
         static PostgresBase()
         {
             NpgsqlConnection.GlobalTypeMapper.MapEnum<DeckNo>("deckno");
+            NpgsqlConnection.GlobalTypeMapper.MapEnum<PlayerType>("player_type");
             NpgsqlConnection.GlobalTypeMapper.MapEnum<Rank>("rank");
             NpgsqlConnection.GlobalTypeMapper.MapEnum<Suit>("suit");
             NpgsqlConnection.GlobalTypeMapper.MapEnum<Team>("chip");

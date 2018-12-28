@@ -59,9 +59,9 @@ namespace Sequence.Postgres
                     {
                         var commandText = @"
                             INSERT INTO
-                                game_player (game_id, player_id)
+                                game_player (game_id, player_id, player_type)
                             VALUES
-                                (@gameId, @playerId)
+                                (@gameId, @playerId, 'user'::player_type)
                             RETURNING id;";
 
                         var parameters = new { gameId = surrogateGameId, playerId };
