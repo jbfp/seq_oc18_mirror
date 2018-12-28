@@ -3,7 +3,7 @@
 set -e
 script_path="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
 cd $script_path
-cd ./src/Sequence.Api/wwwroot/
+cd ./api/Sequence.Api/wwwroot/
 yarn start
 
 
