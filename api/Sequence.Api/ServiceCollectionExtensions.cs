@@ -45,10 +45,10 @@ namespace Sequence.Api
         {
             services.Configure<PostgresOptions>(configuration.GetSection("Postgres"));
 
-            services.AddTransient<IGameEventStore, PostgresAdapter>();
-            services.AddTransient<IGameProvider, PostgresAdapter>();
-            services.AddTransient<IGameListProvider, PostgresAdapter>();
-            services.AddTransient<IGameStore, PostgresAdapter>();
+            services.AddTransient<IGameEventStore, PostgresGameEventStore>();
+            services.AddTransient<IGameProvider, PostgresGameProvider>();
+            services.AddTransient<IGameListProvider, PostgresGameListProvider>();
+            services.AddTransient<IGameStore, PostgresGameStore>();
 
             services.AddSingleton<PostgresMigrations>();
 
