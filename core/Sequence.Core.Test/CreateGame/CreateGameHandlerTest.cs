@@ -74,12 +74,12 @@ namespace Sequence.Core.Test.CreateGame
         }
 
         [Theory]
-        [InlineData("123")]
-        [InlineData(42)]
-        [InlineData(true)]
-        public async Task CreateGameAsync_ReturnsGameIdFromStore(object gameId)
+        [InlineData("291bcf7e-45a2-4c5a-b16f-af8f9fa1b2df")]
+        [InlineData("6a91eb4b-423a-41aa-8b5f-f5587260a4ed")]
+        [InlineData("8dc05e8a-b8e1-4062-ab58-3c7c67436ecb")]
+        public async Task CreateGameAsync_ReturnsGameIdFromStore(string gameIdStr)
         {
-            var expected = new GameId(gameId);
+            var expected = new GameId(Guid.Parse(gameIdStr));
 
             _store
                 .Setup(s => s.PersistNewGameAsync(It.IsAny<NewGame>(), It.IsAny<CancellationToken>()))

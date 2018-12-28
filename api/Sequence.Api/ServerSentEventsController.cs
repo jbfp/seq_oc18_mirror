@@ -25,8 +25,8 @@ namespace Sequence.Api
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        [HttpGet("/games/{id}/stream")]
-        public async Task Get([FromRoute] string id, [FromQuery] string playerId, CancellationToken cancellationToken)
+        [HttpGet("/games/{id:guid}/stream")]
+        public async Task Get([FromRoute] Guid id, [FromQuery] string playerId, CancellationToken cancellationToken)
         {
             if (string.IsNullOrWhiteSpace(playerId))
             {

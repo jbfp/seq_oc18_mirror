@@ -20,10 +20,10 @@ namespace Sequence.Api
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        [HttpPost("/games/{id}")]
+        [HttpPost("/games/{id:guid}")]
         [PlayCardFailedExceptionFilter]
         public async Task<ActionResult<PlayCardResult>> Post(
-            [FromRoute] string id,
+            [FromRoute] Guid id,
             [FromBody] PlayCardForm form,
             CancellationToken cancellationToken)
         {

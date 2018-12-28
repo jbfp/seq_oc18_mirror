@@ -48,7 +48,7 @@ namespace Sequence.Api.Test
 
         [Theory]
         [InlineData("/games")]
-        [InlineData("/games/123456")]
+        [InlineData("/games/6a91eb4b-423a-41aa-8b5f-f5587260a4ed")]
         public async Task GetResourceIsProtected(string path)
         {
             // Given:
@@ -156,7 +156,7 @@ namespace Sequence.Api.Test
             var body = new { card = new { deckNo = 0, suit = 0, rank = 0 }, column = 0, row = 0 };
 
             // When:
-            var response = await client.PostAsJsonAsync("/games/1234", body);
+            var response = await client.PostAsJsonAsync("/games/6a91eb4b-423a-41aa-8b5f-f5587260a4ed", body);
 
             // Then:
             Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
@@ -242,7 +242,9 @@ namespace Sequence.Api.Test
             var client = _factory.CreateClient();
 
             // When:
-            var response = await client.GetAsync("/games/1234/stream", HttpCompletionOption.ResponseHeadersRead);
+            var response = await client.GetAsync(
+                "/games/6a91eb4b-423a-41aa-8b5f-f5587260a4ed/stream",
+                HttpCompletionOption.ResponseHeadersRead);
 
             // Then:
             Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);

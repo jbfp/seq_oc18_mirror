@@ -1,6 +1,5 @@
 using Moq;
-using Sequence.Core;
-using Sequence.Core.GetGame;
+using Sequence.Core.Test;
 using System;
 using System.Collections.Immutable;
 using System.Threading;
@@ -23,6 +22,9 @@ namespace Sequence.Core.GetGame
         private readonly Mock<IGameProvider> _provider = new Mock<IGameProvider>();
         private readonly GetGameHandler _sut;
 
+        private readonly GameId _gameIdDummy = GameIdGenerator.Generate();
+        private readonly PlayerId _playerIdDummy = new PlayerId("dummy");
+
         public GetGameHandlerTest()
         {
             _sut = new GetGameHandler(_provider.Object);
@@ -31,29 +33,24 @@ namespace Sequence.Core.GetGame
         [Fact]
         public async Task ThrowsWhenArgsAreNull()
         {
-            var gameId = new GameId("dummy");
-            var playerId = new PlayerId("dummy");
-
             await Assert.ThrowsAsync<ArgumentNullException>(
                 paramName: "gameId",
-                testCode: () => _sut.GetGameViewForPlayerAsync(null, playerId, CancellationToken.None)
+                testCode: () => _sut.GetGameViewForPlayerAsync(null, _playerIdDummy, CancellationToken.None)
             );
 
             await Assert.ThrowsAsync<ArgumentNullException>(
                 paramName: "playerId",
-                testCode: () => _sut.GetGameViewForPlayerAsync(gameId, null, CancellationToken.None)
+                testCode: () => _sut.GetGameViewForPlayerAsync(_gameIdDummy, null, CancellationToken.None)
             );
         }
 
         [Fact]
         public async Task ThrowsWhenCanceled()
         {
-            var gameId = new GameId("dummy");
-            var playerId = new PlayerId("dummy");
             var cancellationToken = new CancellationToken(canceled: true);
 
             await Assert.ThrowsAsync<OperationCanceledException>(
-                testCode: () => _sut.GetGameViewForPlayerAsync(gameId, playerId, cancellationToken)
+                testCode: () => _sut.GetGameViewForPlayerAsync(_gameIdDummy, _playerIdDummy, cancellationToken)
             );
         }
 
@@ -61,15 +58,12 @@ namespace Sequence.Core.GetGame
         public async Task ThrowsIfGameDoesNotExist()
         {
             // Given:
-            var gameId = new GameId("dummy");
-            var playerId = new PlayerId("dummy");
-
             _provider
-                .Setup(p => p.GetGameByIdAsync(gameId, It.IsAny<CancellationToken>()))
+                .Setup(p => p.GetGameByIdAsync(_gameIdDummy, It.IsAny<CancellationToken>()))
                 .ReturnsAsync((Game)null);
 
             // When:
-            var testCode = new Func<Task>(() => _sut.GetGameViewForPlayerAsync(gameId, playerId, CancellationToken.None));
+            var testCode = new Func<Task>(() => _sut.GetGameViewForPlayerAsync(_gameIdDummy, _playerIdDummy, CancellationToken.None));
 
             // Then:
             await Assert.ThrowsAsync<GameNotFoundException>(testCode);
@@ -82,7 +76,6 @@ namespace Sequence.Core.GetGame
         public async Task ReturnsGameView(string player)
         {
             // Given:
-            var gameId = new GameId(42);
             var playerId = new PlayerId(player);
             var game = new Game(
                 new GameInit(
@@ -93,11 +86,11 @@ namespace Sequence.Core.GetGame
                     new Seed(42)));
 
             _provider
-                .Setup(p => p.GetGameByIdAsync(gameId, It.IsAny<CancellationToken>()))
+                .Setup(p => p.GetGameByIdAsync(_gameIdDummy, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(game);
 
             // When:
-            var actual = await _sut.GetGameViewForPlayerAsync(gameId, playerId, CancellationToken.None);
+            var actual = await _sut.GetGameViewForPlayerAsync(_gameIdDummy, playerId, CancellationToken.None);
 
             // Then:
             Assert.NotNull(actual);

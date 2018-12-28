@@ -38,7 +38,7 @@ namespace Sequence.Core.Test
         private readonly Mock<IGameUpdatedNotifier> _notifier = new Mock<IGameUpdatedNotifier>();
         private readonly PlayHandler _sut;
 
-        private readonly GameId _gameId = new GameId("dummy");
+        private readonly GameId _gameId = GameIdGenerator.Generate();
         private readonly PlayerId _playerId = new PlayerId("dummy");
         private readonly Card _card = new Card(DeckNo.Two, Suit.Spades, Rank.Ten);
         private readonly Coord _coord = new Coord(1, 9);

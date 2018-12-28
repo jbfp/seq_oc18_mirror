@@ -19,9 +19,9 @@ namespace Sequence.Api
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        [HttpGet("/games/{id}")]
+        [HttpGet("/games/{id:guid}")]
         public async Task<ActionResult<GetGameResult>> Get(
-            [FromRoute] string id,
+            [FromRoute] Guid id,
             CancellationToken cancellationToken)
         {
             var gameId = new GameId(id);

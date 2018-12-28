@@ -13,7 +13,9 @@ namespace Sequence.Api
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
-            return new GameId(reader.ReadAsString());
+            var str = reader.ReadAsString();
+            var guid = Guid.Parse(str);
+            return new GameId(guid);
         }
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)

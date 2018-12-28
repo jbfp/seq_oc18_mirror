@@ -14,13 +14,13 @@ namespace Sequence.Api.Test
 {
     internal sealed class InMemoryDatabase : IGameEventStore, IGameProvider, IGameListProvider, IGameStore
     {
-        private readonly ConcurrentDictionary<string, NewGame> _games;
-        private readonly ConcurrentDictionary<(string, int), GameEvent> _gameEvents;
+        private readonly ConcurrentDictionary<GameId, NewGame> _games;
+        private readonly ConcurrentDictionary<(GameId, int), GameEvent> _gameEvents;
 
         public InMemoryDatabase()
         {
-            _games = new ConcurrentDictionary<string, NewGame>();
-            _gameEvents = new ConcurrentDictionary<(string, int), GameEvent>();
+            _games = new ConcurrentDictionary<GameId, NewGame>();
+            _gameEvents = new ConcurrentDictionary<(GameId, int), GameEvent>();
         }
 
         public Task AddEventAsync(GameId gameId, GameEvent gameEvent, CancellationToken cancellationToken)
@@ -37,7 +37,7 @@ namespace Sequence.Api.Test
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (!_gameEvents.TryAdd((gameId.ToString(), gameEvent.Index), gameEvent))
+            if (!_gameEvents.TryAdd((gameId, gameEvent.Index), gameEvent))
             {
                 throw new InvalidOperationException();
             }
@@ -56,12 +56,12 @@ namespace Sequence.Api.Test
 
             Game game = null;
 
-            if (_games.TryGetValue(gameId.ToString(), out var row))
+            if (_games.TryGetValue(gameId, out var row))
             {
                 var init = new GameInit(row.PlayerList.Players, row.PlayerList.FirstPlayer, row.Seed);
 
                 var gameEvents = _gameEvents
-                    .Where(kvp => kvp.Key.Item1 == gameId.ToString())
+                    .Where(kvp => kvp.Key.Item1 == gameId)
                     .OrderBy(kvp => kvp.Key.Item2)
                     .Select(kvp => kvp.Value)
                     .ToArray();
@@ -96,7 +96,7 @@ namespace Sequence.Api.Test
                 PlayerId nextPlayerId = null;
 
                 var latestGameEventIdx = _gameEvents.Keys
-                    .Where(key => key.Item1 == gameId.ToString())
+                    .Where(key => key.Item1 == gameId)
                     .OrderByDescending(key => key.Item2)
                     .Select(key => key.Item2)
                     .FirstOrDefault();
@@ -110,9 +110,8 @@ namespace Sequence.Api.Test
                     nextPlayerId = _games[gameId].PlayerList.FirstPlayer;
                 }
 
-                var typedGameId = new GameId(gameId);
                 var opponents = game.PlayerList.Except(new[] { playerId }).ToImmutableList();
-                var gameListItem = new GameListItem(typedGameId, nextPlayerId, opponents);
+                var gameListItem = new GameListItem(gameId, nextPlayerId, opponents);
                 gameListItems.Add(gameListItem);
             }
 
@@ -130,7 +129,7 @@ namespace Sequence.Api.Test
 
             var gameId = new GameId(Guid.NewGuid());
 
-            if (!_games.TryAdd(gameId.ToString(), newGame))
+            if (!_games.TryAdd(gameId, newGame))
             {
                 throw new InvalidOperationException();
             }

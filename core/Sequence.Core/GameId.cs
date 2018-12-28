@@ -4,11 +4,11 @@ namespace Sequence.Core
 {
     public sealed class GameId : IEquatable<GameId>
     {
-        private readonly object _value;
+        private readonly Guid _value;
 
-        public GameId(object value) => _value = value;
+        public GameId(Guid value) => _value = value;
 
-        public bool Equals(GameId other) => _value.Equals(other?._value);
+        public bool Equals(GameId other) => other != null && _value.Equals(other._value);
 
         public override bool Equals(object obj) => Equals(obj as GameId);
 
