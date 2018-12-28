@@ -37,13 +37,13 @@ namespace Sequence.Postgres.Test
 
             await AddEventAsync(options, gameId, new GameEvent
             {
-                ByPlayerId = new PlayerId("player 1"),
+                ByPlayerId = new PlayerId(1),
                 CardDrawn = null,
                 CardUsed = new Card(DeckNo.Two, Suit.Diamonds, Rank.King),
                 Chip = Team.Green,
                 Coord = new Coord(4, 2),
                 Index = 2,
-                NextPlayerId = new PlayerId("player 2"),
+                NextPlayerId = new PlayerId(2),
             });
 
             var sut = new PostgresGameProvider(options);
@@ -64,13 +64,13 @@ namespace Sequence.Postgres.Test
 
             await AddEventAsync(options, gameId, new GameEvent
             {
-                ByPlayerId = new PlayerId("player 1"),
+                ByPlayerId = new PlayerId(1),
                 CardDrawn = new Card(DeckNo.One, Suit.Spades, Rank.Five),
                 CardUsed = new Card(DeckNo.Two, Suit.Diamonds, Rank.King),
                 Chip = Team.Green,
                 Coord = new Coord(4, 2),
                 Index = 2,
-                NextPlayerId = new PlayerId("player 2"),
+                NextPlayerId = new PlayerId(2),
             });
 
             var sut = new PostgresGameProvider(options);
@@ -91,13 +91,13 @@ namespace Sequence.Postgres.Test
 
             await AddEventAsync(options, gameId, new GameEvent
             {
-                ByPlayerId = new PlayerId("player 1"),
+                ByPlayerId = new PlayerId(1),
                 CardDrawn = new Card(DeckNo.One, Suit.Spades, Rank.Five),
                 CardUsed = new Card(DeckNo.Two, Suit.Diamonds, Rank.King),
                 Chip = Team.Green,
                 Coord = new Coord(4, 2),
                 Index = 2,
-                NextPlayerId = new PlayerId("player 2"),
+                NextPlayerId = new PlayerId(2),
                 Sequence = new Seq(Team.Blue, ImmutableList.Create(
                     new Coord(4, 2),
                     new Coord(5, 2),

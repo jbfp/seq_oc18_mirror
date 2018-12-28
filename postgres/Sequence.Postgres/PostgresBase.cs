@@ -23,6 +23,7 @@ namespace Sequence.Postgres
             NpgsqlConnection.GlobalTypeMapper.MapComposite<SequenceComposite>("sequence");
 
             SqlMapper.AddTypeHandler<GameId>(new GameIdTypeHandler());
+            SqlMapper.AddTypeHandler<PlayerHandle>(new PlayerHandleTypeHandler());
             SqlMapper.AddTypeHandler<PlayerId>(new PlayerIdTypeHandler());
             SqlMapper.AddTypeHandler<Seed>(new SeedTypeHandler());
         }

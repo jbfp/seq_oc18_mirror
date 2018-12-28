@@ -256,7 +256,7 @@ namespace Sequence.Api.Test
             // Given:
             _seedProvider.Value = new Seed(42);
             var gamePath = await CreateGameAsync();
-            var subscribePath = gamePath.ToString() + "/stream?playerId=dummy";
+            var subscribePath = gamePath.ToString() + "/stream?player=dummy";
             var client = CreateAuthorizedClient();
             var response = await client.GetAsync(subscribePath, HttpCompletionOption.ResponseHeadersRead);
             var body = new { card = new { deckNo = 1, suit = 1, rank = 9 }, column = 8, row = 0 };

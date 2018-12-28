@@ -24,6 +24,24 @@ namespace Sequence.Api
         }
     }
 
+    internal sealed class PlayerHandleJsonConverter : JsonConverter
+    {
+        public override bool CanRead { get; } = true;
+        public override bool CanWrite { get; } = true;
+
+        public override bool CanConvert(Type objectType) => typeof(PlayerHandle) == objectType;
+
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        {
+            return new PlayerHandle(reader.ReadAsString());
+        }
+
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        {
+            writer.WriteValue(value.ToString());
+        }
+    }
+
     internal sealed class PlayerIdJsonConverter : JsonConverter
     {
         public override bool CanRead { get; } = true;
@@ -33,12 +51,12 @@ namespace Sequence.Api
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
-            return new PlayerId(reader.ReadAsString());
+            return new PlayerId(reader.ReadAsInt32().Value);
         }
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
-            writer.WriteValue(value.ToString());
+            writer.WriteValue(((PlayerId)value).ToInt32());
         }
     }
 

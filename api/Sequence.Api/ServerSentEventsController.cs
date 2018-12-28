@@ -26,9 +26,9 @@ namespace Sequence.Api
         }
 
         [HttpGet("/games/{id:guid}/stream")]
-        public async Task Get([FromRoute] Guid id, [FromQuery] string playerId, CancellationToken cancellationToken)
+        public async Task Get([FromRoute] Guid id, [FromQuery] string player, CancellationToken cancellationToken)
         {
-            if (string.IsNullOrWhiteSpace(playerId))
+            if (string.IsNullOrWhiteSpace(player))
             {
                 Response.StatusCode = 401;
                 return;

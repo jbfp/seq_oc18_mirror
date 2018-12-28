@@ -17,8 +17,8 @@ namespace Sequence.Core.CreateGame.Test
         {
             Assert.Throws<ArgumentException>(() =>
                 new PlayerList(
-                    new PlayerId("player"),
-                    new PlayerId("player")));
+                    new PlayerHandle("player"),
+                    new PlayerHandle("player")));
         }
 
         [Theory]
@@ -32,7 +32,7 @@ namespace Sequence.Core.CreateGame.Test
         {
             var players = Enumerable
                 .Range(0, size)
-                .Select(n => new PlayerId($"Player {n + 1}"))
+                .Select(n => new PlayerHandle($"Player {n + 1}"))
                 .ToArray();
 
             Assert.Throws<ArgumentOutOfRangeException>(() => new PlayerList(players));

@@ -14,12 +14,12 @@ namespace Sequence.Api.Test
 {
     internal sealed class InMemoryDatabase : IGameEventStore, IGameProvider, IGameListProvider, IGameStore
     {
-        private readonly ConcurrentDictionary<GameId, NewGame> _games;
+        private readonly ConcurrentDictionary<GameId, GameInit> _games;
         private readonly ConcurrentDictionary<(GameId, int), GameEvent> _gameEvents;
 
         public InMemoryDatabase()
         {
-            _games = new ConcurrentDictionary<GameId, NewGame>();
+            _games = new ConcurrentDictionary<GameId, GameInit>();
             _gameEvents = new ConcurrentDictionary<(GameId, int), GameEvent>();
         }
 
@@ -56,10 +56,8 @@ namespace Sequence.Api.Test
 
             Game game = null;
 
-            if (_games.TryGetValue(gameId, out var row))
+            if (_games.TryGetValue(gameId, out var init))
             {
-                var init = new GameInit(row.PlayerList.Players, row.PlayerList.FirstPlayer, row.Seed);
-
                 var gameEvents = _gameEvents
                     .Where(kvp => kvp.Key.Item1 == gameId)
                     .OrderBy(kvp => kvp.Key.Item2)
@@ -72,11 +70,11 @@ namespace Sequence.Api.Test
             return Task.FromResult(game);
         }
 
-        public Task<GameList> GetGamesForPlayerAsync(PlayerId playerId, CancellationToken cancellationToken)
+        public Task<GameList> GetGamesForPlayerAsync(PlayerHandle player, CancellationToken cancellationToken)
         {
-            if (playerId == null)
+            if (player == null)
             {
-                throw new System.ArgumentNullException(nameof(playerId));
+                throw new System.ArgumentNullException(nameof(player));
             }
 
             cancellationToken.ThrowIfCancellationRequested();
@@ -84,7 +82,7 @@ namespace Sequence.Api.Test
             var gameListItems = new List<GameListItem>();
 
             var gameIds = _games
-                .Where(kvp => kvp.Value.PlayerList.Any(p => p.ToString() == playerId.ToString()))
+                .Where(kvp => kvp.Value.Players.Any(p => player.Equals(p.Handle)))
                 .Select(kvp => kvp.Key)
                 .ToList()
                 .AsReadOnly();
@@ -107,11 +105,12 @@ namespace Sequence.Api.Test
                 }
                 else
                 {
-                    nextPlayerId = _games[gameId].PlayerList.FirstPlayer;
+                    nextPlayerId = _games[gameId].FirstPlayerId;
                 }
 
-                var opponents = game.PlayerList.Except(new[] { playerId }).ToImmutableList();
-                var gameListItem = new GameListItem(gameId, nextPlayerId, opponents);
+                var nextPlayerName = game.Players.SingleOrDefault(p => p.Id == nextPlayerId)?.Handle;
+                var opponents = game.Players.Select(p => p.Handle).Except(new[] { player }).ToImmutableList();
+                var gameListItem = new GameListItem(gameId, nextPlayerName, opponents);
                 gameListItems.Add(gameListItem);
             }
 
@@ -129,7 +128,14 @@ namespace Sequence.Api.Test
 
             var gameId = new GameId(Guid.NewGuid());
 
-            if (!_games.TryAdd(gameId, newGame))
+            var players = newGame.PlayerList
+                .Select((player, i) => new Player(new PlayerId(i + 1), player))
+                .ToImmutableList();
+
+            var firstPlayerId = players.Single(p => p.Handle == newGame.PlayerList.FirstPlayer).Id;
+            var init = new GameInit(players, firstPlayerId, newGame.Seed);
+
+            if (!_games.TryAdd(gameId, init))
             {
                 throw new InvalidOperationException();
             }

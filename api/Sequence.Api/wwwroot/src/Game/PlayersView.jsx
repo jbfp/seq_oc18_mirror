@@ -14,7 +14,7 @@ class PlayersView extends React.PureComponent {
                     data-winner={player.team === (winner || {}).team}
                 >
                     <div>
-                        {player.id}
+                        {player.handle}
                     </div>
                 </div>
             );

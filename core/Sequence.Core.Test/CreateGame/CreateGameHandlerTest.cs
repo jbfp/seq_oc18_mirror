@@ -29,8 +29,8 @@ namespace Sequence.Core.Test.CreateGame
         }
 
         private static readonly PlayerList _twoPlayers = new PlayerList(
-            new PlayerId("player 1"),
-            new PlayerId("player 2"));
+            new PlayerHandle("player 1"),
+            new PlayerHandle("player 2"));
 
         private readonly Mock<ISeedProvider> _seedProvider = new Mock<ISeedProvider>();
         private readonly Mock<IGameStore> _store = new Mock<IGameStore>();

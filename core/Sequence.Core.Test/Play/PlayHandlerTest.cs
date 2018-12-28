@@ -39,9 +39,11 @@ namespace Sequence.Core.Test
         private readonly PlayHandler _sut;
 
         private readonly GameId _gameId = GameIdGenerator.Generate();
-        private readonly PlayerId _playerId = new PlayerId("dummy");
+        private readonly PlayerHandle _player = new PlayerHandle("dummy 1");
         private readonly Card _card = new Card(DeckNo.Two, Suit.Spades, Rank.Ten);
         private readonly Coord _coord = new Coord(1, 9);
+
+        private readonly Game _game;
 
         public PlayHandlerTest()
         {
@@ -58,6 +60,23 @@ namespace Sequence.Core.Test
                 .Returns(Task.CompletedTask);
 
             _sut = new PlayHandler(_provider.Object, _store.Object, _notifier.Object);
+
+            _game = new Game(
+                new GameInit(
+                    players: ImmutableArray.Create(
+                        new Player(
+                            new PlayerId(1),
+                            _player
+                        ),
+                        new Player(
+                            new PlayerId(2),
+                            new PlayerHandle("dummy 2")
+                        )
+                    ),
+                    firstPlayerId: new PlayerId(1),
+                    seed: new Seed(42)
+                )
+            );
         }
 
         [Fact]
@@ -65,17 +84,17 @@ namespace Sequence.Core.Test
         {
             await Assert.ThrowsAsync<ArgumentNullException>(
                 paramName: "gameId",
-                testCode: () => _sut.PlayCardAsync(gameId: null, _playerId, _card, _coord, CancellationToken.None)
+                testCode: () => _sut.PlayCardAsync(gameId: null, _player, _card, _coord, CancellationToken.None)
             );
 
             await Assert.ThrowsAsync<ArgumentNullException>(
-                paramName: "playerId",
-                testCode: () => _sut.PlayCardAsync(_gameId, playerId: null, _card, _coord, CancellationToken.None)
+                paramName: "player",
+                testCode: () => _sut.PlayCardAsync(_gameId, player: null, _card, _coord, CancellationToken.None)
             );
 
             await Assert.ThrowsAsync<ArgumentNullException>(
                 paramName: "card",
-                testCode: () => _sut.PlayCardAsync(_gameId, _playerId, card: null, _coord, CancellationToken.None)
+                testCode: () => _sut.PlayCardAsync(_gameId, _player, card: null, _coord, CancellationToken.None)
             );
         }
 
@@ -85,7 +104,7 @@ namespace Sequence.Core.Test
             var cancellationToken = new CancellationToken(canceled: true);
 
             await Assert.ThrowsAsync<OperationCanceledException>(
-                testCode: () => _sut.PlayCardAsync(_gameId, _playerId, _card, _coord, cancellationToken)
+                testCode: () => _sut.PlayCardAsync(_gameId, _player, _card, _coord, cancellationToken)
             );
         }
 
@@ -93,7 +112,7 @@ namespace Sequence.Core.Test
         public async Task ThrowsIfGameDoesNotExist()
         {
             await Assert.ThrowsAsync<GameNotFoundException>(
-                () => _sut.PlayCardAsync(_gameId, _playerId, _card, _coord, CancellationToken.None)
+                () => _sut.PlayCardAsync(_gameId, _player, _card, _coord, CancellationToken.None)
             );
         }
 
@@ -101,21 +120,13 @@ namespace Sequence.Core.Test
         public async Task SavesEvent()
         {
             // Given:
-            var game = new Game(
-                new GameInit(
-                    ImmutableList.Create(
-                        _playerId,
-                        new PlayerId("dummy")),
-                    new PlayerId("dummy"),
-                    new Seed(42)));
-
             _provider
                 .Setup(p => p.GetGameByIdAsync(_gameId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(game)
+                .ReturnsAsync(_game)
                 .Verifiable();
 
             // When:
-            await _sut.PlayCardAsync(_gameId, _playerId, _card, _coord, CancellationToken.None);
+            await _sut.PlayCardAsync(_gameId, _player, _card, _coord, CancellationToken.None);
 
             // Then:
             _store.VerifyAll();
@@ -125,17 +136,9 @@ namespace Sequence.Core.Test
         public async Task PublishesEvent()
         {
             // Given:
-            var game = new Game(
-                new GameInit(
-                    ImmutableList.Create(
-                        _playerId,
-                        new PlayerId("dummy")),
-                    new PlayerId("dummy"),
-                    new Seed(42)));
-
             _provider
                 .Setup(p => p.GetGameByIdAsync(_gameId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(game);
+                .ReturnsAsync(_game);
 
             _store
                 .Setup(s => s.AddEventAsync(_gameId, It.IsAny<GameEvent>(), It.IsAny<CancellationToken>()))
@@ -143,7 +146,7 @@ namespace Sequence.Core.Test
                 .Verifiable();
 
             // When:
-            await _sut.PlayCardAsync(_gameId, _playerId, _card, _coord, CancellationToken.None);
+            await _sut.PlayCardAsync(_gameId, _player, _card, _coord, CancellationToken.None);
 
             // Then:
             _store.VerifyAll();

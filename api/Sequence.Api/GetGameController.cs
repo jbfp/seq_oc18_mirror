@@ -25,7 +25,7 @@ namespace Sequence.Api
             CancellationToken cancellationToken)
         {
             var gameId = new GameId(id);
-            var view = await _handler.GetGameViewForPlayerAsync(gameId, PlayerId, cancellationToken);
+            var view = await _handler.GetGameViewForPlayerAsync(gameId, Player, cancellationToken);
             var result = new GetGameResult(view);
             return Ok(result);
         }

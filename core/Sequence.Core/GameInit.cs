@@ -5,29 +5,15 @@ namespace Sequence.Core
 {
     public sealed class GameInit
     {
-        public GameInit(IImmutableList<PlayerId> players, PlayerId firstPlayer, Seed seed)
+        public GameInit(IImmutableList<Player> players, PlayerId firstPlayerId, Seed seed)
         {
             Players = players ?? throw new ArgumentNullException(nameof(players));
-            FirstPlayer = firstPlayer ?? throw new ArgumentNullException(nameof(firstPlayer));
+            FirstPlayerId = firstPlayerId ?? throw new ArgumentNullException(nameof(firstPlayerId));
             Seed = seed;
         }
 
-        public IImmutableList<PlayerId> Players { get; }
-        public PlayerId FirstPlayer { get; }
+        public IImmutableList<Player> Players { get; }
+        public PlayerId FirstPlayerId { get; }
         public Seed Seed { get; }
-    }
-
-    public struct Seed
-    {
-        private readonly int _value;
-
-        public Seed(int value)
-        {
-            _value = value;
-        }
-
-        public Random ToRandom() => new Random(_value);
-
-        public int ToInt32() => _value;
     }
 }

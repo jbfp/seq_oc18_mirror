@@ -27,8 +27,8 @@ namespace Sequence.Api
             CancellationToken cancellationToken)
         {
             var players = form.Opponents
-                .Select(opponent => new PlayerId(opponent))
-                .Prepend(PlayerId)
+                .Select(opponent => new PlayerHandle(opponent))
+                .Prepend(Player)
                 .ToArray();
 
             PlayerList playerList;

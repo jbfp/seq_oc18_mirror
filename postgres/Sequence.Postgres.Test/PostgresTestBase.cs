@@ -32,8 +32,8 @@ namespace Sequence.Postgres.Test
 
             var newGame = new NewGame(
                 players: new PlayerList(
-                    new PlayerId("player 1"),
-                    new PlayerId("player 2")),
+                    new PlayerHandle("player 1"),
+                    new PlayerHandle("player 2")),
                 seed: new Seed(42));
 
             return await gameStore.PersistNewGameAsync(newGame, CancellationToken.None);

@@ -15,17 +15,17 @@ namespace Sequence.Core.GetGames
         }
 
         public async Task<GameList> GetGamesForPlayerAsync(
-            PlayerId playerId,
+            PlayerHandle player,
             CancellationToken cancellationToken)
         {
-            if (playerId == null)
+            if (player == null)
             {
-                throw new ArgumentNullException(nameof(playerId));
+                throw new ArgumentNullException(nameof(player));
             }
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            return await _provider.GetGamesForPlayerAsync(playerId, cancellationToken);
+            return await _provider.GetGamesForPlayerAsync(player, cancellationToken);
         }
     }
 }

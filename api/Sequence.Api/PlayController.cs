@@ -29,7 +29,7 @@ namespace Sequence.Api
         {
             var gameId = new GameId(id);
             var coord = new Coord(form.Column.Value, form.Row.Value);
-            var result = await _handler.PlayCardAsync(gameId, PlayerId, form.Card, coord, cancellationToken);
+            var result = await _handler.PlayCardAsync(gameId, Player, form.Card, coord, cancellationToken);
             return Ok(result);
         }
     }

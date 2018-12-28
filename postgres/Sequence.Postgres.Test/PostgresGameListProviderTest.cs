@@ -18,18 +18,18 @@ namespace Sequence.Postgres.Test
             // Given:
             var options = await CreateDatabaseAsync();
             var gameId = await CreateGameAsync(options);
-            var playerId = new PlayerId("player 1");
-            var opponents = new[] { new PlayerId("player 2") };
+            var player = new PlayerHandle("player 1");
+            var opponents = new[] { new PlayerHandle("player 2") };
             var sut = new PostgresGameListProvider(options);
 
             // When:
-            var gameList = await sut.GetGamesForPlayerAsync(playerId, CancellationToken.None);
+            var gameList = await sut.GetGamesForPlayerAsync(player, CancellationToken.None);
 
             // Then:
             Assert.NotNull(gameList);
             var gameListItem = Assert.Single(gameList.Games);
             Assert.Equal(gameId, gameListItem.GameId);
-            Assert.Equal(playerId, gameListItem.CurrentPlayer);
+            Assert.Equal(player, gameListItem.CurrentPlayer);
             Assert.Equal(opponents, gameListItem.Opponents);
         }
 
@@ -39,11 +39,11 @@ namespace Sequence.Postgres.Test
             // Given:
             var options = await CreateDatabaseAsync();
             var gameId = await CreateGameAsync(options);
-            var playerId = new PlayerId("player 1");
+            var player = new PlayerHandle("player 1");
 
             await AddEventAsync(options, gameId, new GameEvent
             {
-                ByPlayerId = playerId,
+                ByPlayerId = new PlayerId(1),
                 CardUsed = new Card(DeckNo.One, Suit.Spades, Rank.Ace),
                 Chip = Team.Red,
                 Coord = new Coord(4, 2),
@@ -54,7 +54,7 @@ namespace Sequence.Postgres.Test
             var sut = new PostgresGameListProvider(options);
 
             // When:
-            var gameList = await sut.GetGamesForPlayerAsync(playerId, CancellationToken.None);
+            var gameList = await sut.GetGamesForPlayerAsync(player, CancellationToken.None);
 
             // Then:
             var gameListItem = Assert.Single(gameList.Games);

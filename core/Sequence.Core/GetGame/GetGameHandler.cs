@@ -13,16 +13,16 @@ namespace Sequence.Core.GetGame
             _provider = provider ?? throw new ArgumentNullException(nameof(provider));
         }
 
-        public async Task<GameView> GetGameViewForPlayerAsync(GameId gameId, PlayerId playerId, CancellationToken cancellationToken)
+        public async Task<GameView> GetGameViewForPlayerAsync(GameId gameId, PlayerHandle player, CancellationToken cancellationToken)
         {
             if (gameId == null)
             {
                 throw new ArgumentNullException(nameof(gameId));
             }
 
-            if (playerId == null)
+            if (player == null)
             {
-                throw new ArgumentNullException(nameof(playerId));
+                throw new ArgumentNullException(nameof(player));
             }
 
             cancellationToken.ThrowIfCancellationRequested();
@@ -34,7 +34,7 @@ namespace Sequence.Core.GetGame
                 throw new GameNotFoundException();
             }
 
-            return game.GetViewForPlayer(playerId);
+            return game.GetViewForPlayer(player);
         }
     }
 }

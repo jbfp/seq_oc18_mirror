@@ -9,7 +9,8 @@ namespace Sequence.Core
     {
         private readonly Board _board;
         private readonly Deck _deck;
-        private readonly ImmutableArray<PlayerId> _idxByPlayerId;
+        private readonly ImmutableArray<PlayerHandle> _playerHandleByIdx;
+        private readonly ImmutableArray<PlayerId> _playerIdByIdx;
         private readonly ImmutableArray<Team> _teamByIdx;
 
         private ImmutableArray<IImmutableList<Card>> _handByIdx;
@@ -32,11 +33,12 @@ namespace Sequence.Core
             }
 
             _board = new Board();
-            _currentPlayerId = init.FirstPlayer;
+            _currentPlayerId = init.FirstPlayerId;
             _deck = new Deck(init.Seed, init.Players.Count);
             _discards = ImmutableStack<Card>.Empty;
-            _idxByPlayerId = init.Players.ToImmutableArray();
             _handByIdx = _deck.DealHands().ToImmutableArray();
+            _playerHandleByIdx = init.Players.Select(p => p.Handle).ToImmutableArray();
+            _playerIdByIdx = init.Players.Select(p => p.Id).ToImmutableArray();
 
             ImmutableArray<Team> GetTeams()
             {
@@ -62,7 +64,7 @@ namespace Sequence.Core
         {
             var cardDrawn = gameEvent.CardDrawn;
             var cardUsed = gameEvent.CardUsed;
-            var playerIdx = _idxByPlayerId.IndexOf(gameEvent.ByPlayerId);
+            var playerIdx = _playerIdByIdx.IndexOf(gameEvent.ByPlayerId);
             var hand = _handByIdx[playerIdx].Remove(cardUsed);
 
             if (cardDrawn != null)
@@ -88,11 +90,11 @@ namespace Sequence.Core
             }
         }
 
-        public GameEvent PlayCard(PlayerId playerId, Card card, Coord coord)
+        public GameEvent PlayCard(PlayerHandle player, Card card, Coord coord)
         {
-            if (playerId == null)
+            if (player == null)
             {
-                throw new ArgumentNullException(nameof(playerId));
+                throw new ArgumentNullException(nameof(player));
             }
 
             if (card == null)
@@ -100,12 +102,14 @@ namespace Sequence.Core
                 throw new ArgumentNullException(nameof(card));
             }
 
-            var playerIdx = _idxByPlayerId.IndexOf(playerId);
+            var playerIdx = _playerHandleByIdx.IndexOf(player);
 
             if (playerIdx == -1)
             {
                 throw new PlayCardFailedException(PlayCardError.PlayerIsNotInGame);
             }
+
+            var playerId = _playerIdByIdx[playerIdx];
 
             if (!playerId.Equals(_currentPlayerId))
             {
@@ -139,7 +143,7 @@ namespace Sequence.Core
                     Chip = null,
                     Coord = coord,
                     Index = _index + 1,
-                    NextPlayerId = _idxByPlayerId[(playerIdx + 1) % _idxByPlayerId.Length],
+                    NextPlayerId = _playerIdByIdx[(playerIdx + 1) % _playerIdByIdx.Length],
                 };
             }
             else
@@ -156,7 +160,7 @@ namespace Sequence.Core
 
                 var team = _teamByIdx[playerIdx];
                 var sequence = Board.GetSequence(_board.Chips.Add(coord, team), coord, team);
-                var nextPlayerId = sequence == null ? _idxByPlayerId[(playerIdx + 1) % _idxByPlayerId.Length] : null;
+                var nextPlayerId = sequence == null ? _playerIdByIdx[(playerIdx + 1) % _playerIdByIdx.Length] : null;
 
                 return new GameEvent
                 {
@@ -172,11 +176,11 @@ namespace Sequence.Core
             }
         }
 
-        public GameView GetViewForPlayer(PlayerId playerId)
+        public GameView GetViewForPlayer(PlayerHandle player)
         {
-            if (playerId == null)
+            if (player == null)
             {
-                throw new ArgumentNullException(nameof(playerId));
+                throw new ArgumentNullException(nameof(player));
             }
 
             var view = new GameView
@@ -191,20 +195,22 @@ namespace Sequence.Core
                 CurrentPlayerId = _currentPlayerId,
                 Discards = _discards.ToImmutableArray(),
                 NumberOfCardsInDeck = _deck.Count,
-                Players = _idxByPlayerId.Select((p, i) => new PlayerView
+                Players = _playerIdByIdx.Select((p, i) => new PlayerView
                 {
                     Id = p,
+                    Handle = _playerHandleByIdx[i],
                     NumberOfCards = _handByIdx[i].Count,
                     Team = _teamByIdx[i],
                 }).ToImmutableArray(),
                 Winner = _winner,
             };
 
-            var idx = _idxByPlayerId.IndexOf(playerId);
+            var idx = _playerHandleByIdx.IndexOf(player);
 
             if (idx >= 0)
             {
                 view.Hand = _handByIdx[idx];
+                view.PlayerId = _playerIdByIdx[idx];
                 view.Team = _teamByIdx[idx];
             }
 
@@ -251,6 +257,7 @@ namespace Sequence.Core
     public sealed class PlayerView
     {
         public PlayerId Id { get; internal set; }
+        public PlayerHandle Handle { get; internal set; }
         public int NumberOfCards { get; internal set; }
         public Team Team { get; internal set; }
     }
@@ -318,6 +325,7 @@ namespace Sequence.Core
         public IImmutableList<Card> Discards { get; internal set; }
         public IImmutableList<Card> Hand { get; internal set; }
         public int NumberOfCardsInDeck { get; internal set; }
+        public PlayerId PlayerId { get; internal set; }
         public IImmutableList<PlayerView> Players { get; internal set; }
         public Team Team { get; internal set; }
         public Winner Winner { get; internal set; }

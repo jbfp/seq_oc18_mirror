@@ -11,10 +11,16 @@ namespace Sequence.Postgres
         public override void SetValue(IDbDataParameter parameter, GameId value) => parameter.Value = Guid.Parse(value.ToString());
     }
 
-    internal sealed class PlayerIdTypeHandler : StringTypeHandler<PlayerId>
+    internal sealed class PlayerHandleTypeHandler : StringTypeHandler<PlayerHandle>
     {
-        protected override string Format(PlayerId xml) => xml.ToString();
-        protected override PlayerId Parse(string xml) => new PlayerId(xml);
+        protected override string Format(PlayerHandle xml) => xml.ToString();
+        protected override PlayerHandle Parse(string xml) => new PlayerHandle(xml);
+    }
+
+    internal sealed class PlayerIdTypeHandler : TypeHandler<PlayerId>
+    {
+        public override PlayerId Parse(object value) => new PlayerId((int)value);
+        public override void SetValue(IDbDataParameter parameter, PlayerId value) => parameter.Value = value.ToInt32();
     }
 
     internal sealed class SeedTypeHandler : TypeHandler<Seed>

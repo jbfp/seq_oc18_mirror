@@ -24,7 +24,7 @@ namespace Sequence.Api
         [HttpGet("/games")]
         public async Task<ActionResult<GameList>> Get(CancellationToken cancellationToken)
         {
-            return await _handler.GetGamesForPlayerAsync(PlayerId, cancellationToken);
+            return await _handler.GetGamesForPlayerAsync(Player, cancellationToken);
         }
     }
 }
