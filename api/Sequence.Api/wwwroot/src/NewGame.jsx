@@ -18,10 +18,17 @@ class NewGame extends React.Component {
 
         let gameId;
 
+        const opponents = this.state.opponents.map(opponent => {
+            return {
+                name: opponent,
+                type: 1,
+            };
+        });
+
         this.setState({ busy: true, error: null });
 
         try {
-            gameId = await this.context.createGameAsync(this.state.opponents);
+            gameId = await this.context.createGameAsync(opponents);
             this.setState({ busy: false, opponents: [] });
             this.props.history.push(`/games/${gameId}`);
         } catch (e) {

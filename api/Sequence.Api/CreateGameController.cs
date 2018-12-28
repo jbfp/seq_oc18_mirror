@@ -27,7 +27,7 @@ namespace Sequence.Api
             CancellationToken cancellationToken)
         {
             var players = form.Opponents
-                .Select(opponent => new PlayerHandle(opponent))
+                .Select(opponent => new PlayerHandle(opponent.Name))
                 .Prepend(Player)
                 .ToArray();
 
@@ -63,6 +63,21 @@ namespace Sequence.Api
     public sealed class CreateGameForm
     {
         [Required]
-        public string[] Opponents { get; set; }
+        public Opponent[] Opponents { get; set; }
+    }
+
+    public enum OpponentType
+    {
+        User = 1,
+        Bot = 2
+    }
+
+    public sealed class Opponent
+    {
+        [Required]
+        public OpponentType Type { get; set; }
+
+        [Required]
+        public string Name { get; set; }
     }
 }

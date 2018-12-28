@@ -68,7 +68,10 @@ namespace Sequence.Api.Test
             // Given:
             var body = new
             {
-                opponents = new[] { "test" }
+                opponents = new[]
+                {
+                    new { name = "test", type = 1 },
+                },
             };
 
             var client = _factory.CreateClient();
@@ -86,7 +89,10 @@ namespace Sequence.Api.Test
             // Given:
             var body = new
             {
-                opponents = new[] { "test" }
+                opponents = new[]
+                {
+                    new { name = "test", type = 1 },
+                },
             };
 
             var client = CreateAuthorizedClient();
@@ -109,7 +115,13 @@ namespace Sequence.Api.Test
 
             var body = new
             {
-                opponents = new[] { "fail1", "fail2", "fail3", "fail4" }
+                opponents = new[]
+                {
+                    new { name = "fail1", type = 1 },
+                    new { name = "fail2", type = 1 },
+                    new { name = "fail3", type = 1 },
+                    new { name = "fail4", type = 1 },
+                },
             };
 
             var client = CreateAuthorizedClient(playerId);
@@ -133,7 +145,10 @@ namespace Sequence.Api.Test
 
             var body = new
             {
-                opponents = new[] { playerId }
+                opponents = new[]
+                {
+                    new { name = playerId, type = 1 },
+                },
             };
 
             var client = CreateAuthorizedClient(playerId);
@@ -310,8 +325,17 @@ namespace Sequence.Api.Test
         private async Task<Uri> CreateGameAsync(string opponent = "test")
         {
             var client = CreateAuthorizedClient();
-            var form = new { opponents = new[] { opponent } };
+
+            var form = new
+            {
+                opponents = new[]
+                {
+                    new { name = opponent, type = 1 },
+                },
+            };
+
             var response = await client.PostAsJsonAsync("/games", form);
+
             return response.Headers.Location;
         }
 
