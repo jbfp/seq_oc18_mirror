@@ -49,6 +49,7 @@ namespace Sequence.Api.Test
         [Theory]
         [InlineData("/games")]
         [InlineData("/games/6a91eb4b-423a-41aa-8b5f-f5587260a4ed")]
+        [InlineData("/bots")]
         public async Task GetResourceIsProtected(string path)
         {
             // Given:
@@ -277,6 +278,21 @@ namespace Sequence.Api.Test
                 Assert.Equal("data: 1", line1);
                 Assert.Equal("", line2);
             }
+        }
+
+        [Fact]
+        public async Task GetBotsReturnsCorrectResult()
+        {
+            // Given:
+            var client = CreateAuthorizedClient();
+
+            // When:
+            var response = await client.GetAsync("/bots");
+
+            // Then:
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var json = JObject.Parse(await response.Content.ReadAsStringAsync());
+            Assert.NotEmpty(json["botTypes"]);
         }
 
         private HttpClient CreateAuthorizedClient(string playerId = "test_player")

@@ -7,6 +7,7 @@ class NewGame extends React.Component {
     static contextType = ServerContext;
 
     state = {
+        botTypes: [],
         opponents: [],
         busy: false,
         error: null,
@@ -46,8 +47,12 @@ class NewGame extends React.Component {
         this.setState({ opponents })
     }
 
+    async componentDidMount() {
+        this.setState({ botTypes: await this.context.getBotsAsync() });
+    }
+
     render() {
-        const { opponents, busy, error } = this.state;
+        const { botTypes, opponents, busy, error } = this.state;
         const disabled = opponents.length === 0
             || opponents.includes('')
             || busy;
