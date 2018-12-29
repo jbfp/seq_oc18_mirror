@@ -22,6 +22,16 @@ namespace Sequence.Core.Test.CreateGame
                 new PlayerList(player, player));
         }
 
+        [Fact]
+        public void Constructor_MultipleBotsOfSameTypeIsAllowed()
+        {
+            var bot = new NewPlayer(
+                new PlayerHandle("Resistance is futile"),
+                PlayerType.Bot);
+
+            Assert.NotNull(new PlayerList(bot, bot));
+        }
+
         [Theory]
         [InlineData(0)]
         [InlineData(1)]

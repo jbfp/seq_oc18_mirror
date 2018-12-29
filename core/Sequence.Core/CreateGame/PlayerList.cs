@@ -25,7 +25,8 @@ namespace Sequence.Core.CreateGame
             }
 
             var duplicatePlayers = players
-                .GroupBy(playerId => playerId)
+                .Where(player => player.Type == PlayerType.User)
+                .GroupBy(player => player.Handle)
                 .Where(group => group.Count() > 1)
                 .Select(group => group.Key);
 
