@@ -1,4 +1,5 @@
 using Sequence.Core;
+using Sequence.Core.CreateGame;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -57,6 +58,24 @@ namespace Sequence.Postgres.Test
             // Then:
             var gameListItem = Assert.Single(gameList.Games);
             Assert.Null(gameListItem.CurrentPlayer);
+        }
+
+        [Fact]
+        public async Task CannotGetGamesAsBot()
+        {
+            // Given:
+            var options = await CreateDatabaseAsync();
+            var player = new PlayerHandle("Super Bot");
+            var gameId = await CreateGameAsync(options,
+                player1: new NewPlayer(player, PlayerType.Bot));
+
+            var sut = new PostgresGameListProvider(options);
+
+            // When:
+            var gameList = await sut.GetGamesForPlayerAsync(player, CancellationToken.None);
+
+            // Then:
+            Assert.Empty(gameList.Games);
         }
     }
 }
