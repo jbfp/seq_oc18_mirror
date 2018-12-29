@@ -12,7 +12,8 @@ a:visited {
     color: #777777;
 }
 
-input[type="text"] {
+input[type="text"],
+select {
     font-size: 13pt;
     padding: 0.5em;
     width: 100%;
