@@ -107,6 +107,32 @@ namespace Sequence.Api.Test
             Assert.Equal("application/json", response.Content.Headers.ContentType.MediaType);
         }
 
+        [Theory]
+        [InlineData("some bot type that does not exist")]
+        [InlineData("jbfp")]
+        [InlineData("hello world")]
+        public async Task CreateGameReturnsBadRequestIfBotIsUnknown(string botType)
+        {
+            // Given:
+            var playerId = "test_player";
+
+            var body = new
+            {
+                opponents = new[]
+                {
+                    new { name = botType, type = "Bot" },
+                },
+            };
+
+            var client = CreateAuthorizedClient(playerId);
+
+            // When:
+            var response = await client.PostAsJsonAsync("/games", body);
+
+            // Then:
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
         [Fact]
         public async Task CreateGameReturnsBadRequestIfGameSizeIsInvalid()
         {

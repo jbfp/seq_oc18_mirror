@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using Sequence.Core;
 using Sequence.Core.CreateGame;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading;
@@ -66,12 +67,30 @@ namespace Sequence.Api
         public Opponent[] Opponents { get; set; }
     }
 
-    public sealed class Opponent
+    public sealed class Opponent : IValidatableObject
     {
         [Required]
         public PlayerType? Type { get; set; }
 
         [Required]
         public string Name { get; set; }
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            if (validationContext.ObjectInstance is Opponent opponent)
+            {
+                if (opponent.Type == PlayerType.Bot)
+                {
+                    var botType = opponent.Name;
+
+                    if (!BotProvider.BotTypes.ContainsKey(opponent.Name))
+                    {
+                        var errorMessage = $"The bot type '{opponent.Name}' does not exist.";
+                        var memberNames = new[] { nameof(Name) };
+                        yield return new ValidationResult(errorMessage, memberNames);
+                    }
+                }
+            }
+        }
     }
 }
