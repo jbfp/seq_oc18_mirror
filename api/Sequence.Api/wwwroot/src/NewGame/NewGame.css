@@ -18,7 +18,8 @@
     width: 60px;
 }
 
-.new-game-game-size input {
+.new-game-game-size input[type="radio"] {
+    display: none;
     height: 0;
     margin: 0;
     padding: 0;
