@@ -38,6 +38,7 @@ namespace Sequence.Postgres
                           g.first_player_id AS first_player_id
                         , gp.id AS player_id
                         , gp.player_id AS player_handle
+                        , gp.player_type AS player_type
                         , g.seed
                         FROM public.game AS g
 
@@ -63,7 +64,7 @@ namespace Sequence.Postgres
                     }
 
                     init = new GameInit(
-                        players: rows.Select(row => new Player(row.player_id, row.player_handle)).ToImmutableList(),
+                        players: rows.Select(row => new Player(row.player_id, row.player_handle, row.player_type)).ToImmutableList(),
                         firstPlayerId: rows[0].first_player_id,
                         seed: rows[0].seed
                     );
@@ -120,6 +121,7 @@ namespace Sequence.Postgres
             public PlayerId first_player_id;
             public PlayerId player_id;
             public PlayerHandle player_handle;
+            public PlayerType player_type;
             public Seed seed;
         }
 

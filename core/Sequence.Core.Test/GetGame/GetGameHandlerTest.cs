@@ -110,6 +110,7 @@ namespace Sequence.Core.Test.GetGame
             Assert.Equal(playerHandle, actual.Players[0].Handle);
             Assert.Equal(7, actual.Players[0].NumberOfCards);
             Assert.Equal(Team.Red, actual.Players[0].Team);
+            Assert.Equal(PlayerType.User, actual.Players[0].Type);
 
             Assert.Equal(new PlayerId(2), actual.Players[1].Id);
             Assert.Equal(new PlayerHandle("Player 2"), actual.Players[1].Handle);

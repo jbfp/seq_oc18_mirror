@@ -11,6 +11,7 @@ namespace Sequence.Core
         private readonly Deck _deck;
         private readonly ImmutableArray<PlayerHandle> _playerHandleByIdx;
         private readonly ImmutableArray<PlayerId> _playerIdByIdx;
+        private readonly ImmutableArray<PlayerType> _playerTypeByIdx;
         private readonly ImmutableArray<Team> _teamByIdx;
 
         private ImmutableArray<IImmutableList<Card>> _handByIdx;
@@ -39,6 +40,7 @@ namespace Sequence.Core
             _handByIdx = _deck.DealHands().ToImmutableArray();
             _playerHandleByIdx = init.Players.Select(p => p.Handle).ToImmutableArray();
             _playerIdByIdx = init.Players.Select(p => p.Id).ToImmutableArray();
+            _playerTypeByIdx = init.Players.Select(p => p.Type).ToImmutableArray();
 
             ImmutableArray<Team> GetTeams()
             {
@@ -201,6 +203,7 @@ namespace Sequence.Core
                     Handle = _playerHandleByIdx[i],
                     NumberOfCards = _handByIdx[i].Count,
                     Team = _teamByIdx[i],
+                    Type = _playerTypeByIdx[i],
                 }).ToImmutableArray(),
                 Winner = _winner,
             };
@@ -260,6 +263,7 @@ namespace Sequence.Core
         public PlayerHandle Handle { get; internal set; }
         public int NumberOfCards { get; internal set; }
         public Team Team { get; internal set; }
+        public PlayerType Type { get; internal set; }
     }
 
     public struct Coord : IEquatable<Coord>
