@@ -114,7 +114,6 @@ class Game extends React.Component {
         game={this.state.game}
         onCardClick={this.handleCardClick}
         onCoordClick={this.handleCoordClick}
-        playerId={this.context.userName}
         selectedCard={this.state.selectedCard}
       />
     );
