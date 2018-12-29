@@ -9,6 +9,7 @@
 }
 
 .new-game-opponent {
+    display: flex;
     margin: 1em 0 0 0;
 }
 
@@ -34,4 +35,8 @@
 
 input:checked+.new-game-game-size-text {
     border-color: #333;
+}
+
+.new-game-opponent select {
+    width: 100%;
 }

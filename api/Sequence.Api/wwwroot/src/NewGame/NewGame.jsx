@@ -1,7 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ServerContext } from "./contexts";
+import Opponent from './Opponent';
+import { ServerContext } from "../contexts";
 import './NewGame.css';
+
+const defaultOpponent = { name: '', type: 'user' };
 
 class NewGame extends React.Component {
     static contextType = ServerContext;
@@ -13,22 +16,31 @@ class NewGame extends React.Component {
         error: null,
     };
 
+    handleOpponentNameChange = (i, name) => {
+        this.setOpponent(i, { name });
+    };
+
+    handleOpponentTypeChange = (i, type) => {
+        this.setOpponent(i, { type, name: '' });
+    };
+
+    setOpponent(i, update) {
+        const begin = this.state.opponents.slice(0, i);
+        const opponent = this.state.opponents[i];
+        const after = this.state.opponents.slice(i + 1);
+        const opponents = [...begin, { ...opponent, ...update }, ...after];
+        this.setState({ opponents });
+    }
+
     handleSubmit = async event => {
         event.preventDefault();
 
         let gameId;
 
-        const opponents = this.state.opponents.map(opponent => {
-            return {
-                name: opponent,
-                type: 'User',
-            };
-        });
-
         this.setState({ busy: true, error: null });
 
         try {
-            gameId = await this.context.createGameAsync(opponents);
+            gameId = await this.context.createGameAsync(this.state.opponents);
             this.setState({ busy: false, opponents: [] });
             this.props.history.push(`/games/${gameId}`);
         } catch (e) {
@@ -36,21 +48,9 @@ class NewGame extends React.Component {
         }
     };
 
-    handleOpponentChange = (i, event) => {
-        const opponents = this.state.opponents.map((o, j) => {
-            if (i === j) {
-                return event.target.value;
-            } else {
-                return o;
-            }
-        });
-
-        this.setState({ opponents });
-    };
-
     setGameSize = numOpponents => {
         const opponents = new Array(numOpponents);
-        opponents.fill('');
+        opponents.fill({ ...defaultOpponent });
         this.setState({ opponents })
     }
 
@@ -61,19 +61,18 @@ class NewGame extends React.Component {
     render() {
         const { botTypes, opponents, busy, error } = this.state;
         const disabled = opponents.length === 0
-            || opponents.includes('')
+            || opponents.some(opponent => !opponent.name)
             || busy;
 
-        const $opponents = opponents.map((_, i) => (
-            <div key={i} className="new-game-opponent">
-                <input
-                    type="text"
-                    value={opponents[i]}
-                    onChange={e => this.handleOpponentChange(i, e)}
-                    placeholder={`Opponent #${i + 1}`}
-                    readOnly={busy}
-                />
-            </div>
+        const $opponents = opponents.map(({ name, type }, i) => (
+            <Opponent key={i}
+                index={i}
+                botTypes={botTypes}
+                name={name}
+                type={type}
+                onNameChange={name => this.handleOpponentNameChange(i, name)}
+                onTypeChange={type => this.handleOpponentTypeChange(i, type)}
+            />
         ));
 
         return (

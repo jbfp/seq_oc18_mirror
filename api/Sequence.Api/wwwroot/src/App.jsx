@@ -3,7 +3,7 @@ import { BrowserRouter as Router } from 'react-router-dom';
 import { LoginWithAuth, ProtectedRoute, RouteWithLayout } from './Routing';
 import { Game } from './Game';
 import GameList from './GameList';
-import NewGame from './NewGame';
+import { NewGame } from './NewGame';
 
 class App extends React.Component {
     state = {
