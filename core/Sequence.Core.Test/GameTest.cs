@@ -270,7 +270,8 @@ namespace Sequence.Core.Test
                     && x.Chip.Equals(y.Chip)
                     && x.Coord.Equals(y.Coord)
                     && x.Index.Equals(y.Index)
-                    && x.NextPlayerId.Equals(y.NextPlayerId);
+                    && (x.NextPlayerId?.Equals(y.NextPlayerId) ?? true)
+                    && (x.Sequence?.Equals(y.Sequence) ?? true);
             }
 
             public override int GetHashCode(GameEvent obj)
