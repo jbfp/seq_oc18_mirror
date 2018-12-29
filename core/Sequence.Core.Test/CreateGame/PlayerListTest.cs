@@ -1,8 +1,9 @@
+using Sequence.Core.CreateGame;
 using System;
 using System.Linq;
 using Xunit;
 
-namespace Sequence.Core.CreateGame.Test
+namespace Sequence.Core.Test.CreateGame
 {
     public sealed class PlayerListTest
     {
@@ -15,10 +16,10 @@ namespace Sequence.Core.CreateGame.Test
         [Fact]
         public void Constructor_FailsIfAnyPlayersAreSame()
         {
+            var player = TestPlayer.Get;
+
             Assert.Throws<ArgumentException>(() =>
-                new PlayerList(
-                    new PlayerHandle("player"),
-                    new PlayerHandle("player")));
+                new PlayerList(player, player));
         }
 
         [Theory]
@@ -32,7 +33,7 @@ namespace Sequence.Core.CreateGame.Test
         {
             var players = Enumerable
                 .Range(0, size)
-                .Select(n => new PlayerHandle($"Player {n + 1}"))
+                .Select(_ => TestPlayer.Get)
                 .ToArray();
 
             Assert.Throws<ArgumentOutOfRangeException>(() => new PlayerList(players));

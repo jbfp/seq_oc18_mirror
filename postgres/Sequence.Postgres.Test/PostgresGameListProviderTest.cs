@@ -18,18 +18,17 @@ namespace Sequence.Postgres.Test
             // Given:
             var options = await CreateDatabaseAsync();
             var gameId = await CreateGameAsync(options);
-            var player = new PlayerHandle("player 1");
-            var opponents = new[] { new PlayerHandle("player 2") };
+            var opponents = new[] { Player2 };
             var sut = new PostgresGameListProvider(options);
 
             // When:
-            var gameList = await sut.GetGamesForPlayerAsync(player, CancellationToken.None);
+            var gameList = await sut.GetGamesForPlayerAsync(Player1, CancellationToken.None);
 
             // Then:
             Assert.NotNull(gameList);
             var gameListItem = Assert.Single(gameList.Games);
             Assert.Equal(gameId, gameListItem.GameId);
-            Assert.Equal(player, gameListItem.CurrentPlayer);
+            Assert.Equal(Player1, gameListItem.CurrentPlayer);
             Assert.Equal(opponents, gameListItem.Opponents);
         }
 
@@ -39,7 +38,6 @@ namespace Sequence.Postgres.Test
             // Given:
             var options = await CreateDatabaseAsync();
             var gameId = await CreateGameAsync(options);
-            var player = new PlayerHandle("player 1");
 
             await AddEventAsync(options, gameId, new GameEvent
             {
@@ -54,7 +52,7 @@ namespace Sequence.Postgres.Test
             var sut = new PostgresGameListProvider(options);
 
             // When:
-            var gameList = await sut.GetGamesForPlayerAsync(player, CancellationToken.None);
+            var gameList = await sut.GetGamesForPlayerAsync(Player1, CancellationToken.None);
 
             // Then:
             var gameListItem = Assert.Single(gameList.Games);

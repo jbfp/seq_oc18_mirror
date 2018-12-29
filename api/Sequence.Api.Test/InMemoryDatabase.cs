@@ -129,10 +129,10 @@ namespace Sequence.Api.Test
             var gameId = new GameId(Guid.NewGuid());
 
             var players = newGame.PlayerList
-                .Select((player, i) => new Player(new PlayerId(i + 1), player))
+                .Select((player, i) => new Player(new PlayerId(i + 1), player.Handle))
                 .ToImmutableList();
 
-            var firstPlayerId = players.Single(p => p.Handle == newGame.PlayerList.FirstPlayer).Id;
+            var firstPlayerId = players.Single(p => p.Handle == newGame.PlayerList.FirstPlayer.Handle).Id;
             var init = new GameInit(players, firstPlayerId, newGame.Seed);
 
             if (!_games.TryAdd(gameId, init))

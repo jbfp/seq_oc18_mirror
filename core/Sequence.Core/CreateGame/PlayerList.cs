@@ -6,13 +6,13 @@ using System.Collections;
 
 namespace Sequence.Core.CreateGame
 {
-    public sealed class PlayerList : IEnumerable<PlayerHandle>
+    public sealed class PlayerList : IEnumerable<NewPlayer>
     {
         private static readonly ImmutableArray<int> _allowedGameSizes = ImmutableArray.Create(
             2, 3, 4, 6
         );
 
-        public PlayerList(params PlayerHandle[] players)
+        public PlayerList(params NewPlayer[] players)
         {
             if (players == null)
             {
@@ -37,10 +37,10 @@ namespace Sequence.Core.CreateGame
             Players = players.ToImmutableList();
         }
 
-        public PlayerHandle FirstPlayer => Players.First();
-        public IImmutableList<PlayerHandle> Players { get; }
+        public NewPlayer FirstPlayer => Players.First();
+        public IImmutableList<NewPlayer> Players { get; }
 
-        public IEnumerator<PlayerHandle> GetEnumerator() => Players.GetEnumerator();
+        public IEnumerator<NewPlayer> GetEnumerator() => Players.GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

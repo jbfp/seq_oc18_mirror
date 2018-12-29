@@ -21,8 +21,8 @@ namespace Sequence.Postgres.Test
             var sut = new PostgresGameStore(options);
             var newGame = new NewGame(
                 players: new PlayerList(
-                    new PlayerHandle("player 1"),
-                    new PlayerHandle("player 2")),
+                    new NewPlayer(Player1, PlayerType.User),
+                    new NewPlayer(Player2, PlayerType.User)),
                 seed: new Seed(42));
 
             // When:

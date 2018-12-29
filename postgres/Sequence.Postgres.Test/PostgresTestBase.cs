@@ -16,6 +16,9 @@ namespace Sequence.Postgres.Test
             _fixture = fixture ?? throw new ArgumentNullException(nameof(fixture));
         }
 
+        public PlayerHandle Player1 { get; } = new PlayerHandle("Player 1");
+        public PlayerHandle Player2 { get; } = new PlayerHandle("Player 2");
+
         protected Task<IOptions<PostgresOptions>> CreateDatabaseAsync()
         {
             return _fixture.CreateDatabaseAsync(CancellationToken.None);
@@ -32,8 +35,8 @@ namespace Sequence.Postgres.Test
 
             var newGame = new NewGame(
                 players: new PlayerList(
-                    new PlayerHandle("player 1"),
-                    new PlayerHandle("player 2")),
+                    new NewPlayer(Player1, PlayerType.User),
+                    new NewPlayer(Player2, PlayerType.User)),
                 seed: new Seed(42));
 
             return await gameStore.PersistNewGameAsync(newGame, CancellationToken.None);

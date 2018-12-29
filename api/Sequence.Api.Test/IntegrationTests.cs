@@ -91,7 +91,7 @@ namespace Sequence.Api.Test
             {
                 opponents = new[]
                 {
-                    new { name = "test", type = 1 },
+                    new { name = "test", type = "User" },
                 },
             };
 
@@ -117,10 +117,10 @@ namespace Sequence.Api.Test
             {
                 opponents = new[]
                 {
-                    new { name = "fail1", type = 1 },
-                    new { name = "fail2", type = 1 },
-                    new { name = "fail3", type = 1 },
-                    new { name = "fail4", type = 1 },
+                    new { name = "fail1", type = "User" },
+                    new { name = "fail2", type = "User" },
+                    new { name = "fail3", type = "User" },
+                    new { name = "fail4", type = "User" },
                 },
             };
 
@@ -147,7 +147,7 @@ namespace Sequence.Api.Test
             {
                 opponents = new[]
                 {
-                    new { name = playerId, type = 1 },
+                    new { name = playerId, type = "User" },
                 },
             };
 
@@ -330,7 +330,7 @@ namespace Sequence.Api.Test
             {
                 opponents = new[]
                 {
-                    new { name = opponent, type = 1 },
+                    new { name = opponent, type = 0 },
                 },
             };
 

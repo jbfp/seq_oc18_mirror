@@ -21,7 +21,7 @@ class NewGame extends React.Component {
         const opponents = this.state.opponents.map(opponent => {
             return {
                 name: opponent,
-                type: 1,
+                type: 'User',
             };
         });
 
