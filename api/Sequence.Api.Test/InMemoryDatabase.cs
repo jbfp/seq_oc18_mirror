@@ -114,7 +114,7 @@ namespace Sequence.Api.Test
                 gameListItems.Add(gameListItem);
             }
 
-            return Task.FromResult(new GameList(gameListItems.AsReadOnly()));
+            return Task.FromResult(new GameList(gameListItems.ToImmutableList()));
         }
 
         public Task<GameId> PersistNewGameAsync(NewGame newGame, CancellationToken cancellationToken)

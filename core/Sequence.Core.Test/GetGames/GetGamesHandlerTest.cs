@@ -2,6 +2,7 @@ using Moq;
 using Sequence.Core;
 using Sequence.Core.GetGames;
 using System;
+using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -55,7 +56,7 @@ namespace Sequence.Core.Test.GetGames
         {
             // Given:
             var playerId = new PlayerHandle(player);
-            var expected = new GameList(new GameListItem[0]);
+            var expected = new GameList(ImmutableList<GameListItem>.Empty);
 
             _provider
                 .Setup(p => p.GetGamesForPlayerAsync(playerId, It.IsAny<CancellationToken>()))

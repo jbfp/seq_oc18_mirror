@@ -3,7 +3,6 @@ using Microsoft.Extensions.Options;
 using Sequence.Core;
 using Sequence.Core.GetGames;
 using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
@@ -29,7 +28,7 @@ namespace Sequence.Postgres
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            IReadOnlyList<GameListItem> gameListItems;
+            ImmutableList<GameListItem> gameListItems;
 
             using (var connection = await CreateAndOpenAsync(cancellationToken))
             {
@@ -43,8 +42,7 @@ namespace Sequence.Postgres
 
                 gameListItems = rows
                     .Select(get_game_list_for_player.ToGameListItem)
-                    .ToList()
-                    .AsReadOnly();
+                    .ToImmutableList();
             }
 
             return new GameList(gameListItems);
