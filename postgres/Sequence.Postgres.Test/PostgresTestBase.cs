@@ -24,7 +24,10 @@ namespace Sequence.Postgres.Test
             return _fixture.CreateDatabaseAsync(CancellationToken.None);
         }
 
-        protected async Task<GameId> CreateGameAsync(IOptions<PostgresOptions> options)
+        protected async Task<GameId> CreateGameAsync(
+            IOptions<PostgresOptions> options,
+            NewPlayer player1 = null,
+            NewPlayer player2 = null)
         {
             if (options == null)
             {
@@ -35,8 +38,8 @@ namespace Sequence.Postgres.Test
 
             var newGame = new NewGame(
                 players: new PlayerList(
-                    new NewPlayer(Player1, PlayerType.User),
-                    new NewPlayer(Player2, PlayerType.User)),
+                    player1 ?? new NewPlayer(Player1, PlayerType.User),
+                    player2 ?? new NewPlayer(Player2, PlayerType.User)),
                 seed: new Seed(42));
 
             return await gameStore.PersistNewGameAsync(newGame, CancellationToken.None);
