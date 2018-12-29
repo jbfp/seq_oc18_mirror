@@ -5,6 +5,8 @@ class PlayersView extends React.PureComponent {
         const { players, winner } = this.props;
 
         const $players = players.map((player, i) => {
+            const handle = player.type === 'bot' ? `🤖 ${player.handle} 🤖` : player.handle;
+
             return (
                 <div
                     key={i}
@@ -14,7 +16,7 @@ class PlayersView extends React.PureComponent {
                     data-winner={player.team === (winner || {}).team}
                 >
                     <div>
-                        {player.handle}
+                        {handle}
                     </div>
                 </div>
             );
