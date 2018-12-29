@@ -13,7 +13,7 @@ namespace Sequence.Api
         {
             return new BotListResult
             {
-                BotTypes = BotProvider.BotTypes.ToArray()
+                BotTypes = BotProvider.BotTypes.Keys.ToArray()
             };
         }
     }
