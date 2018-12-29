@@ -38,6 +38,8 @@ input:checked+.new-game-game-size-text {
     border-color: #333;
 }
 
-.new-game-opponent select {
-    width: 100%;
+.new-game-opponent-type {
+    align-self: center;
+    display: flex;
+    padding: 0 0.5em 0 0;
 }

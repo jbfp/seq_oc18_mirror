@@ -19,7 +19,12 @@ class Opponent extends React.PureComponent {
             );
         } else if (type === 'bot') {
             $input = (
-                <select onChange={event => onNameChange(event.target.value)} value={name} readOnly={busy} autoFocus={true}>
+                <select
+                    value={name}
+                    onChange={event => onNameChange(event.target.value)}
+                    readOnly={busy}
+                    autoFocus={true}
+                >
                     <option value="">Select bot type</option>
                     {botTypes.map(botType => (
                         <option key={botType} value={botType}>{botType}</option>
@@ -31,13 +36,14 @@ class Opponent extends React.PureComponent {
         }
 
         const $radio = (value, text) => (
-            <label>
+            <label className="new-game-opponent-type">
                 <input
                     type="radio"
                     value={value}
                     checked={type === value}
                     onChange={event => onTypeChange(event.target.value)}
-                /> {text}
+                />
+                <span>{text}</span>
             </label>
         );
 
