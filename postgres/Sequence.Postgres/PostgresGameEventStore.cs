@@ -32,8 +32,6 @@ namespace Sequence.Postgres
             using (var transaction = connection.BeginTransaction())
             {
                 int surrogateGameId;
-                int byPlayerId;
-                int? nextPlayerId = null;
 
                 {
                     var command = new CommandDefinition(
@@ -44,29 +42,6 @@ namespace Sequence.Postgres
                     );
 
                     surrogateGameId = await connection.QuerySingleAsync<int>(command);
-                }
-
-                {
-                    var command = new CommandDefinition(
-                        commandText: "SELECT id FROM game_player WHERE game_id = @gameId AND player_id = @playerId;",
-                        parameters: new { gameId = surrogateGameId, playerId = gameEvent.ByPlayerId },
-                        transaction,
-                        cancellationToken: cancellationToken
-                    );
-
-                    byPlayerId = await connection.QuerySingleAsync<int>(command);
-                }
-
-                if (gameEvent.NextPlayerId != null)
-                {
-                    var command = new CommandDefinition(
-                        commandText: "SELECT id FROM game_player WHERE game_id = @gameId AND player_id = @playerId;",
-                        parameters: new { gameId = surrogateGameId, playerId = gameEvent.NextPlayerId },
-                        transaction,
-                        cancellationToken: cancellationToken
-                    );
-
-                    nextPlayerId = await connection.QuerySingleOrDefaultAsync<int?>(command);
                 }
 
                 // Couldn't figure out how to support INSERT with composite types with Dapper, so ADO.NET to the rescue.
@@ -81,12 +56,12 @@ namespace Sequence.Postgres
                     command.CommandText = commandText;
                     command.Parameters.AddWithValue("@gameId", surrogateGameId);
                     command.Parameters.AddWithValue("@idx", gameEvent.Index);
-                    command.Parameters.AddWithValue("@byPlayerId", byPlayerId);
+                    command.Parameters.AddWithValue("@byPlayerId", gameEvent.ByPlayerId.ToInt32());
                     command.Parameters.AddWithValue("@cardDrawn", (object)CardComposite.FromCard(gameEvent.CardDrawn) ?? DBNull.Value);
                     command.Parameters.AddWithValue("@cardUsed", CardComposite.FromCard(gameEvent.CardUsed));
                     command.Parameters.AddWithValue("@chip", (object)gameEvent.Chip ?? DBNull.Value);
                     command.Parameters.AddWithValue("@coord", CoordComposite.FromCoord(gameEvent.Coord));
-                    command.Parameters.AddWithValue("@nextPlayerId", (object)nextPlayerId ?? DBNull.Value);
+                    command.Parameters.AddWithValue("@nextPlayerId", (object)gameEvent.NextPlayerId?.ToInt32() ?? DBNull.Value);
                     command.Parameters.AddWithValue("@sequence", (object)SequenceComposite.FromSequence(gameEvent.Sequence) ?? DBNull.Value);
                     command.Transaction = transaction;
 

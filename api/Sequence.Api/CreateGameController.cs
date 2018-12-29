@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using Sequence.Core;
 using Sequence.Core.CreateGame;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading;
@@ -27,8 +28,8 @@ namespace Sequence.Api
             CancellationToken cancellationToken)
         {
             var players = form.Opponents
-                .Select(opponent => new PlayerId(opponent))
-                .Prepend(PlayerId)
+                .Select(opponent => new NewPlayer(new PlayerHandle(opponent.Name), opponent.Type.Value))
+                .Prepend(new NewPlayer(Player, PlayerType.User))
                 .ToArray();
 
             PlayerList playerList;
@@ -63,6 +64,33 @@ namespace Sequence.Api
     public sealed class CreateGameForm
     {
         [Required]
-        public string[] Opponents { get; set; }
+        public Opponent[] Opponents { get; set; }
+    }
+
+    public sealed class Opponent : IValidatableObject
+    {
+        [Required]
+        public PlayerType? Type { get; set; }
+
+        [Required]
+        public string Name { get; set; }
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            if (validationContext.ObjectInstance is Opponent opponent)
+            {
+                if (opponent.Type == PlayerType.Bot)
+                {
+                    var botType = opponent.Name;
+
+                    if (!BotProvider.BotTypes.ContainsKey(opponent.Name))
+                    {
+                        var errorMessage = $"The bot type '{opponent.Name}' does not exist.";
+                        var memberNames = new[] { nameof(Name) };
+                        yield return new ValidationResult(errorMessage, memberNames);
+                    }
+                }
+            }
+        }
     }
 }

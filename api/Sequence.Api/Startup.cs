@@ -27,6 +27,7 @@ namespace Sequence.Api
                 .AddJsonOptions(options =>
                 {
                     options.SerializerSettings.Converters.Add(new GameIdJsonConverter());
+                    options.SerializerSettings.Converters.Add(new PlayerHandleJsonConverter());
                     options.SerializerSettings.Converters.Add(new PlayerIdJsonConverter());
                     options.SerializerSettings.Converters.Add(new StringEnumConverter(camelCaseText: true));
                     options.SerializerSettings.Converters.Add(new TileJsonConverter());

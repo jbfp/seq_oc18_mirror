@@ -2,6 +2,7 @@ using Moq;
 using Sequence.Core;
 using Sequence.Core.GetGames;
 using System;
+using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -28,18 +29,18 @@ namespace Sequence.Core.Test.GetGames
         }
 
         [Fact]
-        public async Task ThrowsWhenPlayerIdIsNull()
+        public async Task ThrowsWhenPlayerIsNull()
         {
             await Assert.ThrowsAsync<ArgumentNullException>(
-                paramName: "playerId",
-                testCode: () => _sut.GetGamesForPlayerAsync(null, CancellationToken.None)
+                paramName: "player",
+                testCode: () => _sut.GetGamesForPlayerAsync(player: null, CancellationToken.None)
             );
         }
 
         [Fact]
         public async Task ThrowsWhenCanceled()
         {
-            var playerId = new PlayerId("dummy");
+            var playerId = new PlayerHandle("dummy");
             var cancellationToken = new CancellationToken(canceled: true);
 
             await Assert.ThrowsAsync<OperationCanceledException>(
@@ -54,8 +55,8 @@ namespace Sequence.Core.Test.GetGames
         public async Task GetsGamesFromProviderForPlayer(string player)
         {
             // Given:
-            var playerId = new PlayerId(player);
-            var expected = new GameList(new GameListItem[0]);
+            var playerId = new PlayerHandle(player);
+            var expected = new GameList(ImmutableList<GameListItem>.Empty);
 
             _provider
                 .Setup(p => p.GetGamesForPlayerAsync(playerId, It.IsAny<CancellationToken>()))

@@ -49,6 +49,7 @@ namespace Sequence.Api.Test
         [Theory]
         [InlineData("/games")]
         [InlineData("/games/6a91eb4b-423a-41aa-8b5f-f5587260a4ed")]
+        [InlineData("/bots")]
         public async Task GetResourceIsProtected(string path)
         {
             // Given:
@@ -67,7 +68,10 @@ namespace Sequence.Api.Test
             // Given:
             var body = new
             {
-                opponents = new[] { "test" }
+                opponents = new[]
+                {
+                    new { name = "test", type = 1 },
+                },
             };
 
             var client = _factory.CreateClient();
@@ -85,7 +89,10 @@ namespace Sequence.Api.Test
             // Given:
             var body = new
             {
-                opponents = new[] { "test" }
+                opponents = new[]
+                {
+                    new { name = "test", type = "User" },
+                },
             };
 
             var client = CreateAuthorizedClient();
@@ -100,6 +107,32 @@ namespace Sequence.Api.Test
             Assert.Equal("application/json", response.Content.Headers.ContentType.MediaType);
         }
 
+        [Theory]
+        [InlineData("some bot type that does not exist")]
+        [InlineData("jbfp")]
+        [InlineData("hello world")]
+        public async Task CreateGameReturnsBadRequestIfBotIsUnknown(string botType)
+        {
+            // Given:
+            var playerId = "test_player";
+
+            var body = new
+            {
+                opponents = new[]
+                {
+                    new { name = botType, type = "Bot" },
+                },
+            };
+
+            var client = CreateAuthorizedClient(playerId);
+
+            // When:
+            var response = await client.PostAsJsonAsync("/games", body);
+
+            // Then:
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
         [Fact]
         public async Task CreateGameReturnsBadRequestIfGameSizeIsInvalid()
         {
@@ -108,7 +141,13 @@ namespace Sequence.Api.Test
 
             var body = new
             {
-                opponents = new[] { "fail1", "fail2", "fail3", "fail4" }
+                opponents = new[]
+                {
+                    new { name = "fail1", type = "User" },
+                    new { name = "fail2", type = "User" },
+                    new { name = "fail3", type = "User" },
+                    new { name = "fail4", type = "User" },
+                },
             };
 
             var client = CreateAuthorizedClient(playerId);
@@ -132,7 +171,10 @@ namespace Sequence.Api.Test
 
             var body = new
             {
-                opponents = new[] { playerId }
+                opponents = new[]
+                {
+                    new { name = playerId, type = "User" },
+                },
             };
 
             var client = CreateAuthorizedClient(playerId);
@@ -256,7 +298,7 @@ namespace Sequence.Api.Test
             // Given:
             _seedProvider.Value = new Seed(42);
             var gamePath = await CreateGameAsync();
-            var subscribePath = gamePath.ToString() + "/stream?playerId=dummy";
+            var subscribePath = gamePath.ToString() + "/stream?player=dummy";
             var client = CreateAuthorizedClient();
             var response = await client.GetAsync(subscribePath, HttpCompletionOption.ResponseHeadersRead);
             var body = new { card = new { deckNo = 1, suit = 1, rank = 9 }, column = 8, row = 0 };
@@ -279,6 +321,21 @@ namespace Sequence.Api.Test
             }
         }
 
+        [Fact]
+        public async Task GetBotsReturnsCorrectResult()
+        {
+            // Given:
+            var client = CreateAuthorizedClient();
+
+            // When:
+            var response = await client.GetAsync("/bots");
+
+            // Then:
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var json = JObject.Parse(await response.Content.ReadAsStringAsync());
+            Assert.NotEmpty(json["botTypes"]);
+        }
+
         private HttpClient CreateAuthorizedClient(string playerId = "test_player")
         {
             if (playerId == null)
@@ -294,8 +351,17 @@ namespace Sequence.Api.Test
         private async Task<Uri> CreateGameAsync(string opponent = "test")
         {
             var client = CreateAuthorizedClient();
-            var form = new { opponents = new[] { opponent } };
+
+            var form = new
+            {
+                opponents = new[]
+                {
+                    new { name = opponent, type = 0 },
+                },
+            };
+
             var response = await client.PostAsJsonAsync("/games", form);
+
             return response.Headers.Location;
         }
 

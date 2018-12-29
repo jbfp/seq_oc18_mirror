@@ -9,13 +9,13 @@ namespace Sequence.Api
     [GameNotFoundExceptionFilter]
     public abstract class SequenceControllerBase : ControllerBase
     {
-        protected PlayerId PlayerId
+        protected PlayerHandle Player
         {
             get
             {
                 if (Request.Headers.TryGetValue("Authorization", out var values) && values.Count > 0)
                 {
-                    return new PlayerId(string.Join(' ', values.ToArray()));
+                    return new PlayerHandle(string.Join(' ', values.ToArray()));
                 }
 
                 throw new InvalidOperationException("No authorization header.");

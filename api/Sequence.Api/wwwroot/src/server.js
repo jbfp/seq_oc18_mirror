@@ -45,6 +45,20 @@ class Server {
     }
   }
 
+  async getBotsAsync() {
+    const response = await fetch(`${this._endpoint}/bots`, {
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': this._userName,
+      },
+      method: 'GET',
+    });
+
+    const body = await response.json();
+
+    return body['botTypes'];
+  }
+
   async getGamesAsync() {
     const response = await fetch(`${this._endpoint}/games`, {
       headers: {

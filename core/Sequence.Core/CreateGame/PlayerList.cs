@@ -6,13 +6,13 @@ using System.Collections;
 
 namespace Sequence.Core.CreateGame
 {
-    public sealed class PlayerList : IEnumerable<PlayerId>
+    public sealed class PlayerList : IEnumerable<NewPlayer>
     {
         private static readonly ImmutableArray<int> _allowedGameSizes = ImmutableArray.Create(
             2, 3, 4, 6
         );
 
-        public PlayerList(params PlayerId[] players)
+        public PlayerList(params NewPlayer[] players)
         {
             if (players == null)
             {
@@ -25,7 +25,8 @@ namespace Sequence.Core.CreateGame
             }
 
             var duplicatePlayers = players
-                .GroupBy(playerId => playerId)
+                .Where(player => player.Type == PlayerType.User)
+                .GroupBy(player => player.Handle)
                 .Where(group => group.Count() > 1)
                 .Select(group => group.Key);
 
@@ -37,10 +38,10 @@ namespace Sequence.Core.CreateGame
             Players = players.ToImmutableList();
         }
 
-        public PlayerId FirstPlayer => Players.First();
-        public IImmutableList<PlayerId> Players { get; }
+        public NewPlayer FirstPlayer => Players.First();
+        public IImmutableList<NewPlayer> Players { get; }
 
-        public IEnumerator<PlayerId> GetEnumerator() => Players.GetEnumerator();
+        public IEnumerator<NewPlayer> GetEnumerator() => Players.GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

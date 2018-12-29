@@ -2,22 +2,24 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import BoardView from './BoardView';
+import { ServerContext } from "../contexts";
 import DeckView from './DeckView';
 import PlayerView from './PlayerView';
 import PlayersView from './PlayersView';
 import './Game.css';
 
 class GameView extends React.PureComponent {
+    static contextType = ServerContext;
+
     static propTypes = {
         game: PropTypes.object,
         onCardClick: PropTypes.func.isRequired,
         onCoordClick: PropTypes.func.isRequired,
-        playerId: PropTypes.string.isRequired,
         selectedCard: PropTypes.object,
     };
 
     render() {
-        const { game, onCardClick, onCoordClick, playerId, selectedCard } = this.props;
+        const { game, onCardClick, onCoordClick, selectedCard } = this.props;
         let $body;
 
         if (game) {
@@ -30,8 +32,8 @@ class GameView extends React.PureComponent {
 
             const playerObj = {
                 hand: game.hand,
-                id: playerId,
-                isCurrentPlayer: game.currentPlayerId === playerId,
+                handle: this.context.userName,
+                isCurrentPlayer: game.currentPlayerId === game.playerId,
                 team: game.team,
             };
 

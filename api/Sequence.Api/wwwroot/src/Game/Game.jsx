@@ -77,7 +77,7 @@ class Game extends React.Component {
     await this.loadGameAsync();
     const gameId = this.props.match.params.id;
     const playerId = this.context.userName;
-    this._sse = new EventSource(`${window.env.api}/games/${gameId}/stream?playerId=${playerId}`);
+    this._sse = new EventSource(`${window.env.api}/games/${gameId}/stream?player=${playerId}`);
     this._sse.addEventListener('game-updated', () => this.loadGameAsync());
   }
 
@@ -114,7 +114,6 @@ class Game extends React.Component {
         game={this.state.game}
         onCardClick={this.handleCardClick}
         onCoordClick={this.handleCoordClick}
-        playerId={this.context.userName}
         selectedCard={this.state.selectedCard}
       />
     );

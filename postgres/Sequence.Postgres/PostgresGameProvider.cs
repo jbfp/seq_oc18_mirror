@@ -35,16 +35,15 @@ namespace Sequence.Postgres
 
                     var commandText = @"
                         SELECT
-                          gp0.player_id AS first_player_id
-                        , gp1.player_id as player_id
+                          g.first_player_id AS first_player_id
+                        , gp.id AS player_id
+                        , gp.player_id AS player_handle
+                        , gp.player_type AS player_type
                         , g.seed
                         FROM public.game AS g
 
-                        INNER JOIN public.game_player AS gp0
-                        ON gp0.id = g.first_player_id
-
-                        INNER JOIN public.game_player AS gp1
-                        ON gp1.game_id = g.id
+                        INNER JOIN public.game_player AS gp
+                        ON gp.game_id = g.id
 
                         WHERE g.game_id = @gameId;";
 
@@ -65,8 +64,8 @@ namespace Sequence.Postgres
                     }
 
                     init = new GameInit(
-                        players: rows.Select(row => row.player_id).ToImmutableList(),
-                        firstPlayer: rows[0].first_player_id,
+                        players: rows.Select(row => new Player(row.player_id, row.player_handle, row.player_type)).ToImmutableList(),
+                        firstPlayerId: rows[0].first_player_id,
                         seed: rows[0].seed
                     );
                 }
@@ -74,18 +73,16 @@ namespace Sequence.Postgres
                 {
                     var commandText = @"
                         SELECT
-                          idx
-                        , gp0.player_id AS by_player_id
-                        , card_drawn
-                        , card_used
-                        , chip
-                        , coord
-                        , gp1.player_id AS next_player_id
-                        , sequence
+                          ge.idx
+                        , ge.by_player_id
+                        , ge.card_drawn
+                        , ge.card_used
+                        , ge.chip
+                        , ge.coord
+                        , ge.next_player_id
+                        , ge.sequence
                         FROM public.game_event AS ge
                         INNER JOIN public.game AS g ON g.id = ge.game_id
-                        INNER JOIN public.game_player AS gp0 ON gp0.game_id = g.id AND gp0.id = ge.by_player_id
-                        LEFT JOIN public.game_player AS gp1 ON gp1.game_id = g.id AND gp1.id = ge.next_player_id
                         WHERE g.game_id = @gameId;";
 
                     var parameters = new { gameId = gameId };
@@ -121,8 +118,10 @@ namespace Sequence.Postgres
 #pragma warning disable CS0649
         private sealed class get_game_init_by_id
         {
-            public PlayerId player_id;
             public PlayerId first_player_id;
+            public PlayerId player_id;
+            public PlayerHandle player_handle;
+            public PlayerType player_type;
             public Seed seed;
         }
 

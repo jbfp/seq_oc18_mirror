@@ -1,15 +1,15 @@
-using System.Collections.Generic;
 using System;
+using System.Collections.Immutable;
 
 namespace Sequence.Core.GetGames
 {
     public sealed class GameList
     {
-        public GameList(IReadOnlyList<GameListItem> games)
+        public GameList(IImmutableList<GameListItem> games)
         {
             Games = games ?? throw new ArgumentNullException(nameof(games));
         }
 
-        public IReadOnlyList<GameListItem> Games { get; }
+        public IImmutableList<GameListItem> Games { get; }
     }
 }

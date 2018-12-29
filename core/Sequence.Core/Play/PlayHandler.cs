@@ -20,7 +20,7 @@ namespace Sequence.Core.Play
 
         public async Task<PlayCardResult> PlayCardAsync(
             GameId gameId,
-            PlayerId playerId,
+            PlayerHandle player,
             Card card,
             Coord coord,
             CancellationToken cancellationToken)
@@ -30,9 +30,9 @@ namespace Sequence.Core.Play
                 throw new ArgumentNullException(nameof(gameId));
             }
 
-            if (playerId == null)
+            if (player == null)
             {
-                throw new ArgumentNullException(nameof(playerId));
+                throw new ArgumentNullException(nameof(player));
             }
 
             if (card == null)
@@ -49,7 +49,7 @@ namespace Sequence.Core.Play
                 throw new GameNotFoundException();
             }
 
-            GameEvent gameEvent = game.PlayCard(playerId, card, coord);
+            GameEvent gameEvent = game.PlayCard(player, card, coord);
 
             await _store.AddEventAsync(gameId, gameEvent, cancellationToken);
 

@@ -55,16 +55,21 @@ namespace Sequence.Postgres
                         gameId = result.game_id;
                     }
 
-                    foreach (var playerId in newGame.PlayerList)
+                    foreach (var player in newGame.PlayerList)
                     {
                         var commandText = @"
                             INSERT INTO
-                                game_player (game_id, player_id)
+                                game_player (game_id, player_id, player_type)
                             VALUES
-                                (@gameId, @playerId)
+                                (@gameId, @playerId, @playerType::player_type)
                             RETURNING id;";
 
-                        var parameters = new { gameId = surrogateGameId, playerId };
+                        var parameters = new
+                        {
+                            gameId = surrogateGameId,
+                            playerId = player.Handle,
+                            playerType = player.Type.ToString().ToLowerInvariant(),
+                        };
 
                         var command = new CommandDefinition(
                             commandText,

@@ -21,8 +21,28 @@ namespace Sequence.Postgres.Test
             var sut = new PostgresGameStore(options);
             var newGame = new NewGame(
                 players: new PlayerList(
-                    new PlayerId("player 1"),
-                    new PlayerId("player 2")),
+                    new NewPlayer(Player1, PlayerType.User),
+                    new NewPlayer(Player2, PlayerType.User)),
+                seed: new Seed(42));
+
+            // When:
+            var gameId = await sut.PersistNewGameAsync(newGame, CancellationToken.None);
+
+            // Then:
+            Assert.NotNull(gameId);
+        }
+
+        [Fact]
+        public async Task CanPersistNewGameWithMultipleIdenticalBots()
+        {
+            // Given:
+            var options = await CreateDatabaseAsync();
+            var sut = new PostgresGameStore(options);
+            var botType = new PlayerHandle("Dalvik");
+            var newGame = new NewGame(
+                players: new PlayerList(
+                    new NewPlayer(botType, PlayerType.Bot),
+                    new NewPlayer(botType, PlayerType.Bot)),
                 seed: new Seed(42));
 
             // When:
