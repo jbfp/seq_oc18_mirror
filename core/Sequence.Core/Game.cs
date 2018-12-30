@@ -99,11 +99,6 @@ namespace Sequence.Core
                 throw new ArgumentNullException(nameof(player));
             }
 
-            if (card == null)
-            {
-                throw new ArgumentNullException(nameof(card));
-            }
-
             var playerIdx = _playerHandleByIdx.IndexOf(player);
 
             if (playerIdx == -1)
@@ -111,12 +106,27 @@ namespace Sequence.Core
                 throw new PlayCardFailedException(PlayCardError.PlayerIsNotInGame);
             }
 
-            var playerId = _playerIdByIdx[playerIdx];
+            return PlayCard(_playerIdByIdx[playerIdx], card, coord);
+        }
+
+        internal GameEvent PlayCard(PlayerId playerId, Card card, Coord coord)
+        {
+            if (playerId == null)
+            {
+                throw new ArgumentNullException(nameof(playerId));
+            }
+
+            if (card == null)
+            {
+                throw new ArgumentNullException(nameof(card));
+            }
 
             if (!playerId.Equals(_currentPlayerId))
             {
                 throw new PlayCardFailedException(PlayCardError.PlayerIsNotCurrentPlayer);
             }
+
+            var playerIdx = _playerIdByIdx.IndexOf(playerId);
 
             if (!_handByIdx[playerIdx].Contains(card))
             {
@@ -185,6 +195,13 @@ namespace Sequence.Core
                 throw new ArgumentNullException(nameof(player));
             }
 
+            var idx = _playerHandleByIdx.IndexOf(player);
+            var playerId = idx >= 0 ? _playerIdByIdx[idx] : null;
+            return GetViewForPlayer(playerId);
+        }
+
+        internal GameView GetViewForPlayer(PlayerId playerId)
+        {
             var view = new GameView
             {
                 Board = Board.TheBoard,
@@ -208,7 +225,7 @@ namespace Sequence.Core
                 Winner = _winner,
             };
 
-            var idx = _playerHandleByIdx.IndexOf(player);
+            var idx = _playerIdByIdx.IndexOf(playerId);
 
             if (idx >= 0)
             {
@@ -223,7 +240,7 @@ namespace Sequence.Core
 
     public sealed class PlayCardFailedException : Exception
     {
-        public PlayCardFailedException(PlayCardError error)
+        public PlayCardFailedException(PlayCardError error) : base(error.ToString())
         {
             Error = error;
         }
