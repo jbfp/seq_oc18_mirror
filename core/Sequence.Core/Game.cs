@@ -99,6 +99,11 @@ namespace Sequence.Core
                 throw new ArgumentNullException(nameof(player));
             }
 
+            if (card == null)
+            {
+                throw new ArgumentNullException(nameof(card));
+            }
+
             var playerIdx = _playerHandleByIdx.IndexOf(player);
 
             if (playerIdx == -1)
