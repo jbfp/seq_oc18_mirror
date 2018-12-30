@@ -7,7 +7,7 @@ using Newtonsoft.Json.Linq;
 using Sequence.Core;
 using Sequence.Core.CreateGame;
 using Sequence.Core.GetGames;
-using Sequence.Core.Play;
+using Sequence.Core.Notifications;
 using System;
 using System.IO;
 using System.Net;
@@ -31,7 +31,10 @@ namespace Sequence.Api.Test
             {
                 builder.ConfigureTestServices(services =>
                 {
-                    services.AddSingleton<IGameEventStore>(_database);
+                    services.AddSingleton<InMemoryDatabase>(_database);
+                    services.AddSingleton<IGameEventStore>(sp => new NotifyingGameEventStore(
+                        sp.GetRequiredService<InMemoryDatabase>(),
+                        sp.GetRequiredService<IGameUpdatedNotifier>()));
                     services.AddSingleton<IGameProvider>(_database);
                     services.AddSingleton<IGameListProvider>(_database);
                     services.AddSingleton<IGameStore>(_database);
