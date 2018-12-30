@@ -29,6 +29,7 @@ namespace Sequence.Api
 
             services.AddPostgres(configuration);
 
+            services.AddTransient<BotTaskHandler>();
             services.AddTransient<CreateGameHandler>();
             services.AddTransient<GetGameHandler>();
             services.AddTransient<GetGamesHandler>();

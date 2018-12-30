@@ -11,11 +11,16 @@ namespace Sequence.Core.Bots
     {
         private readonly BlockingCollection<BotTask> _tasks = new BlockingCollection<BotTask>();
         private readonly IBotTaskObservable _observable;
+        private readonly BotTaskHandler _handler;
         private readonly ILogger _logger;
 
-        public BotTaskObserver(IBotTaskObservable observable, ILogger<BotTaskObserver> logger)
+        public BotTaskObserver(
+            IBotTaskObservable observable,
+            BotTaskHandler handler,
+            ILogger<BotTaskObserver> logger)
         {
             _observable = observable ?? throw new ArgumentNullException(nameof(observable));
+            _handler = handler ?? throw new ArgumentNullException(nameof(handler));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -41,12 +46,12 @@ namespace Sequence.Core.Bots
         {
             _logger.LogInformation(
                 "Received bot task for {PlayerId} in {GameId}",
-                task.GameId, task.PlayerHandle);
+                task.GameId, task.Player);
 
             _tasks.Add(task);
         }
 
-        protected override Task ExecuteAsync(CancellationToken stoppingToken)
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             stoppingToken.ThrowIfCancellationRequested();
 
@@ -56,10 +61,19 @@ namespace Sequence.Core.Bots
             {
                 foreach (var task in _tasks.GetConsumingEnumerable(stoppingToken))
                 {
+                    try
+                    {
+                        await _handler.HandleBotTaskAsync(task, stoppingToken);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Bot task handler threw an unhandled exception");
+                    }
                 }
             }
-
-            return Task.CompletedTask;
         }
     }
 }
