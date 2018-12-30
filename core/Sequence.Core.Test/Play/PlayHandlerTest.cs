@@ -6,7 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Sequence.Core.Test
+namespace Sequence.Core.Test.Play
 {
     public sealed class PlayHandlerTest
     {
@@ -15,27 +15,20 @@ namespace Sequence.Core.Test
         {
             var provider = Mock.Of<IGameProvider>();
             var store = Mock.Of<IGameEventStore>();
-            var notifier = Mock.Of<IGameUpdatedNotifier>();
 
             Assert.Throws<ArgumentNullException>(
                 paramName: "provider",
-                () => new PlayHandler(provider: null, store, notifier)
+                () => new PlayHandler(provider: null, store)
             );
 
             Assert.Throws<ArgumentNullException>(
                 paramName: "store",
-                () => new PlayHandler(provider, store: null, notifier)
-            );
-
-            Assert.Throws<ArgumentNullException>(
-                paramName: "notifier",
-                () => new PlayHandler(provider, store, notifier: null)
+                () => new PlayHandler(provider, store: null)
             );
         }
 
         private readonly Mock<IGameProvider> _provider = new Mock<IGameProvider>();
         private readonly Mock<IGameEventStore> _store = new Mock<IGameEventStore>();
-        private readonly Mock<IGameUpdatedNotifier> _notifier = new Mock<IGameUpdatedNotifier>();
         private readonly PlayHandler _sut;
 
         private readonly GameId _gameId = GameIdGenerator.Generate();
@@ -49,17 +42,15 @@ namespace Sequence.Core.Test
         {
             _provider
                 .Setup(p => p.GetGameByIdAsync(_gameId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((Game)null);
+                .ReturnsAsync((Game)null)
+                .Verifiable();
 
             _store
                 .Setup(s => s.AddEventAsync(_gameId, It.IsAny<GameEvent>(), It.IsAny<CancellationToken>()))
-                .Returns(Task.CompletedTask);
+                .Returns(Task.CompletedTask)
+                .Verifiable();
 
-            _notifier
-                .Setup(n => n.SendAsync(_gameId, It.IsAny<int>()))
-                .Returns(Task.CompletedTask);
-
-            _sut = new PlayHandler(_provider.Object, _store.Object, _notifier.Object);
+            _sut = new PlayHandler(_provider.Object, _store.Object);
 
             _game = new Game(
                 new GameInit(
@@ -117,7 +108,7 @@ namespace Sequence.Core.Test
         }
 
         [Fact]
-        public async Task SavesEvent()
+        public async Task GetsGameFromProvider()
         {
             // Given:
             _provider
@@ -129,27 +120,22 @@ namespace Sequence.Core.Test
             await _sut.PlayCardAsync(_gameId, _player, _card, _coord, CancellationToken.None);
 
             // Then:
-            _store.VerifyAll();
+            _provider.Verify();
         }
 
         [Fact]
-        public async Task PublishesEvent()
+        public async Task SavesEvent()
         {
             // Given:
             _provider
                 .Setup(p => p.GetGameByIdAsync(_gameId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(_game);
 
-            _store
-                .Setup(s => s.AddEventAsync(_gameId, It.IsAny<GameEvent>(), It.IsAny<CancellationToken>()))
-                .Returns(Task.CompletedTask)
-                .Verifiable();
-
             // When:
             await _sut.PlayCardAsync(_gameId, _player, _card, _coord, CancellationToken.None);
 
             // Then:
-            _store.VerifyAll();
+            _store.Verify();
         }
     }
 }

@@ -52,12 +52,16 @@ namespace Sequence.Api
             services.AddSingleton<PostgresListener>();
             services.AddSingleton<IHostedService>(sp => sp.GetRequiredService<PostgresListener>());
             services.AddSingleton<IBotTaskObservable>(sp => sp.GetRequiredService<PostgresListener>());
-            services.AddTransient<IGameEventStore, PostgresGameEventStore>();
+            services.AddTransient<PostgresGameEventStore>();
             services.AddTransient<IGameProvider, PostgresGameProvider>();
             services.AddTransient<IGameListProvider, PostgresGameListProvider>();
             services.AddTransient<IGameStore, PostgresGameStore>();
 
             services.AddSingleton<PostgresMigrations>();
+
+            services.AddTransient<IGameEventStore>(sp => new NotifyingGameEventStore(
+                sp.GetRequiredService<PostgresGameEventStore>(),
+                sp.GetRequiredService<IGameUpdatedNotifier>()));
 
             return services;
         }

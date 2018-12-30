@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace Sequence.Core
+namespace Sequence.Core.Notifications
 {
     public interface IGameUpdatedNotifier
     {
