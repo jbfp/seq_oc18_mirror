@@ -1,14 +1,11 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Sequence.Core;
 using Sequence.Core.Bots;
 using Sequence.Core.CreateGame;
 using Sequence.Core.GetGame;
 using Sequence.Core.GetGames;
 using Sequence.Core.Notifications;
 using Sequence.Core.Play;
-using Sequence.Postgres;
 using System;
 
 namespace Sequence.Api
@@ -27,8 +24,6 @@ namespace Sequence.Api
                 throw new ArgumentNullException(nameof(configuration));
             }
 
-            services.AddPostgres(configuration);
-
             services.AddTransient<BotTaskHandler>();
             services.AddTransient<CreateGameHandler>();
             services.AddTransient<GetGameHandler>();
@@ -42,27 +37,6 @@ namespace Sequence.Api
             services.AddTransient<ISeedProvider, RandomSeedProvider>();
 
             services.AddHostedService<BotTaskObserver>();
-
-            return services;
-        }
-
-        private static IServiceCollection AddPostgres(this IServiceCollection services, IConfiguration configuration)
-        {
-            services.Configure<PostgresOptions>(configuration.GetSection("Postgres"));
-            services.AddSingleton<NpgsqlConnectionFactory>();
-            services.AddSingleton<PostgresListener>();
-            services.AddSingleton<IHostedService>(sp => sp.GetRequiredService<PostgresListener>());
-            services.AddSingleton<IBotTaskObservable>(sp => sp.GetRequiredService<PostgresListener>());
-            services.AddTransient<PostgresGameEventStore>();
-            services.AddTransient<IGameProvider, PostgresGameProvider>();
-            services.AddTransient<IGameListProvider, PostgresGameListProvider>();
-            services.AddTransient<IGameStore, PostgresGameStore>();
-
-            services.AddSingleton<PostgresMigrations>();
-
-            services.AddTransient<IGameEventStore>(sp => new NotifyingGameEventStore(
-                sp.GetRequiredService<PostgresGameEventStore>(),
-                sp.GetRequiredService<IGameUpdatedNotifier>()));
 
             return services;
         }

@@ -63,6 +63,7 @@ namespace Sequence.Api
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) => WebHost
             .CreateDefaultBuilder(args)
             .UseStartup<Startup>()
+            .ConfigureServices((builder, services) => services.AddPostgres(builder.Configuration))
             .UseSerilog()
             .UseUrls("http://localhost:5000");
     }
