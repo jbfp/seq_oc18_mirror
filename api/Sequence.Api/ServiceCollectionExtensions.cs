@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Sequence.Core;
+using Sequence.Core.Bots;
 using Sequence.Core.CreateGame;
 using Sequence.Core.GetGame;
 using Sequence.Core.GetGames;
@@ -38,6 +39,7 @@ namespace Sequence.Api
 
             services.AddTransient<ISeedProvider, RandomSeedProvider>();
 
+            services.AddHostedService<BotTaskObserver>();
             return services;
         }
 
