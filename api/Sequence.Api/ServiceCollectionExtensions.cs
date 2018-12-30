@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Sequence.Core;
 using Sequence.Core.Bots;
 using Sequence.Core.CreateGame;
@@ -40,6 +41,7 @@ namespace Sequence.Api
             services.AddTransient<ISeedProvider, RandomSeedProvider>();
 
             services.AddHostedService<BotTaskObserver>();
+
             return services;
         }
 
@@ -47,7 +49,9 @@ namespace Sequence.Api
         {
             services.Configure<PostgresOptions>(configuration.GetSection("Postgres"));
             services.AddSingleton<NpgsqlConnectionFactory>();
-
+            services.AddSingleton<PostgresListener>();
+            services.AddSingleton<IHostedService>(sp => sp.GetRequiredService<PostgresListener>());
+            services.AddSingleton<IBotTaskObservable>(sp => sp.GetRequiredService<PostgresListener>());
             services.AddTransient<IGameEventStore, PostgresGameEventStore>();
             services.AddTransient<IGameProvider, PostgresGameProvider>();
             services.AddTransient<IGameListProvider, PostgresGameListProvider>();
