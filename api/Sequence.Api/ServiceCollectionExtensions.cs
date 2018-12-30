@@ -44,6 +44,7 @@ namespace Sequence.Api
         private static IServiceCollection AddPostgres(this IServiceCollection services, IConfiguration configuration)
         {
             services.Configure<PostgresOptions>(configuration.GetSection("Postgres"));
+            services.AddSingleton<NpgsqlConnectionFactory>();
 
             services.AddTransient<IGameEventStore, PostgresGameEventStore>();
             services.AddTransient<IGameProvider, PostgresGameProvider>();

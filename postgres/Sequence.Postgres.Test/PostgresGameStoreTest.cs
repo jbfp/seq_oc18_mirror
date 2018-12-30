@@ -17,8 +17,8 @@ namespace Sequence.Postgres.Test
         public async Task CanPersistNewGame()
         {
             // Given:
-            var options = await CreateDatabaseAsync();
-            var sut = new PostgresGameStore(options);
+            var db = await CreateDatabaseAsync();
+            var sut = new PostgresGameStore(db);
             var newGame = new NewGame(
                 players: new PlayerList(
                     new NewPlayer(Player1, PlayerType.User),
@@ -36,8 +36,8 @@ namespace Sequence.Postgres.Test
         public async Task CanPersistNewGameWithMultipleIdenticalBots()
         {
             // Given:
-            var options = await CreateDatabaseAsync();
-            var sut = new PostgresGameStore(options);
+            var db = await CreateDatabaseAsync();
+            var sut = new PostgresGameStore(db);
             var botType = new PlayerHandle("Dalvik");
             var newGame = new NewGame(
                 players: new PlayerList(

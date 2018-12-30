@@ -8,10 +8,13 @@ using System.Threading.Tasks;
 
 namespace Sequence.Postgres
 {
-    public sealed class PostgresGameStore : PostgresBase, IGameStore
+    public sealed class PostgresGameStore : IGameStore
     {
-        public PostgresGameStore(IOptions<PostgresOptions> options) : base(options)
+        private readonly NpgsqlConnectionFactory _connectionFactory;
+
+        public PostgresGameStore(NpgsqlConnectionFactory connectionFactory)
         {
+            _connectionFactory = connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
         }
 
         public async Task<GameId> PersistNewGameAsync(NewGame newGame, CancellationToken cancellationToken)
@@ -25,7 +28,7 @@ namespace Sequence.Postgres
 
             GameId gameId;
 
-            using (var connection = await CreateAndOpenAsync(cancellationToken))
+            using (var connection = await _connectionFactory.CreateAndOpenAsync(cancellationToken))
             using (var transaction = connection.BeginTransaction())
             {
                 try

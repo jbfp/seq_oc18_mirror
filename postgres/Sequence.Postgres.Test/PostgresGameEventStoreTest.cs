@@ -87,9 +87,9 @@ namespace Sequence.Postgres.Test
                 throw new System.ArgumentNullException(nameof(gameEvent));
             }
 
-            var options = await CreateDatabaseAsync();
-            var gameId = await CreateGameAsync(options);
-            var sut = new PostgresGameEventStore(options);
+            var db = await CreateDatabaseAsync();
+            var gameId = await CreateGameAsync(db);
+            var sut = new PostgresGameEventStore(db);
             await sut.AddEventAsync(gameId, gameEvent, CancellationToken.None);
         }
     }

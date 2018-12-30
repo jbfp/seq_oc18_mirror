@@ -45,7 +45,7 @@ namespace Sequence.Postgres.Test
             }
         }
 
-        public async Task<IOptions<PostgresOptions>> CreateDatabaseAsync(CancellationToken cancellationToken)
+        public async Task<NpgsqlConnectionFactory> CreateDatabaseAsync(CancellationToken cancellationToken)
         {
             // Create test database.
             var databaseSuffix = Guid.NewGuid();
@@ -68,7 +68,7 @@ namespace Sequence.Postgres.Test
             var migrations = new PostgresMigrations(options, logger);
             await migrations.UpgradeDatabaseAsync(cancellationToken);
 
-            return options;
+            return new NpgsqlConnectionFactory(options);
         }
 
         public void Dispose()

@@ -10,13 +10,13 @@ using System.Threading.Tasks;
 
 namespace Sequence.Postgres
 {
-    public sealed class PostgresGameListProvider : PostgresBase, IGameListProvider
+    public sealed class PostgresGameListProvider : IGameListProvider
     {
-        private readonly IOptions<PostgresOptions> _options;
+        private readonly NpgsqlConnectionFactory _connectionFactory;
 
-        public PostgresGameListProvider(IOptions<PostgresOptions> options) : base(options)
+        public PostgresGameListProvider(NpgsqlConnectionFactory connectionFactory)
         {
-            _options = options ?? throw new ArgumentNullException(nameof(options));
+            _connectionFactory = connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
         }
 
         public async Task<GameList> GetGamesForPlayerAsync(PlayerHandle player, CancellationToken cancellationToken)
@@ -30,7 +30,7 @@ namespace Sequence.Postgres
 
             ImmutableList<GameListItem> gameListItems;
 
-            using (var connection = await CreateAndOpenAsync(cancellationToken))
+            using (var connection = await _connectionFactory.CreateAndOpenAsync(cancellationToken))
             {
                 var command = new CommandDefinition(
                     commandText: "SELECT * FROM public.get_game_list_for_player(@player);",

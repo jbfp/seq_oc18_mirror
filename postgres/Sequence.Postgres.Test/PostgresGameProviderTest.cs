@@ -17,9 +17,9 @@ namespace Sequence.Postgres.Test
         public async Task CanGetGame()
         {
             // Given:
-            var options = await CreateDatabaseAsync();
-            var gameId = await CreateGameAsync(options);
-            var sut = new PostgresGameProvider(options);
+            var db = await CreateDatabaseAsync();
+            var gameId = await CreateGameAsync(db);
+            var sut = new PostgresGameProvider(db);
 
             // Then:
             var game = await sut.GetGameByIdAsync(gameId, CancellationToken.None);
@@ -32,10 +32,10 @@ namespace Sequence.Postgres.Test
         public async Task CanGetGameWithOneEvent()
         {
             // Given:
-            var options = await CreateDatabaseAsync();
-            var gameId = await CreateGameAsync(options);
+            var db = await CreateDatabaseAsync();
+            var gameId = await CreateGameAsync(db);
 
-            await AddEventAsync(options, gameId, new GameEvent
+            await AddEventAsync(db, gameId, new GameEvent
             {
                 ByPlayerId = new PlayerId(1),
                 CardDrawn = null,
@@ -46,7 +46,7 @@ namespace Sequence.Postgres.Test
                 NextPlayerId = new PlayerId(2),
             });
 
-            var sut = new PostgresGameProvider(options);
+            var sut = new PostgresGameProvider(db);
 
             // Then:
             var game = await sut.GetGameByIdAsync(gameId, CancellationToken.None);
@@ -59,10 +59,10 @@ namespace Sequence.Postgres.Test
         public async Task CanGetGameWithOneEventWithCardDrawn()
         {
             // Given:
-            var options = await CreateDatabaseAsync();
-            var gameId = await CreateGameAsync(options);
+            var db = await CreateDatabaseAsync();
+            var gameId = await CreateGameAsync(db);
 
-            await AddEventAsync(options, gameId, new GameEvent
+            await AddEventAsync(db, gameId, new GameEvent
             {
                 ByPlayerId = new PlayerId(1),
                 CardDrawn = new Card(DeckNo.One, Suit.Spades, Rank.Five),
@@ -73,7 +73,7 @@ namespace Sequence.Postgres.Test
                 NextPlayerId = new PlayerId(2),
             });
 
-            var sut = new PostgresGameProvider(options);
+            var sut = new PostgresGameProvider(db);
 
             // Then:
             var game = await sut.GetGameByIdAsync(gameId, CancellationToken.None);
@@ -86,10 +86,10 @@ namespace Sequence.Postgres.Test
         public async Task CanGetGameWithOneEventWithSequence()
         {
             // Given:
-            var options = await CreateDatabaseAsync();
-            var gameId = await CreateGameAsync(options);
+            var db = await CreateDatabaseAsync();
+            var gameId = await CreateGameAsync(db);
 
-            await AddEventAsync(options, gameId, new GameEvent
+            await AddEventAsync(db, gameId, new GameEvent
             {
                 ByPlayerId = new PlayerId(1),
                 CardDrawn = new Card(DeckNo.One, Suit.Spades, Rank.Five),
@@ -107,7 +107,7 @@ namespace Sequence.Postgres.Test
                 )),
             });
 
-            var sut = new PostgresGameProvider(options);
+            var sut = new PostgresGameProvider(db);
 
             // Then:
             var game = await sut.GetGameByIdAsync(gameId, CancellationToken.None);
