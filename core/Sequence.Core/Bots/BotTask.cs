@@ -4,13 +4,13 @@ namespace Sequence.Core.Bots
 {
     public sealed class BotTask
     {
-        public BotTask(GameId gameId, PlayerHandle playerHandle)
+        public BotTask(GameId gameId, Player player)
         {
             GameId = gameId ?? throw new ArgumentNullException(nameof(gameId));
-            PlayerHandle = playerHandle ?? throw new ArgumentNullException(nameof(playerHandle));
+            Player = player ?? throw new ArgumentNullException(nameof(player));
         }
 
         public GameId GameId { get; }
-        public PlayerHandle PlayerHandle { get; }
+        public Player Player { get; }
     }
 }

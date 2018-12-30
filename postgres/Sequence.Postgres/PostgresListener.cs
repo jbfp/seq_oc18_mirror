@@ -95,6 +95,7 @@ namespace Sequence.Postgres
                 const string sql = @"
                     SELECT
                       DISTINCT(g.game_id)
+                    , gp.id
                     , gp.player_id
                     FROM public.game_player AS gp
 
@@ -120,7 +121,7 @@ namespace Sequence.Postgres
                 _logger.LogInformation("Got {NumTasks} initial bot tasks", rows.Count);
 
                 return rows
-                    .Select(row => new BotTask(row.game_id, row.player_id))
+                    .Select(row => new BotTask(row.game_id, new Player(row.id, row.player_id, PlayerType.Bot)))
                     .ToImmutableList();
             }
         }
@@ -146,6 +147,7 @@ namespace Sequence.Postgres
                 const string sql = @"
                     SELECT
                       g.game_id
+                    , gp.id
                     , gp.player_id
                     FROM public.game_player AS gp
 
@@ -180,7 +182,9 @@ namespace Sequence.Postgres
                     "Found bot task for player {playerId} in game {gameId}",
                     row.player_id, row.game_id);
 
-                return Observable.Return(new BotTask(row.game_id, row.player_id));
+                var player = new Player(row.id, row.player_id, PlayerType.Bot);
+                var botTask = new BotTask(row.game_id, player);
+                return Observable.Return(botTask);
             });
         }
 
@@ -189,6 +193,7 @@ namespace Sequence.Postgres
         private sealed class LatestBotTaskForGame
         {
             public GameId game_id;
+            public PlayerId id;
             public PlayerHandle player_id;
         }
 #pragma warning restore CS0649
