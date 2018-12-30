@@ -17,10 +17,10 @@ namespace Sequence.Postgres.Test
         public async Task CanGetGameList()
         {
             // Given:
-            var options = await CreateDatabaseAsync();
-            var gameId = await CreateGameAsync(options);
+            var db = await CreateDatabaseAsync();
+            var gameId = await CreateGameAsync(db);
             var opponents = new[] { Player2 };
-            var sut = new PostgresGameListProvider(options);
+            var sut = new PostgresGameListProvider(db);
 
             // When:
             var gameList = await sut.GetGamesForPlayerAsync(Player1, CancellationToken.None);
@@ -37,10 +37,10 @@ namespace Sequence.Postgres.Test
         public async Task GameList_NextPlayerIdIsNullWhenGameIsOver()
         {
             // Given:
-            var options = await CreateDatabaseAsync();
-            var gameId = await CreateGameAsync(options);
+            var db = await CreateDatabaseAsync();
+            var gameId = await CreateGameAsync(db);
 
-            await AddEventAsync(options, gameId, new GameEvent
+            await AddEventAsync(db, gameId, new GameEvent
             {
                 ByPlayerId = new PlayerId(1),
                 CardUsed = new Card(DeckNo.One, Suit.Spades, Rank.Ace),
@@ -50,7 +50,7 @@ namespace Sequence.Postgres.Test
                 NextPlayerId = null
             });
 
-            var sut = new PostgresGameListProvider(options);
+            var sut = new PostgresGameListProvider(db);
 
             // When:
             var gameList = await sut.GetGamesForPlayerAsync(Player1, CancellationToken.None);
@@ -64,12 +64,12 @@ namespace Sequence.Postgres.Test
         public async Task CannotGetGamesAsBot()
         {
             // Given:
-            var options = await CreateDatabaseAsync();
+            var db = await CreateDatabaseAsync();
             var player = new PlayerHandle("Super Bot");
-            var gameId = await CreateGameAsync(options,
+            var gameId = await CreateGameAsync(db,
                 player1: new NewPlayer(player, PlayerType.Bot));
 
-            var sut = new PostgresGameListProvider(options);
+            var sut = new PostgresGameListProvider(db);
 
             // When:
             var gameList = await sut.GetGamesForPlayerAsync(player, CancellationToken.None);

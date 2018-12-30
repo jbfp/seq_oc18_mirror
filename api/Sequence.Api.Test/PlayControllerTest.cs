@@ -14,8 +14,7 @@ namespace Sequence.Api.Test
         {
             var handler = new PlayHandler(
                 Mock.Of<IGameProvider>(),
-                Mock.Of<IGameEventStore>(),
-                Mock.Of<IGameUpdatedNotifier>());
+                Mock.Of<IGameEventStore>());
 
             var logger = Mock.Of<ILogger<PlayController>>();
 

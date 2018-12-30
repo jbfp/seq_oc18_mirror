@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace Sequence.Postgres
 {
-    public abstract class PostgresBase
+    public sealed class NpgsqlConnectionFactory
     {
-        static PostgresBase()
+        static NpgsqlConnectionFactory()
         {
             NpgsqlConnection.GlobalTypeMapper.MapEnum<DeckNo>("deckno");
             NpgsqlConnection.GlobalTypeMapper.MapEnum<PlayerType>("player_type");
@@ -30,12 +30,12 @@ namespace Sequence.Postgres
 
         private readonly IOptions<PostgresOptions> _options;
 
-        protected PostgresBase(IOptions<PostgresOptions> options)
+        public NpgsqlConnectionFactory(IOptions<PostgresOptions> options)
         {
             _options = options ?? throw new ArgumentNullException(nameof(options));
         }
 
-        protected async Task<NpgsqlConnection> CreateAndOpenAsync(CancellationToken cancellationToken)
+        public async Task<NpgsqlConnection> CreateAndOpenAsync(CancellationToken cancellationToken)
         {
             var connectionString = _options.Value.ConnectionString;
             var connection = new NpgsqlConnection(connectionString);

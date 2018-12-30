@@ -8,10 +8,13 @@ using System.Threading.Tasks;
 
 namespace Sequence.Postgres
 {
-    public sealed class PostgresGameEventStore : PostgresBase, IGameEventStore
+    public sealed class PostgresGameEventStore : IGameEventStore
     {
-        public PostgresGameEventStore(IOptions<PostgresOptions> options) : base(options)
+        private readonly NpgsqlConnectionFactory _connectionFactory;
+
+        public PostgresGameEventStore(NpgsqlConnectionFactory connectionFactory)
         {
+            _connectionFactory = connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
         }
 
         public async Task AddEventAsync(GameId gameId, GameEvent gameEvent, CancellationToken cancellationToken)
@@ -28,7 +31,7 @@ namespace Sequence.Postgres
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            using (var connection = await CreateAndOpenAsync(cancellationToken))
+            using (var connection = await _connectionFactory.CreateAndOpenAsync(cancellationToken))
             using (var transaction = connection.BeginTransaction())
             {
                 int surrogateGameId;

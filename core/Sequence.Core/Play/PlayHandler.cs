@@ -9,13 +9,11 @@ namespace Sequence.Core.Play
     {
         private readonly IGameProvider _provider;
         private readonly IGameEventStore _store;
-        private readonly IGameUpdatedNotifier _notifier;
 
-        public PlayHandler(IGameProvider provider, IGameEventStore store, IGameUpdatedNotifier notifier)
+        public PlayHandler(IGameProvider provider, IGameEventStore store)
         {
             _provider = provider ?? throw new ArgumentNullException(nameof(provider));
             _store = store ?? throw new ArgumentNullException(nameof(store));
-            _notifier = notifier ?? throw new ArgumentNullException(nameof(notifier));
         }
 
         public async Task<PlayCardResult> PlayCardAsync(
@@ -52,9 +50,6 @@ namespace Sequence.Core.Play
             GameEvent gameEvent = game.PlayCard(player, card, coord);
 
             await _store.AddEventAsync(gameId, gameEvent, cancellationToken);
-
-            // Note: The task is stored in a variable to get rid of the 'un-awaited task' warning.
-            Task _ = Task.Run(() => _notifier.SendAsync(gameId, version: gameEvent.Index));
 
             return new PlayCardResult
             {

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Serialization;
 using System;
 
 namespace Sequence.Api
@@ -29,7 +30,7 @@ namespace Sequence.Api
                     options.SerializerSettings.Converters.Add(new GameIdJsonConverter());
                     options.SerializerSettings.Converters.Add(new PlayerHandleJsonConverter());
                     options.SerializerSettings.Converters.Add(new PlayerIdJsonConverter());
-                    options.SerializerSettings.Converters.Add(new StringEnumConverter(camelCaseText: true));
+                    options.SerializerSettings.Converters.Add(new StringEnumConverter(new CamelCaseNamingStrategy()));
                     options.SerializerSettings.Converters.Add(new TileJsonConverter());
                 })
                 .SetCompatibilityVersion(CompatibilityVersion.Latest);

@@ -5,14 +5,16 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Sequence.Core;
+using Sequence.Core.Bots;
 using Sequence.Core.CreateGame;
 using Sequence.Core.GetGames;
-using Sequence.Core.Play;
+using Sequence.Core.Notifications;
 using System;
 using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -23,6 +25,7 @@ namespace Sequence.Api.Test
     {
         private readonly InMemoryDatabase _database = new InMemoryDatabase();
         private readonly SeedProviderStub _seedProvider = new SeedProviderStub();
+        private readonly BotTaskObservableStub _botTaskObservable = new BotTaskObservableStub();
         private readonly WebApplicationFactory<Startup> _factory;
 
         public IntegrationTests(WebApplicationFactory<Startup> factory)
@@ -31,7 +34,11 @@ namespace Sequence.Api.Test
             {
                 builder.ConfigureTestServices(services =>
                 {
-                    services.AddSingleton<IGameEventStore>(_database);
+                    services.AddSingleton<InMemoryDatabase>(_database);
+                    services.AddSingleton<IBotTaskObservable>(_botTaskObservable);
+                    services.AddSingleton<IGameEventStore>(sp => new NotifyingGameEventStore(
+                        sp.GetRequiredService<InMemoryDatabase>(),
+                        sp.GetRequiredService<IGameUpdatedNotifier>()));
                     services.AddSingleton<IGameProvider>(_database);
                     services.AddSingleton<IGameListProvider>(_database);
                     services.AddSingleton<IGameStore>(_database);
@@ -301,7 +308,7 @@ namespace Sequence.Api.Test
             var subscribePath = gamePath.ToString() + "/stream?player=dummy";
             var client = CreateAuthorizedClient();
             var response = await client.GetAsync(subscribePath, HttpCompletionOption.ResponseHeadersRead);
-            var body = new { card = new { deckNo = 1, suit = 1, rank = 9 }, column = 8, row = 0 };
+            var body = new { card = new { deckNo = 2, suit = 1, rank = 9 }, column = 8, row = 0 };
 
             // When:
             var r = await client.PostAsJsonAsync(gamePath, body);
@@ -372,6 +379,14 @@ namespace Sequence.Api.Test
             public Task<Seed> GenerateSeedAsync(CancellationToken cancellationToken)
             {
                 return Task.FromResult(Value);
+            }
+        }
+
+        private sealed class BotTaskObservableStub : IBotTaskObservable
+        {
+            public IDisposable Subscribe(IObserver<BotTask> observer)
+            {
+                return Observable.Empty<BotTask>().Subscribe(observer);
             }
         }
     }

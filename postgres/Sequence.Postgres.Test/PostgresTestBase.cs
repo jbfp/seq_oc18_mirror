@@ -19,22 +19,22 @@ namespace Sequence.Postgres.Test
         public PlayerHandle Player1 { get; } = new PlayerHandle("Player 1");
         public PlayerHandle Player2 { get; } = new PlayerHandle("Player 2");
 
-        protected Task<IOptions<PostgresOptions>> CreateDatabaseAsync()
+        protected Task<NpgsqlConnectionFactory> CreateDatabaseAsync()
         {
             return _fixture.CreateDatabaseAsync(CancellationToken.None);
         }
 
         protected async Task<GameId> CreateGameAsync(
-            IOptions<PostgresOptions> options,
+            NpgsqlConnectionFactory connectionFactory,
             NewPlayer player1 = null,
             NewPlayer player2 = null)
         {
-            if (options == null)
+            if (connectionFactory == null)
             {
-                throw new ArgumentNullException(nameof(options));
+                throw new ArgumentNullException(nameof(connectionFactory));
             }
 
-            var gameStore = new PostgresGameStore(options);
+            var gameStore = new PostgresGameStore(connectionFactory);
 
             var newGame = new NewGame(
                 players: new PlayerList(
@@ -45,11 +45,14 @@ namespace Sequence.Postgres.Test
             return await gameStore.PersistNewGameAsync(newGame, CancellationToken.None);
         }
 
-        protected async Task AddEventAsync(IOptions<PostgresOptions> options, GameId gameId, GameEvent gameEvent)
+        protected async Task AddEventAsync(
+            NpgsqlConnectionFactory connectionFactory,
+            GameId gameId,
+            GameEvent gameEvent)
         {
-            if (options == null)
+            if (connectionFactory == null)
             {
-                throw new ArgumentNullException(nameof(options));
+                throw new ArgumentNullException(nameof(connectionFactory));
             }
 
             if (gameId == null)
@@ -62,7 +65,7 @@ namespace Sequence.Postgres.Test
                 throw new ArgumentNullException(nameof(gameEvent));
             }
 
-            var gameEventStore = new PostgresGameEventStore(options);
+            var gameEventStore = new PostgresGameEventStore(connectionFactory);
 
             await gameEventStore.AddEventAsync(gameId, gameEvent, CancellationToken.None);
         }

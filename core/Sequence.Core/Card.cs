@@ -40,11 +40,13 @@ namespace Sequence.Core
 
         internal bool IsOneEyedJack() => Rank == Rank.Jack && (Suit == Suit.Hearts || Suit == Suit.Spades);
         internal bool IsTwoEyedJack() => Rank == Rank.Jack && (Suit == Suit.Diamonds || Suit == Suit.Clubs);
+
+        public override string ToString() => $"{Rank} of {Suit} ({DeckNo:D})";
     }
 
     public enum DeckNo
     {
-        One, Two,
+        One = 1, Two = 2,
     }
 
     public enum Suit

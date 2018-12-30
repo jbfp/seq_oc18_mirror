@@ -9,10 +9,13 @@ using System.Threading.Tasks;
 
 namespace Sequence.Postgres
 {
-    public sealed class PostgresGameProvider : PostgresBase, IGameProvider
+    public sealed class PostgresGameProvider : IGameProvider
     {
-        public PostgresGameProvider(IOptions<PostgresOptions> options) : base(options)
+        private readonly NpgsqlConnectionFactory _connectionFactory;
+
+        public PostgresGameProvider(NpgsqlConnectionFactory connectionFactory)
         {
+            _connectionFactory = connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
         }
 
         public async Task<Game> GetGameByIdAsync(GameId gameId, CancellationToken cancellationToken)
@@ -27,7 +30,7 @@ namespace Sequence.Postgres
             GameInit init;
             GameEvent[] gameEvents;
 
-            using (var connection = await CreateAndOpenAsync(cancellationToken))
+            using (var connection = await _connectionFactory.CreateAndOpenAsync(cancellationToken))
             using (var transaction = connection.BeginTransaction())
             {
                 {
