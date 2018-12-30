@@ -301,7 +301,7 @@ namespace Sequence.Api.Test
             var subscribePath = gamePath.ToString() + "/stream?player=dummy";
             var client = CreateAuthorizedClient();
             var response = await client.GetAsync(subscribePath, HttpCompletionOption.ResponseHeadersRead);
-            var body = new { card = new { deckNo = 1, suit = 1, rank = 9 }, column = 8, row = 0 };
+            var body = new { card = new { deckNo = 2, suit = 1, rank = 9 }, column = 8, row = 0 };
 
             // When:
             var r = await client.PostAsJsonAsync(gamePath, body);
