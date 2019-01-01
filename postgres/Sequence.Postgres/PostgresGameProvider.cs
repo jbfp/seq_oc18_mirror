@@ -48,7 +48,9 @@ namespace Sequence.Postgres
                         INNER JOIN public.game_player AS gp
                         ON gp.game_id = g.id
 
-                        WHERE g.game_id = @gameId;";
+                        WHERE g.game_id = @gameId
+
+                        ORDER BY gp.id ASC;";
 
                     var command = new CommandDefinition(
                         commandText,
@@ -86,7 +88,8 @@ namespace Sequence.Postgres
                         , ge.sequence
                         FROM public.game_event AS ge
                         INNER JOIN public.game AS g ON g.id = ge.game_id
-                        WHERE g.game_id = @gameId;";
+                        WHERE g.game_id = @gameId
+                        ORDER BY idx ASC;";
 
                     var parameters = new { gameId = gameId };
 
