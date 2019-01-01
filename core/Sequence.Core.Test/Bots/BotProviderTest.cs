@@ -9,7 +9,7 @@ namespace Sequence.Core.Bots.Test
         public void BotTypesContainsNullBot()
         {
             // This test is merely to test that the reflection code works.
-            Assert.Contains(NullBot.Name, BotProvider.BotTypes.Keys);
+            Assert.NotEmpty(BotProvider.BotTypes);
         }
     }
 }
