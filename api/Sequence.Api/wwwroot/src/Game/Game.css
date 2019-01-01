@@ -178,13 +178,38 @@ div[data-rank="ten"]::after {
     content: "10";
 }
 
+div[data-suit="diamonds"][data-rank="jack"]::before,
+div[data-suit="clubs"][data-rank="jack"]::before {
+    content: "";
+    animation: two-eyed-jack-suit 4s step-end infinite;
+}
+
 div[data-suit="diamonds"][data-rank="jack"]::after,
 div[data-suit="clubs"][data-rank="jack"]::after {
     content: "";
-    animation: two-eyed-jack 1s linear infinite;
+    animation: two-eyed-jack-rank 4s step-end infinite;
 }
 
-@keyframes two-eyed-jack {
+@keyframes two-eyed-jack-suit {
+    0% {
+        color: #FF0000;
+        content: "♥";
+    }
+    33.33% {
+        color: #000000;
+        content: "♠";
+    }
+    66.67% {
+        color: #FF0000;
+        content: "♦";
+    }
+    100% {
+        color: #000000;
+        content: "♣";
+    }
+}
+
+@keyframes two-eyed-jack-rank {
     0% {
         content: 'A';
     }
@@ -226,9 +251,15 @@ div[data-suit="clubs"][data-rank="jack"]::after {
     }
 }
 
+div[data-suit="hearts"][data-rank="jack"]::before,
+div[data-suit="spades"][data-rank="jack"]::before {
+    content: "";
+}
+
 div[data-suit="hearts"][data-rank="jack"]::after,
 div[data-suit="spades"][data-rank="jack"]::after {
     content: "💀";
+    font-size: 150%;
 }
 
 div[data-rank="queen"]::after {
@@ -293,6 +324,7 @@ div[data-rank="king"]::after {
     justify-content: center;
     height: 55px;
     padding: 0.5em;
+    transition: box-shadow 0.1s, transform 0.1s;
     width: 37px;
 }
 
