@@ -22,19 +22,26 @@ class PlayerView extends React.PureComponent {
     render() {
         const { hand, handle, isCurrentPlayer, onCardClick, selectedCard, team } = this.props;
 
-        const Card = ({ card }) => {
-            return (
-                <div
-                    className="card"
-                    data-suit={card.suit}
-                    data-rank={card.rank}
-                    data-selected={card === selectedCard}
-                    onClick={() => onCardClick(card)}
-                ></div>
-            );
-        };
+        const Card = ({ card }) => (
+            <div
+                className="card"
+                data-suit={card.suit}
+                data-rank={card.rank}
+                data-selected={card === selectedCard}
+                onClick={() => onCardClick(card)}
+            ></div>
+        );
 
-        const Hand = () => hand.map((card, idx) => <Card key={idx} card={card} />);
+        const Hand = () => hand.map((card, idx) => {
+            const key = `${card.deckNo}_${card.suit}_${card.rank}`;
+
+            return (
+                <div key={key} className="hand-card">
+                    <Card card={card} />
+                    <kbd>{idx + 1}</kbd>
+                </div>
+            );
+        });
 
         return (
             <div className="player" data-team={team}>
