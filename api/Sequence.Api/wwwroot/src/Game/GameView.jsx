@@ -23,13 +23,6 @@ class GameView extends React.PureComponent {
         let $body;
 
         if (game) {
-            const players = game.players.map(player => {
-                return {
-                    ...player,
-                    isCurrentPlayer: game.currentPlayerId === player.id
-                };
-            });
-
             const playerObj = {
                 hand: game.hand,
                 handle: this.context.userName,
@@ -41,7 +34,7 @@ class GameView extends React.PureComponent {
                 <div>
                     <Link to="/">Go back</Link>
                     <hr />
-                    <PlayersView players={players} winner={game.winner} />
+                    <PlayersView currentPlayerId={game.currentPlayerId} players={game.players} winner={game.winner} />
                     <BoardView board={game.board} chips={game.chips} onCoordClick={onCoordClick} highlightedCellValue={selectedCard} />
                     <PlayerView onCardClick={onCardClick} selectedCard={selectedCard} {...playerObj} />
                     <DeckView discards={game.discards} numberOfCardsInDeck={game.numberOfCardsInDeck} />

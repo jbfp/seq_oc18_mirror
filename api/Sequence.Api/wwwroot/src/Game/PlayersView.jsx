@@ -1,30 +1,38 @@
 import React from 'react';
 
+class Player extends React.PureComponent {
+    render() {
+        const { handle, isCurrentPlayer, team, type, isWinner } = this.props;
+        const name = type === 'bot' ? `🤖 ${handle} 🤖` : handle;
+
+        return (
+            <div
+                className="players-player"
+                data-team={team}
+                data-current-player={isCurrentPlayer}
+                data-winner={isWinner}
+            >
+                <div>
+                    {name}
+                </div>
+            </div>
+        );
+    }
+}
+
 class PlayersView extends React.PureComponent {
     render() {
-        const { players, winner } = this.props;
-
-        const $players = players.map((player, i) => {
-            const handle = player.type === 'bot' ? `🤖 ${player.handle} 🤖` : player.handle;
-
-            return (
-                <div
-                    key={i}
-                    className="players-player"
-                    data-team={player.team}
-                    data-current-player={player.isCurrentPlayer}
-                    data-winner={player.team === (winner || {}).team}
-                >
-                    <div>
-                        {handle}
-                    </div>
-                </div>
-            );
-        });
+        const { currentPlayerId, players, winner } = this.props;
 
         return (
             <div className="players">
-                {$players}
+                {players.map(player => (
+                    <Player
+                        key={player.id}
+                        {...player}
+                        isCurrentPlayer={player.id === currentPlayerId}
+                        isWinner={player.team === (winner || {}).team} />
+                ))}
             </div>
         );
     }
