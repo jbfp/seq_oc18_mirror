@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.Serialization;
 
@@ -64,6 +65,16 @@ namespace Sequence.Core
 
         public void Apply(GameEvent gameEvent)
         {
+            if (_index == gameEvent.Index)
+            {
+                return;
+            }
+
+            if (_index > gameEvent.Index)
+            {
+                throw new InvalidOperationException($"Game event cannot be applied. Index is {_index}, game event index is {gameEvent.Index}.");
+            }
+
             var cardDrawn = gameEvent.CardDrawn;
             var cardUsed = gameEvent.CardUsed;
             var playerIdx = _playerIdByIdx.IndexOf(gameEvent.ByPlayerId);

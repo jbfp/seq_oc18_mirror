@@ -101,7 +101,7 @@ namespace Sequence.Core.Test
                 CardUsed = _cardDummy,
                 Chip = Team.Green,
                 Coord = _coordDummy,
-                Index = 0,
+                Index = 1,
                 NextPlayerId = _player1.Id,
             });
 
@@ -175,7 +175,7 @@ namespace Sequence.Core.Test
                 CardUsed = _cardDummy,
                 Chip = Team.Red,
                 Coord = new Coord(9, 9),
-                Index = 0,
+                Index = 1,
                 NextPlayerId = _player1.Id,
             });
 
@@ -200,7 +200,7 @@ namespace Sequence.Core.Test
                 CardUsed = _cardDummy,
                 Chip = Team.Red,
                 Coord = coord,
-                Index = 0,
+                Index = 1,
                 NextPlayerId = _player1.Id,
             });
 
@@ -226,7 +226,7 @@ namespace Sequence.Core.Test
                 CardUsed = _cardDummy,
                 Chip = Team.Red,
                 Coord = new Coord(9, 9),
-                Index = 0,
+                Index = 1,
                 NextPlayerId = _player2.Id,
             });
 
@@ -238,7 +238,7 @@ namespace Sequence.Core.Test
                 CardUsed = _cardDummy,
                 Chip = Team.Green,
                 Coord = _coordDummy,
-                Index = 1,
+                Index = 2,
                 NextPlayerId = _player1.Id,
             });
 
@@ -253,7 +253,7 @@ namespace Sequence.Core.Test
                 CardUsed = oneEyedJack,
                 Chip = null,
                 Coord = coord,
-                Index = 2,
+                Index = 3,
                 NextPlayerId = _player2.Id,
             };
 
