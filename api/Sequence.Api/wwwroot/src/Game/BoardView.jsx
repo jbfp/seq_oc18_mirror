@@ -59,9 +59,9 @@ class BoardView extends React.PureComponent {
                     isHighlighted = matchesTile || isTwoEyedJack || isOneEyedJack;
                 }
 
-                return { tile, row, column, chip, onCoordClick, isHighlighted };
+                return { key: `${column}_${row}`, tile, row, column, chip, onCoordClick, isHighlighted };
             });
-        }).flat().map((cell, idx) => <CellView key={idx} {...cell} />);
+        }).flat().map(cell => <CellView {...cell} />);
 
         return (
             <div className="board" style={style}>
