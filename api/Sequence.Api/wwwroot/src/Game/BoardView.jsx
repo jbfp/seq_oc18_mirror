@@ -18,13 +18,13 @@ class BoardView extends React.PureComponent {
             team: PropTypes.oneOf(['red', 'green', 'blue']).isRequired,
         })).isRequired,
 
-        latestEvent: PropTypes.object,
+        latestMoveAt: PropTypes.object,
 
         onCoordClick: PropTypes.func.isRequired,
     };
 
     render() {
-        const { board, chips, highlightedCellValue, latestEvent, onCoordClick } = this.props;
+        const { board, chips, highlightedCellValue, latestMoveAt, onCoordClick } = this.props;
 
         const numRows = board.length;
         const numCols = Math.max.apply(Math, board.map(r => r.length));
@@ -39,7 +39,7 @@ class BoardView extends React.PureComponent {
             return cells.map((cell, column) => {
                 const chip = chips.find(chip => chip.coord.row === row && chip.coord.column === column) || { team: null, isLocked: false };
                 const tile = cell === null ? null : { ...cell };
-                const isLatest = column === latestEvent.coord.column && row === latestEvent.coord.row;
+                const isLatest = latestMoveAt !== null && column === latestMoveAt.column && row === latestMoveAt.row;
 
                 let isHighlighted = null;
 

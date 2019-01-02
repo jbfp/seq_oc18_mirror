@@ -6,17 +6,6 @@ import GameView from './GameView';
 // Keys that respond to a card in hand.
 const numberKeys = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
 
-const defaultEvent = {
-  byPlayerId: null,
-  cardDrawn: null,
-  cardUsed: null,
-  chip: null,
-  coord: { column: null, row: null },
-  index: 0,
-  nextPlayerId: null,
-  sequence: null
-};
-
 class Game extends React.Component {
   static contextType = ServerContext;
 
@@ -30,7 +19,6 @@ class Game extends React.Component {
 
   state = {
     game: null,
-    latestEvent: defaultEvent,
     selectedCard: null,
   };
 
@@ -160,6 +148,8 @@ class Game extends React.Component {
       winner = { team: event.sequence.team };
     }
 
+    const latestMoveAt = event.coord;
+
     this.setState({
       game: {
         ...game,
@@ -167,11 +157,11 @@ class Game extends React.Component {
         currentPlayerId,
         discards,
         hand,
+        latestMoveAt,
         numberOfCardsInDeck,
         version,
         winner,
       },
-      latestEvent: event,
     });
 
     return true;
@@ -228,7 +218,6 @@ class Game extends React.Component {
     return (
       <GameView
         game={this.state.game}
-        latestEvent={this.state.latestEvent}
         onCardClick={this.handleCardClick}
         onCoordClick={this.handleCoordClick}
         selectedCard={this.state.selectedCard}
