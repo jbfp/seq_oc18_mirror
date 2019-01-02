@@ -4,6 +4,6 @@ namespace Sequence.Core.Notifications
 {
     public interface IGameUpdatedNotifier
     {
-        Task SendAsync(GameId gameId, int version);
+        Task SendAsync(GameId gameId, GameEvent gameEvent);
     }
 }

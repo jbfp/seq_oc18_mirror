@@ -1,11 +1,12 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Formatters;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Sequence.Core;
 using Sequence.Core.Notifications;
 using System;
 using System.IO;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -57,9 +58,32 @@ namespace Sequence.Api
                 _response = response ?? throw new ArgumentNullException(nameof(response));
             }
 
-            public async Task UpdateGameAsync(int version)
+            public async Task UpdateGameAsync(GameEvent gameEvent)
             {
-                await WriteEventAsync("game-updated", version.ToString());
+                if (gameEvent == null)
+                {
+                    throw new ArgumentNullException(nameof(gameEvent));
+                }
+
+                var services = _response.HttpContext.RequestServices;
+                var formatter = services.GetRequiredService<JsonOutputFormatter>();
+
+                using (var writer = new StringWriter())
+                {
+                    formatter.WriteObject(writer, new
+                    {
+                        gameEvent.ByPlayerId,
+                        CardDrawn = gameEvent.CardDrawn != null, // Deliberately excluding which card was drawn.
+                        gameEvent.CardUsed,
+                        gameEvent.Chip,
+                        gameEvent.Coord,
+                        gameEvent.Index,
+                        gameEvent.NextPlayerId,
+                        gameEvent.Sequence,
+                    });
+
+                    await WriteEventAsync("game-updated", writer.ToString());
+                }
             }
 
             private async Task WriteEventAsync(string eventType, string data)
