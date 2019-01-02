@@ -2,12 +2,16 @@ import React from 'react';
 
 class CellView extends React.PureComponent {
     render() {
-        const { tile, row, column, chip, isHighlighted, onCoordClick } = this.props;
+        const { tile, row, column, chip, isHighlighted, isLatest, onCoordClick } = this.props;
         const classes = ['cell'];
 
         if (tile) {
             if (isHighlighted === false) {
                 classes.push('dimmed');
+            }
+
+            if (isLatest) {
+                classes.push('pulse');
             }
 
             return (

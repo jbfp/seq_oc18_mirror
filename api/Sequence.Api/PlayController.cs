@@ -22,15 +22,15 @@ namespace Sequence.Api
 
         [HttpPost("/games/{id:guid}")]
         [PlayCardFailedExceptionFilter]
-        public async Task<ActionResult<PlayCardResult>> Post(
+        public async Task<ActionResult<GameEvent>> Post(
             [FromRoute] Guid id,
             [FromBody] PlayCardForm form,
             CancellationToken cancellationToken)
         {
             var gameId = new GameId(id);
             var coord = new Coord(form.Column.Value, form.Row.Value);
-            var result = await _handler.PlayCardAsync(gameId, Player, form.Card, coord, cancellationToken);
-            return Ok(result);
+            var gameEvent = await _handler.PlayCardAsync(gameId, Player, form.Card, coord, cancellationToken);
+            return Ok(gameEvent);
         }
     }
 

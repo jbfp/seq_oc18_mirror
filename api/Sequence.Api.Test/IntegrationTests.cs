@@ -323,7 +323,7 @@ namespace Sequence.Api.Test
                 var line2 = await reader.ReadLineAsync();
 
                 Assert.Equal("event: game-updated", line0);
-                Assert.Equal("data: 1", line1);
+                Assert.StartsWith("data: {", line1);
                 Assert.Equal("", line2);
             }
         }

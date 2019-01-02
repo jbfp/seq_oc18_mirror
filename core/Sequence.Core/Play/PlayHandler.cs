@@ -16,7 +16,7 @@ namespace Sequence.Core.Play
             _store = store ?? throw new ArgumentNullException(nameof(store));
         }
 
-        public async Task<PlayCardResult> PlayCardAsync(
+        public async Task<GameEvent> PlayCardAsync(
             GameId gameId,
             PlayerHandle player,
             Card card,
@@ -51,15 +51,7 @@ namespace Sequence.Core.Play
 
             await _store.AddEventAsync(gameId, gameEvent, cancellationToken);
 
-            return new PlayCardResult
-            {
-                CardDrawn = gameEvent.CardDrawn,
-                CardUsed = gameEvent.CardUsed,
-                Chip = gameEvent.Chip,
-                Coord = gameEvent.Coord,
-                NextPlayerId = gameEvent.NextPlayerId,
-                Version = gameEvent.Index,
-            };
+            return gameEvent;
         }
     }
 }

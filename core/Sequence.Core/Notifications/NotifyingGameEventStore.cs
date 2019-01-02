@@ -35,7 +35,7 @@ namespace Sequence.Core.Notifications
             await _store.AddEventAsync(gameId, gameEvent, cancellationToken);
 
             // Note: The task is stored in a variable to get rid of the 'un-awaited task' warning.
-            Task _ = Task.Run(() => _notifier.SendAsync(gameId, version: gameEvent.Index));
+            Task _ = Task.Run(() => _notifier.SendAsync(gameId, gameEvent));
         }
     }
 }

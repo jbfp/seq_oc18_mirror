@@ -41,7 +41,7 @@ namespace Sequence.Core.Test.Notifications
                 .Verifiable();
 
             _notifier
-                .Setup(n => n.SendAsync(_gameId, It.IsAny<int>()))
+                .Setup(n => n.SendAsync(_gameId, It.IsAny<GameEvent>()))
                 .Returns(Task.CompletedTask)
                 .Verifiable();
 

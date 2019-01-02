@@ -18,9 +18,10 @@ namespace Sequence.Core
         private ImmutableArray<IImmutableList<Card>> _handByIdx;
         private ImmutableStack<Card> _discards;
         private PlayerId _currentPlayerId;
+        private Coord? _latestMoveAt;
         private Seq _sequence;
+        private int _version;
         private Winner _winner;
-        private int _index;
 
         public Game(GameInit init, params GameEvent[] gameEvents)
         {
@@ -65,14 +66,14 @@ namespace Sequence.Core
 
         public void Apply(GameEvent gameEvent)
         {
-            if (_index == gameEvent.Index)
+            if (_version == gameEvent.Index)
             {
                 return;
             }
 
-            if (_index > gameEvent.Index)
+            if (_version > gameEvent.Index)
             {
-                throw new InvalidOperationException($"Game event cannot be applied. Index is {_index}, game event index is {gameEvent.Index}.");
+                throw new InvalidOperationException($"Game event cannot be applied. Index is {_version}, game event index is {gameEvent.Index}.");
             }
 
             var cardDrawn = gameEvent.CardDrawn;
@@ -90,8 +91,9 @@ namespace Sequence.Core
             _handByIdx = _handByIdx.SetItem(playerIdx, hand);
             _board.Add(gameEvent.Coord, gameEvent.Chip);
             _currentPlayerId = gameEvent.NextPlayerId;
+            _latestMoveAt = gameEvent.Coord;
             _sequence = gameEvent.Sequence;
-            _index = gameEvent.Index;
+            _version = gameEvent.Index;
 
             if (_sequence != null)
             {
@@ -170,7 +172,7 @@ namespace Sequence.Core
                     CardUsed = card,
                     Chip = null,
                     Coord = coord,
-                    Index = _index + 1,
+                    Index = _version + 1,
                     NextPlayerId = _playerIdByIdx[(playerIdx + 1) % _playerIdByIdx.Length],
                 };
             }
@@ -197,7 +199,7 @@ namespace Sequence.Core
                     CardUsed = card,
                     Chip = team,
                     Coord = coord,
-                    Index = _index + 1,
+                    Index = _version + 1,
                     NextPlayerId = nextPlayerId,
                     Sequence = sequence,
                 };
@@ -229,6 +231,7 @@ namespace Sequence.Core
                 }).ToImmutableArray(),
                 CurrentPlayerId = _currentPlayerId,
                 Discards = _discards.ToImmutableArray(),
+                LatestMoveAt = _latestMoveAt,
                 NumberOfCardsInDeck = _deck.Count,
                 Players = _playerIdByIdx.Select((p, i) => new PlayerView
                 {
@@ -238,6 +241,7 @@ namespace Sequence.Core
                     Team = _teamByIdx[i],
                     Type = _playerTypeByIdx[i],
                 }).ToImmutableArray(),
+                Version = _version,
                 Winner = _winner,
             };
 
@@ -361,10 +365,12 @@ namespace Sequence.Core
         public PlayerId CurrentPlayerId { get; internal set; }
         public IImmutableList<Card> Discards { get; internal set; }
         public IImmutableList<Card> Hand { get; internal set; }
+        public Coord? LatestMoveAt { get; internal set; }
         public int NumberOfCardsInDeck { get; internal set; }
         public PlayerId PlayerId { get; internal set; }
         public IImmutableList<PlayerView> Players { get; internal set; }
         public Team Team { get; internal set; }
+        public int Version { get; internal set; }
         public Winner Winner { get; internal set; }
     }
 }

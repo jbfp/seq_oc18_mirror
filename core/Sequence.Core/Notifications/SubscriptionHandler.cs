@@ -7,7 +7,7 @@ namespace Sequence.Core.Notifications
 {
     public interface ISubscriber
     {
-        Task UpdateGameAsync(int version);
+        Task UpdateGameAsync(GameEvent gameEvent);
     }
 
     public sealed class SubscriptionHandler : IGameUpdatedNotifier
@@ -21,11 +21,16 @@ namespace Sequence.Core.Notifications
             _subscriptions = new Dictionary<GameId, List<ISubscriber>>();
         }
 
-        public async Task SendAsync(GameId gameId, int version)
+        public async Task SendAsync(GameId gameId, GameEvent gameEvent)
         {
             if (gameId == null)
             {
                 throw new ArgumentNullException(nameof(gameId));
+            }
+
+            if (gameEvent == null)
+            {
+                throw new ArgumentNullException(nameof(gameEvent));
             }
 
             Task whenAll = Task.CompletedTask;
@@ -35,7 +40,7 @@ namespace Sequence.Core.Notifications
                 if (_subscriptions.TryGetValue(gameId, out var subscribers))
                 {
                     whenAll = Task.WhenAll(subscribers.Select(
-                        subscriber => NotifySubscriberAsync(subscriber, version)));
+                        subscriber => NotifySubscriberAsync(subscriber, gameEvent)));
                 }
             }
 
@@ -97,16 +102,21 @@ namespace Sequence.Core.Notifications
             }
         }
 
-        private async Task NotifySubscriberAsync(ISubscriber subscriber, int version)
+        private async Task NotifySubscriberAsync(ISubscriber subscriber, GameEvent gameEvent)
         {
             if (subscriber == null)
             {
                 throw new ArgumentNullException(nameof(subscriber));
             }
 
+            if (gameEvent == null)
+            {
+                throw new ArgumentNullException(nameof(gameEvent));
+            }
+
             try
             {
-                await subscriber.UpdateGameAsync(version);
+                await subscriber.UpdateGameAsync(gameEvent);
             }
             catch
             {
