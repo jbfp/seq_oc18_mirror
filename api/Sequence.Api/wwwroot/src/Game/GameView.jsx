@@ -13,13 +13,14 @@ class GameView extends React.PureComponent {
 
     static propTypes = {
         game: PropTypes.object,
+        latestEvent: PropTypes.object,
         onCardClick: PropTypes.func.isRequired,
         onCoordClick: PropTypes.func.isRequired,
         selectedCard: PropTypes.object,
     };
 
     render() {
-        const { game, onCardClick, onCoordClick, selectedCard } = this.props;
+        const { game, latestEvent, onCardClick, onCoordClick, selectedCard } = this.props;
         let $body;
 
         if (game) {
@@ -35,7 +36,15 @@ class GameView extends React.PureComponent {
                     <Link to="/">Go back</Link>
                     <hr />
                     <PlayersView currentPlayerId={game.currentPlayerId} players={game.players} winner={game.winner} />
-                    <BoardView board={game.board} chips={game.chips} onCoordClick={onCoordClick} highlightedCellValue={selectedCard} />
+
+                    <BoardView
+                        board={game.board}
+                        chips={game.chips}
+                        highlightedCellValue={selectedCard}
+                        latestEvent={latestEvent}
+                        onCoordClick={onCoordClick}
+                    />
+
                     <PlayerView onCardClick={onCardClick} selectedCard={selectedCard} {...playerObj} />
                     <DeckView discards={game.discards} numberOfCardsInDeck={game.numberOfCardsInDeck} />
                 </div>
