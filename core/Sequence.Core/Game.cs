@@ -238,6 +238,7 @@ namespace Sequence.Core
                     Team = _teamByIdx[i],
                     Type = _playerTypeByIdx[i],
                 }).ToImmutableArray(),
+                Version = _index,
                 Winner = _winner,
             };
 
@@ -365,6 +366,7 @@ namespace Sequence.Core
         public PlayerId PlayerId { get; internal set; }
         public IImmutableList<PlayerView> Players { get; internal set; }
         public Team Team { get; internal set; }
+        public int Version { get; internal set; }
         public Winner Winner { get; internal set; }
     }
 }
