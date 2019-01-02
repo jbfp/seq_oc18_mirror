@@ -41,14 +41,23 @@ class Game extends React.Component {
 
     if (selectedCard) {
       const gameId = this.props.match.params.id;
-      const result = await this.context.playCardAsync(gameId, selectedCard, coord);
 
-      if (result.error) {
-        alert(result.error);
-      } else {
-        this.setState({
-          selectedCard: null
-        });
+      this._sse.removeEventListener('game-updated', this.handleGameUpdatedEvent);
+
+      try {
+        const result = await this.context.playCardAsync(gameId, selectedCard, coord);
+
+        if (result.error) {
+          alert(result.error);
+        } else {
+          this.setState({ selectedCard: null });
+
+          if (!this.apply(result)) {
+            await this.loadGameAsync();
+          }
+        }
+      } finally {
+        this._sse.addEventListener('game-updated', this.handleGameUpdatedEvent);
       }
     }
   };
@@ -67,6 +76,100 @@ class Game extends React.Component {
     }
   };
 
+  apply = event => {
+    const game = this.state.game;
+
+    if (event.index === game.version) {
+      return true;
+    }
+
+    if (event.index - game.version > 1) {
+      return false;
+    }
+
+    const cardUsed = event.cardUsed;
+    const currentPlayerId = event.nextPlayerId;
+    const discards = [...game.discards, cardUsed];
+
+    let hand = [...game.hand];
+
+    if (typeof event.cardDrawn === 'object') {
+      // This user performed this action. Remove the used card and add the drawn card.
+      const indexOfCardUsed = hand.findIndex(c =>
+        c.deckNo === cardUsed.deckNo &&
+        c.suit === cardUsed.suit &&
+        c.rank === cardUsed.rank);
+
+      hand = [
+        ...hand.slice(0, indexOfCardUsed),
+        ...hand.slice(indexOfCardUsed + 1),
+        event.cardDrawn,
+      ];
+    }
+
+    const numberOfCardsInDeck = game.numberOfCardsInDeck - (event.cardDrawn ? 1 : 0);
+    const version = event.index;
+
+    // Update board.
+    let chips = [...game.chips];
+
+    if (event.chip === null) {
+      const indexToRemove = chips.findIndex(({ coord }) =>
+        coord.column === event.coord.column &&
+        coord.row === event.coord.row);
+
+      chips = [
+        ...chips.slice(0, indexToRemove),
+        ...chips.slice(indexToRemove + 1),
+      ];
+    } else if (typeof event.chip === 'string') {
+      chips = [...chips, {
+        coord: event.coord,
+        isLocked: false,
+        team: event.chip,
+      }];
+    }
+
+    let winner = game.winner;
+
+    if (event.sequence) {
+      chips = chips.map(chip => {
+        const containedInSequence = event.sequence.coords.some(coord =>
+          coord.column === chip.coord.column &&
+          coord.row === chip.coord.row);
+
+        if (containedInSequence) {
+          return { ...chip, isLocked: true };
+        } else {
+          return chip;
+        }
+      });
+
+      winner = { team: event.sequence.team };
+    }
+
+    this.setState({
+      game: {
+        ...game,
+        chips,
+        currentPlayerId,
+        discards,
+        hand,
+        numberOfCardsInDeck,
+        version,
+        winner,
+      }
+    });
+
+    return true;
+  };
+
+  handleGameUpdatedEvent = async event => {
+    if (!this.apply(JSON.parse(event.data))) {
+      await this.loadGameAsync();
+    }
+  };
+
   async loadGameAsync() {
     const gameId = this.props.match.params.id;
     const game = await this.context.getGameByIdAsync(gameId);
@@ -78,7 +181,7 @@ class Game extends React.Component {
     const gameId = this.props.match.params.id;
     const playerId = this.context.userName;
     this._sse = new EventSource(`${window.env.api}/games/${gameId}/stream?player=${playerId}`);
-    this._sse.addEventListener('game-updated', () => this.loadGameAsync());
+    this._sse.addEventListener('game-updated', this.handleGameUpdatedEvent);
   }
 
   closeSse() {
