@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
 import { LoginWithAuth, ProtectedRoute, RouteWithLayout } from './Routing';
 import { Game } from './Game';
-import GameList from './GameList';
+import { Games } from './Games';
 import { NewGame } from './NewGame';
 
 class App extends React.Component {
@@ -26,7 +26,7 @@ class App extends React.Component {
             <Router>
                 <div>
                     <RouteWithLayout path="/login" component={LoginWithAuth} hash={hash} title="sign in" />
-                    <ProtectedRoute exact path="/" component={GameList} hash={hash} title="games" />
+                    <ProtectedRoute exact path="/" component={Games} hash={hash} title="games" />
                     <ProtectedRoute exact path="/new-game" component={NewGame} hash={hash} title="new game" />
                     <ProtectedRoute path="/games/:id" component={Game} hash={hash} title="play" />
                 </div>
