@@ -18,6 +18,11 @@
     padding: 8pt;
 }
 
+.cell::before,
+.cell::after {
+    transition: opacity 200ms;
+}
+
 .cell.pulse {
     animation: pulse 1s infinite;
 }
@@ -383,6 +388,7 @@ div[data-rank="king"]::after {
     font-weight: bold;
     padding: 0.5em;
     text-align: center;
+    transition: background-color 250ms ease, color 250ms ease;
     overflow: hidden;
 }
 
@@ -410,10 +416,6 @@ div[data-rank="king"]::after {
 
 .players-player[data-team='blue'] {
     color: #01AAFE88;
-}
-
-.players-player[data-current-player='true'] {
-    text-decoration: underline;
 }
 
 .players-player[data-current-player='true']::before {
