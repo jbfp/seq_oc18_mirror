@@ -182,6 +182,7 @@ class Game extends React.Component {
           body: 'It\'s your turn!',
           icon: '/favicon.ico',
           lang: 'en',
+          tag: 'your-turn',
         });
       }
     }
