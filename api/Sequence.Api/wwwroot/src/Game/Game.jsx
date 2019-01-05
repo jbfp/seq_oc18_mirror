@@ -20,6 +20,7 @@ class Game extends React.Component {
   state = {
     game: null,
     selectedCard: null,
+    showNotification: null,
   };
 
   _sse = null;
@@ -171,6 +172,19 @@ class Game extends React.Component {
     if (!this.apply(JSON.parse(event.data))) {
       await this.loadGameAsync();
     }
+
+    if (this.state.showNotification) {
+      const { game } = this.state;
+      const isCurrentPlayer = game.currentPlayerId === game.playerId;
+
+      if (isCurrentPlayer) {
+        new Notification('Sequence', {
+          body: 'It\'s your turn!',
+          icon: '/favicon.ico',
+          lang: 'en',
+        });
+      }
+    }
   };
 
   async loadGameAsync() {
@@ -195,6 +209,10 @@ class Game extends React.Component {
   }
 
   async componentDidMount() {
+    Notification.requestPermission().then(result => {
+      this.setState({ showNotification: result === 'granted' });
+    });
+
     await this.initAsync();
     window.addEventListener('keypress', this.handleKeyboardInput);
   }
