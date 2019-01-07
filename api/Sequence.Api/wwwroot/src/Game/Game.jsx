@@ -210,9 +210,11 @@ class Game extends React.Component {
   }
 
   async componentDidMount() {
-    Notification.requestPermission().then(result => {
-      this.setState({ showNotification: result === 'granted' });
-    });
+    if (typeof Notification !== 'undefined') {
+      Notification.requestPermission().then(result => {
+        this.setState({ showNotification: result === 'granted' });
+      });
+    }
 
     await this.initAsync();
     window.addEventListener('keypress', this.handleKeyboardInput);
