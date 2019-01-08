@@ -219,7 +219,7 @@ class Game extends React.Component {
 
       if (typeof promise === 'undefined') {
         // Safari on MacOS only supports the old requestPermission function.
-        Notification.requestPermission(callback);
+        Notification.requestPermission(handlePermissionCallback);
       } else {
         promise.then(handlePermissionCallback);
       }
