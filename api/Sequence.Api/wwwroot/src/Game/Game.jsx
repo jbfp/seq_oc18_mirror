@@ -211,9 +211,18 @@ class Game extends React.Component {
 
   async componentDidMount() {
     if (typeof Notification !== 'undefined') {
-      Notification.requestPermission().then(result => {
+      const handlePermissionCallback = result => {
         this.setState({ showNotification: result === 'granted' });
-      });
+      };
+
+      const promise = Notification.requestPermission();
+
+      if (typeof promise === 'undefined') {
+        // Safari on MacOS only supports the old requestPermission function.
+        Notification.requestPermission(callback);
+      } else {
+        promise.then(handlePermissionCallback);
+      }
     }
 
     await this.initAsync();
