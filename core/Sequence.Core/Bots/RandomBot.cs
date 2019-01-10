@@ -1,6 +1,5 @@
-using Sequence.Core.Boards;
 using System;
-using System.Collections.Generic;
+using System.Collections.Immutable;
 
 namespace Sequence.Core.Bots
 {
@@ -14,39 +13,16 @@ namespace Sequence.Core.Bots
         public RandomBot() => _rng = new Random();
         public RandomBot(int seed) => _rng = new Random(seed);
 
-        public (Card, Coord) Decide(GameView game)
+        public Move Decide(GameView game, IImmutableList<Move> moves)
         {
-            var board = game.Board;
-            var hand = game.Hand;
+            var numMoves = moves.Count;
 
-            Card randomCard;
-
-            do
+            if (numMoves == 0)
             {
-                // TODO: Support "random" one-eyed jack.
-                randomCard = hand[_rng.Next(hand.Count)];
-            } while (randomCard.IsOneEyedJack());
-
-            var possibleCoords = new List<Coord>(2);
-
-            for (int rowIdx = 0; rowIdx < board.Length; rowIdx++)
-            {
-                var row = board[rowIdx];
-
-                for (int colIdx = 0; colIdx < row.Length; colIdx++)
-                {
-                    var coord = new Coord(colIdx, rowIdx);
-
-                    if (board.Matches(coord, randomCard))
-                    {
-                        possibleCoords.Add(coord);
-                    }
-                }
+                return null;
             }
 
-            var randomCoord = possibleCoords[_rng.Next(possibleCoords.Count)];
-
-            return (randomCard, randomCoord);
+            return moves[_rng.Next(numMoves)];
         }
     }
 }

@@ -46,6 +46,7 @@ namespace Sequence.Core.Bots
                 {
                     var bot = (IBot)Activator.CreateInstance(botType, nonPublic: true);
                     var gameView = game.GetViewForPlayer(player.Id);
+                    var moves = game.GetMovesForPlayer(player.Id);
 
                     GameEvent gameEvent = null;
 
@@ -56,11 +57,11 @@ namespace Sequence.Core.Bots
                     {
                         cancellationToken.ThrowIfCancellationRequested();
 
-                        (Card, Coord) move = default;
+                        Move move = null;
 
                         try
                         {
-                            move = bot.Decide(gameView);
+                            move = bot.Decide(gameView, moves);
                         }
                         catch (NotImplementedException)
                         {

@@ -1,7 +1,9 @@
+using System.Collections.Immutable;
+
 namespace Sequence.Core
 {
     public interface IBot
     {
-        (Card, Coord) Decide(GameView game);
+        Move Decide(GameView gameView, IImmutableList<Move> moves);
     }
 }

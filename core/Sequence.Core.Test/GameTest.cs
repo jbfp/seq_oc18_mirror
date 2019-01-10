@@ -5,7 +5,7 @@ using Xunit;
 
 namespace Sequence.Core.Test
 {
-    public sealed class GameTest
+    public sealed partial class GameTest
     {
         [Fact]
         public void Constructor_NullArgs()

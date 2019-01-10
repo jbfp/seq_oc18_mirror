@@ -231,6 +231,76 @@ namespace Sequence.Core
             }
         }
 
+        public IImmutableList<Move> GetMovesForPlayer(PlayerId playerId)
+        {
+            if (playerId == null)
+            {
+                throw new ArgumentNullException(nameof(playerId));
+            }
+
+            var idx = _playerIdByIdx.IndexOf(playerId);
+
+            if (idx < 0)
+            {
+                return ImmutableList<Move>.Empty;
+            }
+
+            var hand = _handByIdx[idx];
+            var team = _teamByIdx[idx];
+            var moves = ImmutableList.CreateBuilder<Move>();
+
+            foreach (var card in hand)
+            {
+                if (card.IsOneEyedJack())
+                {
+                    foreach (var chip in _chips)
+                    {
+                        if (chip.Value != team)
+                        {
+                            // TODO: Check for sequence.
+                            moves.Add(new Move(card, coord: chip.Key));
+                        }
+                    }
+                }
+                else if (card.IsTwoEyedJack())
+                {
+                    foreach (var (row, y) in _boardType.Board.Select((row, y) => (row, y)))
+                    {
+                        foreach (var (cell, x) in row.Select((cell, x) => (cell, x)))
+                        {
+                            var coord = new Coord(x, y);
+                            var isNotCorner = cell != null;
+                            var isFree = !_chips.ContainsKey(coord);
+
+                            if (isNotCorner && isFree)
+                            {
+                                moves.Add(new Move(card, coord));
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    var tile = new Tile(card.Suit, card.Rank);
+
+                    if (_boardType.CoordsByTile.TryGetValue(tile, out var coords))
+                    {
+                        if (!_chips.ContainsKey(coords.Item1))
+                        {
+                            moves.Add(new Move(card, coords.Item1));
+                        }
+
+                        if (!_chips.ContainsKey(coords.Item2))
+                        {
+                            moves.Add(new Move(card, coords.Item2));
+                        }
+                    }
+                }
+            }
+
+            return moves.ToImmutable();
+        }
+
         public GameView GetViewForPlayer(PlayerHandle player)
         {
             if (player == null)
