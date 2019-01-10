@@ -17,7 +17,10 @@ namespace Sequence.Core.CreateGame
             _store = store ?? throw new ArgumentNullException(nameof(store));
         }
 
-        public async Task<GameId> CreateGameAsync(PlayerList players, CancellationToken cancellationToken)
+        public async Task<GameId> CreateGameAsync(
+            PlayerList players,
+            BoardType boardType,
+            CancellationToken cancellationToken)
         {
             if (players == null)
             {
@@ -25,7 +28,7 @@ namespace Sequence.Core.CreateGame
             }
 
             var seed = await _seedProvider.GenerateSeedAsync(cancellationToken);
-            var newGame = new NewGame(players, seed);
+            var newGame = new NewGame(players, seed, boardType);
             return await _store.PersistNewGameAsync(newGame, cancellationToken);
         }
     }

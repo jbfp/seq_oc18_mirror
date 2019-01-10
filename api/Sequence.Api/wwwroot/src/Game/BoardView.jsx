@@ -5,7 +5,7 @@ import CellView from './CellView';
 class BoardView extends React.PureComponent {
     static propTypes = {
         board: PropTypes.arrayOf(
-            PropTypes.arrayOf(PropTypes.array).isRequired,
+            PropTypes.arrayOf(PropTypes.object).isRequired,
         ).isRequired,
 
         chips: PropTypes.arrayOf(PropTypes.shape({
@@ -45,8 +45,8 @@ class BoardView extends React.PureComponent {
 
                 if (tile && highlightedCellValue) {
                     const matchesTile =
-                        tile[0] === highlightedCellValue.suit &&
-                        tile[1] === highlightedCellValue.rank;
+                        tile.suit === highlightedCellValue.suit &&
+                        tile.rank === highlightedCellValue.rank;
 
                     const isTwoEyedJack =
                         highlightedCellValue.rank === 'jack' &&

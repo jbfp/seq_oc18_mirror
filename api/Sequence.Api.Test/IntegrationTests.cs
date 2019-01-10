@@ -75,6 +75,7 @@ namespace Sequence.Api.Test
             // Given:
             var body = new
             {
+                boardType = 0,
                 opponents = new[]
                 {
                     new { name = "test", type = 1 },
@@ -96,6 +97,8 @@ namespace Sequence.Api.Test
             // Given:
             var body = new
             {
+                boardType = 0,
+
                 opponents = new[]
                 {
                     new { name = "test", type = "User" },
@@ -125,9 +128,38 @@ namespace Sequence.Api.Test
 
             var body = new
             {
+                boardType = 0,
                 opponents = new[]
                 {
                     new { name = botType, type = "Bot" },
+                },
+            };
+
+            var client = CreateAuthorizedClient(playerId);
+
+            // When:
+            var response = await client.PostAsJsonAsync("/games", body);
+
+            // Then:
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+        [Theory]
+        [InlineData(10000)]
+        [InlineData(-1)]
+        [InlineData(42)]
+        [InlineData(null)]
+        public async Task CreateGameReturnsBadRequestIfBoardTypeIsUnknown(int? boardType)
+        {
+            // Given:
+            var playerId = "test_player";
+
+            var body = new
+            {
+                boardType,
+                opponents = new[]
+                {
+                    new { name = "test", type = "User" },
                 },
             };
 
@@ -148,6 +180,7 @@ namespace Sequence.Api.Test
 
             var body = new
             {
+                boardType = 0,
                 opponents = new[]
                 {
                     new { name = "fail1", type = "User" },
@@ -178,6 +211,7 @@ namespace Sequence.Api.Test
 
             var body = new
             {
+                BoardType = 0,
                 opponents = new[]
                 {
                     new { name = playerId, type = "User" },
@@ -361,6 +395,7 @@ namespace Sequence.Api.Test
 
             var form = new
             {
+                boardType = 0,
                 opponents = new[]
                 {
                     new { name = opponent, type = 0 },

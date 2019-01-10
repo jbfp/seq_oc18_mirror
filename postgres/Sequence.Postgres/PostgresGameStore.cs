@@ -39,12 +39,17 @@ namespace Sequence.Postgres
                     {
                         var commandText = @"
                             INSERT INTO
-                                game (seed, version)
+                                game (board_type, seed, version)
                             VALUES
-                                (@seed, @version)
+                                (@boardType, @seed, @version)
                             RETURNING id, game_id;";
 
-                        var parameters = new { seed = newGame.Seed, version = 1 };
+                        var parameters = new
+                        {
+                            boardType = (int)newGame.BoardType,
+                            seed = newGame.Seed,
+                            version = 1
+                        };
 
                         var command = new CommandDefinition(
                             commandText,
