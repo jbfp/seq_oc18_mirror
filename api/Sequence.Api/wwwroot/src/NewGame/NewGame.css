@@ -43,3 +43,11 @@ input:checked+.new-game-game-size-text {
     display: flex;
     padding: 0 0.5em 0 0;
 }
+
+.new-game-board-types {
+    padding-top: 1em;
+}
+
+.new-game-board-types-type {
+    padding-left: 1em;
+}

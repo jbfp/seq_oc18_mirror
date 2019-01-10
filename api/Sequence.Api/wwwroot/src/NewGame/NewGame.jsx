@@ -10,6 +10,7 @@ class NewGame extends React.Component {
     static contextType = ServerContext;
 
     state = {
+        boardType: 0,
         botTypes: [],
         opponents: [],
         busy: false,
@@ -40,7 +41,7 @@ class NewGame extends React.Component {
         this.setState({ busy: true, error: null });
 
         try {
-            gameId = await this.context.createGameAsync(this.state.opponents);
+            gameId = await this.context.createGameAsync(this.state.opponents, this.state.boardType);
             this.setState({ busy: false, opponents: [] });
             this.props.history.push(`/games/${gameId}`);
         } catch (e) {
@@ -54,12 +55,16 @@ class NewGame extends React.Component {
         this.setState({ opponents })
     }
 
+    setBoardType = boardType => {
+        this.setState({ boardType });
+    };
+
     async componentDidMount() {
         this.setState({ botTypes: await this.context.getBotsAsync() });
     }
 
     render() {
-        const { botTypes, opponents, busy, error } = this.state;
+        const { boardType, botTypes, opponents, busy, error } = this.state;
         const disabled = opponents.length === 0
             || opponents.some(opponent => !opponent.name)
             || busy;
@@ -134,6 +139,36 @@ class NewGame extends React.Component {
                         </div>
 
                         {$opponents}
+                    </div>
+
+                    <div className="new-game-board-types">
+                        <span>Board:</span>
+
+                        <label className="new-game-board-types-type">
+                            <input
+                                type="radio"
+                                name="board-type"
+                                value={0}
+                                checked={boardType === 0}
+                                onChange={() => this.setBoardType(0)}
+                                readOnly={busy}
+                            />
+
+                            <span>One-Eyed Jack (default)</span>
+                        </label>
+
+                        <label className="new-game-board-types-type">
+                            <input
+                                type="radio"
+                                name="board-type"
+                                value={1}
+                                checked={boardType === 1}
+                                onChange={() => this.setBoardType(1)}
+                                readOnly={busy}
+                            />
+
+                            <span>Sequence®</span>
+                        </label>
                     </div>
 
                     <button className="new-game-submit" type="submit" disabled={disabled}>
