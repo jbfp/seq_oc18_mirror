@@ -85,7 +85,8 @@ namespace Sequence.Core.Test.GetGame
                         new Player(playerId, playerHandle),
                         new Player(new PlayerId(2), new PlayerHandle("Player 2"))),
                     firstPlayerId: playerId,
-                    seed: new Seed(42)));
+                    seed: new Seed(42),
+                    boardType: BoardType.OneEyedJack));
 
             _provider
                 .Setup(p => p.GetGameByIdAsync(_gameIdDummy, It.IsAny<CancellationToken>()))

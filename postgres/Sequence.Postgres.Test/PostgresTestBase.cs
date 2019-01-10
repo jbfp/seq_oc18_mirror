@@ -40,7 +40,8 @@ namespace Sequence.Postgres.Test
                 players: new PlayerList(
                     player1 ?? new NewPlayer(Player1, PlayerType.User),
                     player2 ?? new NewPlayer(Player2, PlayerType.User)),
-                seed: new Seed(42));
+                seed: new Seed(42),
+                boardType: BoardType.OneEyedJack);
 
             return await gameStore.PersistNewGameAsync(newGame, CancellationToken.None);
         }

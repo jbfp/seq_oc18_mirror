@@ -37,7 +37,20 @@ namespace Sequence.Core
                 throw new ArgumentNullException(nameof(gameEvents));
             }
 
-            _boardType = new OneEyedJackBoard();
+            switch (init.BoardType)
+            {
+                case BoardType.OneEyedJack:
+                    _boardType = new OneEyedJackBoard();
+                    break;
+
+                case BoardType.Sequence:
+                    _boardType = new SequenceBoard();
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(init.BoardType), init.BoardType, null);
+            }
+
             _chips = ImmutableDictionary<Coord, Team>.Empty;
             _currentPlayerId = init.FirstPlayerId;
             _deck = new Deck(init.Seed, init.Players.Count);

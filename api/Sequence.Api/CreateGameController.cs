@@ -51,7 +51,8 @@ namespace Sequence.Api
                 return BadRequest(new { error = "Duplicate players are not allowed." });
             }
 
-            var gameId = await _handler.CreateGameAsync(playerList, cancellationToken);
+            var boardType = form.BoardType.Value;
+            var gameId = await _handler.CreateGameAsync(playerList, boardType, cancellationToken);
 
             _logger.LogInformation(
                 "Successfully created game with ID {GameId} for {Players}",
@@ -63,6 +64,9 @@ namespace Sequence.Api
 
     public sealed class CreateGameForm
     {
+        [Required, Enum(typeof(BoardType))]
+        public BoardType? BoardType { get; set; }
+
         [Required]
         public Opponent[] Opponents { get; set; }
     }

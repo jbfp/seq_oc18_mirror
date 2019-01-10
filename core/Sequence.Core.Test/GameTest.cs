@@ -13,7 +13,8 @@ namespace Sequence.Core.Test
             var init = new GameInit(
                 ImmutableList.Create(_player1, _player2),
                 _player1.Id,
-                new Seed(42));
+                new Seed(42),
+                BoardType.OneEyedJack);
 
             var gameEvents = new GameEvent[0];
 
@@ -54,7 +55,8 @@ namespace Sequence.Core.Test
                         _player1,
                         _player2),
                     _player1.Id,
-                    new Seed(42)));
+                    new Seed(42),
+                    BoardType.OneEyedJack));
         }
 
         [Fact]

@@ -32,6 +32,8 @@ namespace Sequence.Core.Test.CreateGame
             TestPlayer.Get,
             TestPlayer.Get);
 
+        private static readonly BoardType _boardType = BoardType.OneEyedJack;
+
         private readonly Mock<ISeedProvider> _seedProvider = new Mock<ISeedProvider>();
         private readonly Mock<IGameStore> _store = new Mock<IGameStore>();
         private readonly CreateGameHandler _sut;
@@ -44,11 +46,20 @@ namespace Sequence.Core.Test.CreateGame
         [Fact]
         public async Task CreateGameAsync_NullArgs()
         {
-            var players = ImmutableList<PlayerId>.Empty;
-
             await Assert.ThrowsAsync<ArgumentNullException>(
                 paramName: "players",
-                testCode: () => _sut.CreateGameAsync(null, CancellationToken.None)
+                testCode: () => _sut.CreateGameAsync(null, _boardType, CancellationToken.None)
+            );
+        }
+
+        [Fact]
+        public async Task CreateGameAsync_InvalidBoardType()
+        {
+            var boardType = (BoardType)1337;
+
+            await Assert.ThrowsAsync<ArgumentOutOfRangeException>(
+                paramName: "boardType",
+                testCode: () => _sut.CreateGameAsync(_twoPlayers, boardType, CancellationToken.None)
             );
         }
 
@@ -67,7 +78,7 @@ namespace Sequence.Core.Test.CreateGame
                 .Verifiable();
 
             // When:
-            await _sut.CreateGameAsync(_twoPlayers, CancellationToken.None);
+            await _sut.CreateGameAsync(_twoPlayers, _boardType, CancellationToken.None);
 
             // Then:
             _seedProvider.VerifyAll();
@@ -85,7 +96,7 @@ namespace Sequence.Core.Test.CreateGame
                 .Setup(s => s.PersistNewGameAsync(It.IsAny<NewGame>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(expected);
 
-            var actual = await _sut.CreateGameAsync(_twoPlayers, CancellationToken.None);
+            var actual = await _sut.CreateGameAsync(_twoPlayers, _boardType, CancellationToken.None);
 
             Assert.Equal(expected, actual);
         }

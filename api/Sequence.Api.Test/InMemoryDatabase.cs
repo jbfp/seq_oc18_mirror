@@ -133,7 +133,7 @@ namespace Sequence.Api.Test
                 .ToImmutableList();
 
             var firstPlayerId = players.Single(p => p.Handle == newGame.PlayerList.FirstPlayer.Handle).Id;
-            var init = new GameInit(players, firstPlayerId, newGame.Seed);
+            var init = new GameInit(players, firstPlayerId, newGame.Seed, newGame.BoardType);
 
             if (!_games.TryAdd(gameId, init))
             {
