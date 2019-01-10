@@ -1,3 +1,4 @@
+using Sequence.Core.Boards;
 using System;
 using System.Collections.Immutable;
 using System.Diagnostics;
@@ -8,13 +9,14 @@ namespace Sequence.Core
 {
     public sealed class Game
     {
-        private readonly Board _board;
+        private readonly IBoardType _boardType;
         private readonly Deck _deck;
         private readonly ImmutableArray<PlayerHandle> _playerHandleByIdx;
         private readonly ImmutableArray<PlayerId> _playerIdByIdx;
         private readonly ImmutableArray<PlayerType> _playerTypeByIdx;
         private readonly ImmutableArray<Team> _teamByIdx;
 
+        private ImmutableDictionary<Coord, Team> _chips;
         private ImmutableArray<IImmutableList<Card>> _handByIdx;
         private ImmutableStack<Card> _discards;
         private PlayerId _currentPlayerId;
@@ -35,7 +37,8 @@ namespace Sequence.Core
                 throw new ArgumentNullException(nameof(gameEvents));
             }
 
-            _board = new Board();
+            _boardType = new OneEyedJackBoard();
+            _chips = ImmutableDictionary<Coord, Team>.Empty;
             _currentPlayerId = init.FirstPlayerId;
             _deck = new Deck(init.Seed, init.Players.Count);
             _discards = ImmutableStack<Card>.Empty;
@@ -89,7 +92,16 @@ namespace Sequence.Core
             _deck.Remove(cardDrawn);
             _discards = _discards.Push(cardUsed);
             _handByIdx = _handByIdx.SetItem(playerIdx, hand);
-            _board.Add(gameEvent.Coord, gameEvent.Chip);
+
+            if (gameEvent.Chip == null)
+            {
+                _chips = _chips.Remove(gameEvent.Coord);
+            }
+            else
+            {
+                _chips = _chips.Add(gameEvent.Coord, gameEvent.Chip.Value);
+            }
+
             _currentPlayerId = gameEvent.NextPlayerId;
             _latestMoveAt = gameEvent.Coord;
             _sequence = gameEvent.Sequence;
@@ -153,12 +165,12 @@ namespace Sequence.Core
 
             if (card.IsOneEyedJack())
             {
-                if (!_board.IsOccupied(coord))
+                if (!_chips.ContainsKey(coord))
                 {
                     throw new PlayCardFailedException(PlayCardError.CoordIsEmpty);
                 }
 
-                if (_board.Chips.TryGetValue(coord, out var chip) && chip == _teamByIdx[playerIdx])
+                if (_chips.TryGetValue(coord, out var chip) && chip == _teamByIdx[playerIdx])
                 {
                     throw new PlayCardFailedException(PlayCardError.ChipBelongsToPlayerTeam);
                 }
@@ -178,18 +190,18 @@ namespace Sequence.Core
             }
             else
             {
-                if (_board.IsOccupied(coord))
+                if (_chips.ContainsKey(coord))
                 {
                     throw new PlayCardFailedException(PlayCardError.CoordIsOccupied);
                 }
 
-                if (!Board.Matches(coord, card))
+                if (!_boardType.Board.Matches(coord, card))
                 {
                     throw new PlayCardFailedException(PlayCardError.CardDoesNotMatchCoord);
                 }
 
                 var team = _teamByIdx[playerIdx];
-                var sequence = Board.GetSequence(_board.Chips.Add(coord, team), coord, team);
+                var sequence = _boardType.Board.GetSequence(_chips.Add(coord, team), coord, team);
                 var nextPlayerId = sequence == null ? _playerIdByIdx[(playerIdx + 1) % _playerIdByIdx.Length] : null;
 
                 return new GameEvent
@@ -222,8 +234,8 @@ namespace Sequence.Core
         {
             var view = new GameView
             {
-                Board = Board.TheBoard,
-                Chips = _board.Chips.Select(c => new ChipView
+                Board = _boardType.Board,
+                Chips = _chips.Select(c => new ChipView
                 {
                     Coord = c.Key,
                     IsLocked = _sequence?.Coords.Contains(c.Key) == true,
@@ -360,7 +372,7 @@ namespace Sequence.Core
 
     public sealed class GameView
     {
-        public ImmutableArray<ImmutableArray<(Suit, Rank)?>> Board { get; internal set; }
+        public ImmutableArray<ImmutableArray<Tile>> Board { get; internal set; }
         public IImmutableList<ChipView> Chips { get; internal set; }
         public PlayerId CurrentPlayerId { get; internal set; }
         public IImmutableList<Card> Discards { get; internal set; }

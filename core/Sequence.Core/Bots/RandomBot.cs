@@ -1,3 +1,4 @@
+using Sequence.Core.Boards;
 using System;
 using System.Collections.Generic;
 
@@ -15,6 +16,7 @@ namespace Sequence.Core.Bots
 
         public (Card, Coord) Decide(GameView game)
         {
+            var board = game.Board;
             var hand = game.Hand;
 
             Card randomCard;
@@ -26,7 +28,6 @@ namespace Sequence.Core.Bots
             } while (randomCard.IsOneEyedJack());
 
             var possibleCoords = new List<Coord>(2);
-            var board = Board.TheBoard;
 
             for (int rowIdx = 0; rowIdx < board.Length; rowIdx++)
             {
@@ -36,7 +37,7 @@ namespace Sequence.Core.Bots
                 {
                     var coord = new Coord(colIdx, rowIdx);
 
-                    if (Board.Matches(coord, randomCard))
+                    if (board.Matches(coord, randomCard))
                     {
                         possibleCoords.Add(coord);
                     }

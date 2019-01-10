@@ -1,11 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using Xunit;
 
-namespace Sequence.Core.Test
+namespace Sequence.Core.Boards.Test
 {
-    public sealed class BoardTest
+    public sealed class BoardExtensionsTest
     {
         private static readonly Team _team = Team.Red;
 
@@ -26,6 +27,20 @@ namespace Sequence.Core.Test
         [MemberData(nameof(Data))]
         public void GetSequence_Test1(params (int, int)[] coords)
         {
+            var boardSize = 10;
+            var boardBuilder = ImmutableArray.CreateBuilder<ImmutableArray<Tile>>();
+
+            for (int i = 0; i < boardSize; i++)
+            {
+                var row = ImmutableArray.CreateRange<Tile>(
+                    Enumerable
+                        .Range(0, 10)
+                        .Select(_ => (Tile)null));
+
+                boardBuilder.Add(row);
+            }
+
+            var board = boardBuilder.ToImmutable();
             var builder = ImmutableDictionary.CreateBuilder<Coord, Team>();
 
             foreach (var coord in coords)
@@ -37,7 +52,7 @@ namespace Sequence.Core.Test
 
             foreach (var coord in chips.Keys)
             {
-                var seq = Board.GetSequence(chips, coord, _team);
+                var seq = board.GetSequence(chips, coord, _team);
                 Assert.NotNull(seq);
             }
         }
