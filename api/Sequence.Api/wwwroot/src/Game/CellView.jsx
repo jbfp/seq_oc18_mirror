@@ -17,8 +17,8 @@ class CellView extends React.PureComponent {
             return (
                 <div
                     className={classes.join(' ')}
-                    data-suit={tile[0]}
-                    data-rank={tile[1]}
+                    data-suit={tile.suit}
+                    data-rank={tile.rank}
                     data-chip={chip.team}
                     data-sequence={chip.isLocked}
                     onClick={() => onCoordClick({ column, row })}>
