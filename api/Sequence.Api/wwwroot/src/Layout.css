@@ -12,6 +12,14 @@ a:visited {
     color: #777777;
 }
 
+input,
+select,
+textarea {
+    background: white;
+    border-color: rgb(233, 233, 233);
+    color: #333333;
+}
+
 input[type="text"],
 select {
     font-size: 13pt;
@@ -20,6 +28,9 @@ select {
 }
 
 button {
+    background: rgb(233, 233, 233);
+    border-color: rgb(233, 233, 233);
+    color: rgb(141, 144, 145);
     font-size: 13pt;
     padding: 0.5em;
     width: 100%;
