@@ -16,6 +16,11 @@ function getDefaultNumSequencesToWin(numOpponents) {
     }
 }
 
+// Number.isSafeInteger polyfill:
+Number.isSafeInteger = Number.isSafeInteger || function (value) {
+    return Number.isInteger(value) && Math.abs(value) <= Number.MAX_SAFE_INTEGER;
+};
+
 class NewGame extends React.Component {
     static contextType = ServerContext;
 
@@ -49,7 +54,10 @@ class NewGame extends React.Component {
             event.preventDefault();
             const value = event.target.value;
             const numSequencesToWin = Number.parseInt(value, 10);
-            this.setState({ numSequencesToWin });
+
+            if (Number.isSafeInteger(numSequencesToWin)) {
+                this.setState({ numSequencesToWin });
+            }
         }
     }
 
@@ -91,6 +99,8 @@ class NewGame extends React.Component {
         const { boardType, botTypes, numSequencesToWin, opponents, busy, error } = this.state;
         const disabled = opponents.length === 0
             || opponents.some(opponent => !opponent.name)
+            || boardType === null
+            || numSequencesToWin === null
             || busy;
 
         const $opponents = opponents.map(({ name, type }, i) => (
