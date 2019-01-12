@@ -80,6 +80,7 @@ namespace Sequence.Api
                         gameEvent.Index,
                         gameEvent.NextPlayerId,
                         gameEvent.Sequence,
+                        gameEvent.Winner,
                     });
 
                     await WriteEventAsync("game-updated", writer.ToString());

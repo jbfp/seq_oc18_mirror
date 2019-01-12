@@ -4,7 +4,9 @@ namespace Sequence.Core.CreateGame
 {
     public sealed class NewGame
     {
-        public NewGame(PlayerList players, Seed seed, BoardType boardType)
+        public const int MaxNumberOfSequencesToWin = 4;
+
+        public NewGame(PlayerList players, Seed seed, BoardType boardType, int numSequencesToWin)
         {
             PlayerList = players ?? throw new ArgumentNullException(nameof(players));
             Seed = seed;
@@ -17,10 +19,20 @@ namespace Sequence.Core.CreateGame
             {
                 throw new ArgumentOutOfRangeException(nameof(boardType), boardType, null);
             }
+
+            if (numSequencesToWin > 0 && numSequencesToWin <= MaxNumberOfSequencesToWin)
+            {
+                NumberOfSequencesToWin = numSequencesToWin;
+            }
+            else
+            {
+                throw new ArgumentOutOfRangeException(nameof(numSequencesToWin), numSequencesToWin, null);
+            }
         }
 
         public PlayerList PlayerList { get; }
         public Seed Seed { get; }
         public BoardType BoardType { get; }
+        public int NumberOfSequencesToWin { get; }
     }
 }

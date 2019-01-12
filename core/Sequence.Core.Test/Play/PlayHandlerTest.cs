@@ -66,7 +66,8 @@ namespace Sequence.Core.Test.Play
                     ),
                     firstPlayerId: new PlayerId(1),
                     seed: new Seed(42),
-                    boardType: BoardType.OneEyedJack
+                    boardType: BoardType.OneEyedJack,
+                    numSequencesToWin: 2
                 )
             );
         }

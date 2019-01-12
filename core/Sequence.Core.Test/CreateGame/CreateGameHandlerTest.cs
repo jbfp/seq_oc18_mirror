@@ -34,6 +34,8 @@ namespace Sequence.Core.Test.CreateGame
 
         private static readonly BoardType _boardType = BoardType.OneEyedJack;
 
+        private static readonly int _numSequencesToWin = 2;
+
         private readonly Mock<ISeedProvider> _seedProvider = new Mock<ISeedProvider>();
         private readonly Mock<IGameStore> _store = new Mock<IGameStore>();
         private readonly CreateGameHandler _sut;
@@ -48,7 +50,7 @@ namespace Sequence.Core.Test.CreateGame
         {
             await Assert.ThrowsAsync<ArgumentNullException>(
                 paramName: "players",
-                testCode: () => _sut.CreateGameAsync(null, _boardType, CancellationToken.None)
+                testCode: () => _sut.CreateGameAsync(null, _boardType, _numSequencesToWin, CancellationToken.None)
             );
         }
 
@@ -59,7 +61,18 @@ namespace Sequence.Core.Test.CreateGame
 
             await Assert.ThrowsAsync<ArgumentOutOfRangeException>(
                 paramName: "boardType",
-                testCode: () => _sut.CreateGameAsync(_twoPlayers, boardType, CancellationToken.None)
+                testCode: () => _sut.CreateGameAsync(_twoPlayers, boardType, _numSequencesToWin, CancellationToken.None)
+            );
+        }
+
+        [Fact]
+        public async Task CreateGameAsync_InvalidWinCondition()
+        {
+            var numSequencesToWin = 42;
+
+            await Assert.ThrowsAsync<ArgumentOutOfRangeException>(
+                paramName: "numSequencesToWin",
+                testCode: () => _sut.CreateGameAsync(_twoPlayers, _boardType, numSequencesToWin, CancellationToken.None)
             );
         }
 
@@ -78,7 +91,7 @@ namespace Sequence.Core.Test.CreateGame
                 .Verifiable();
 
             // When:
-            await _sut.CreateGameAsync(_twoPlayers, _boardType, CancellationToken.None);
+            await _sut.CreateGameAsync(_twoPlayers, _boardType, _numSequencesToWin, CancellationToken.None);
 
             // Then:
             _seedProvider.VerifyAll();
@@ -96,7 +109,7 @@ namespace Sequence.Core.Test.CreateGame
                 .Setup(s => s.PersistNewGameAsync(It.IsAny<NewGame>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(expected);
 
-            var actual = await _sut.CreateGameAsync(_twoPlayers, _boardType, CancellationToken.None);
+            var actual = await _sut.CreateGameAsync(_twoPlayers, _boardType, _numSequencesToWin, CancellationToken.None);
 
             Assert.Equal(expected, actual);
         }

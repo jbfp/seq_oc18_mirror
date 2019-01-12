@@ -39,14 +39,15 @@ namespace Sequence.Postgres
                     {
                         var commandText = @"
                             INSERT INTO
-                                game (board_type, seed, version)
+                                game (board_type, num_sequences_to_win, seed, version)
                             VALUES
-                                (@boardType, @seed, @version)
+                                (@boardType, @numSequencesToWin, @seed, @version)
                             RETURNING id, game_id;";
 
                         var parameters = new
                         {
                             boardType = (int)newGame.BoardType,
+                            numSequencesToWin = newGame.NumberOfSequencesToWin,
                             seed = newGame.Seed,
                             version = 1
                         };

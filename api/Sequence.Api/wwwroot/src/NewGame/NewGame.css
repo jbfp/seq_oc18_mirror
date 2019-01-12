@@ -51,3 +51,11 @@ input:checked+.new-game-game-size-text {
 .new-game-board-types-type {
     padding-left: 1em;
 }
+
+.new-game-win-condition {
+    padding-top: 1em;
+}
+
+.new-game-win-condition-input {
+    text-align: right;
+}

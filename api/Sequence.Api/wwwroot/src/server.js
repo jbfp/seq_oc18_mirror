@@ -19,7 +19,7 @@ class Server {
     return this._userName;
   }
 
-  async createGameAsync(opponents, boardType) {
+  async createGameAsync(opponents, boardType, numSequencesToWin) {
     if (!opponents) {
       throw new Error(`'${opponents}' is not valid.`);
     }
@@ -28,9 +28,14 @@ class Server {
       throw new Error(`'${boardType}' is not valid.`);
     }
 
+    if (typeof numSequencesToWin !== 'number') {
+      throw new Error(`'${numSequencesToWin}' is not valid.`);
+    }
+
     const response = await fetch(`${this._endpoint}/games`, {
       body: JSON.stringify({
         'boardType': boardType,
+        'numSequencesToWin': numSequencesToWin,
         'opponents': opponents,
       }),
       headers: {

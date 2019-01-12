@@ -6,12 +6,23 @@ import './NewGame.css';
 
 const defaultOpponent = { name: '', type: 'user' };
 
+function getDefaultNumSequencesToWin(numOpponents) {
+    switch (numOpponents) {
+        case 1:
+        case 2: return 2;
+        case 3:
+        case 5: return 1;
+        default: throw new Error(`${numOpponents} is not valid.`);
+    }
+}
+
 class NewGame extends React.Component {
     static contextType = ServerContext;
 
     state = {
         boardType: 0,
         botTypes: [],
+        numSequencesToWin: null,
         opponents: [],
         busy: false,
         error: null,
@@ -33,6 +44,15 @@ class NewGame extends React.Component {
         this.setState({ opponents });
     }
 
+    handleNumSequencesToWinChange = event => {
+        if (event.target.checkValidity()) {
+            event.preventDefault();
+            const value = event.target.value;
+            const numSequencesToWin = Number.parseInt(value, 10);
+            this.setState({ numSequencesToWin });
+        }
+    }
+
     handleSubmit = async event => {
         event.preventDefault();
 
@@ -40,8 +60,11 @@ class NewGame extends React.Component {
 
         this.setState({ busy: true, error: null });
 
+        const { opponents, boardType, numSequencesToWin } = this.state;
+
         try {
-            gameId = await this.context.createGameAsync(this.state.opponents, this.state.boardType);
+            gameId = await this.context.createGameAsync(opponents, boardType, numSequencesToWin);
+            console.log(numSequencesToWin);
             this.setState({ busy: false, opponents: [] });
             this.props.history.push(`/games/${gameId}`);
         } catch (e) {
@@ -52,7 +75,8 @@ class NewGame extends React.Component {
     setGameSize = numOpponents => {
         const opponents = new Array(numOpponents);
         opponents.fill({ ...defaultOpponent });
-        this.setState({ opponents })
+        const numSequencesToWin = getDefaultNumSequencesToWin(numOpponents);
+        this.setState({ opponents, numSequencesToWin });
     }
 
     setBoardType = boardType => {
@@ -64,7 +88,7 @@ class NewGame extends React.Component {
     }
 
     render() {
-        const { boardType, botTypes, opponents, busy, error } = this.state;
+        const { boardType, botTypes, numSequencesToWin, opponents, busy, error } = this.state;
         const disabled = opponents.length === 0
             || opponents.some(opponent => !opponent.name)
             || busy;
@@ -170,6 +194,26 @@ class NewGame extends React.Component {
                             <span>Sequence®</span>
                         </label>
                     </div>
+
+                    {numSequencesToWin === null ? null : (
+                        <div className="new-game-win-condition">
+                            <label>
+                                <span>Win condition:</span>
+
+                                <input
+                                    className="new-game-win-condition-input"
+                                    type="number"
+                                    min={1}
+                                    max={4}
+                                    value={numSequencesToWin}
+                                    onChange={this.handleNumSequencesToWinChange}
+                                    readOnly={busy}
+                                />
+
+                                number of sequences to win
+                        </label>
+                        </div>
+                    )}
 
                     <button className="new-game-submit" type="submit" disabled={disabled}>
                         Start game

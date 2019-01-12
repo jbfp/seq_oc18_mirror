@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using Xunit;
 
 namespace Sequence.Core.Test
@@ -14,7 +15,8 @@ namespace Sequence.Core.Test
                 ImmutableList.Create(_player1, _player2),
                 _player1.Id,
                 new Seed(42),
-                BoardType.OneEyedJack);
+                BoardType.OneEyedJack,
+                2);
 
             var gameEvents = new GameEvent[0];
 
@@ -56,7 +58,8 @@ namespace Sequence.Core.Test
                         _player2),
                     _player1.Id,
                     new Seed(42),
-                    BoardType.OneEyedJack));
+                    BoardType.OneEyedJack,
+                    2));
         }
 
         [Fact]
@@ -211,6 +214,44 @@ namespace Sequence.Core.Test
             );
 
             Assert.Equal(PlayCardError.ChipBelongsToPlayerTeam, ex.Error);
+        }
+
+        [Fact]
+        public void CannotPlayOneEyedJackIfCoordIsPartOfSequence()
+        {
+            var card = _oneEyedJack;
+            var coord = _coordDummy;
+
+            // Add Player1 sequence.
+            _sut.Apply(new GameEvent
+            {
+                ByPlayerId = _player1.Id,
+                CardDrawn = card,
+                CardUsed = _cardDummy,
+                Chip = Team.Red,
+                Coord = coord,
+                Index = 1,
+                NextPlayerId = _player2.Id,
+                Sequence = new Seq(Team.Red, ImmutableArray.Create(coord, coord, coord, coord, coord)),
+            });
+
+            // Add a one-eyed jack to Player2 to use for this test.
+            _sut.Apply(new GameEvent
+            {
+                ByPlayerId = _player2.Id,
+                CardDrawn = card,
+                CardUsed = _cardDummy,
+                Chip = Team.Green,
+                Coord = new Coord(2, 4),
+                Index = 2,
+                NextPlayerId = _player2.Id,
+            });
+
+            var ex = Assert.Throws<PlayCardFailedException>(
+                () => _sut.PlayCard(_player2.Handle, card, coord)
+            );
+
+            Assert.Equal(PlayCardError.ChipIsPartOfSequence, ex.Error);
         }
 
         [Fact]

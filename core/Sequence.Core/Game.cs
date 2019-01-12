@@ -1,9 +1,7 @@
 using Sequence.Core.Boards;
 using System;
 using System.Collections.Immutable;
-using System.Diagnostics;
 using System.Linq;
-using System.Runtime.Serialization;
 
 namespace Sequence.Core
 {
@@ -11,6 +9,7 @@ namespace Sequence.Core
     {
         private readonly IBoardType _boardType;
         private readonly Deck _deck;
+        private readonly int _numSequencesToWin;
         private readonly ImmutableArray<PlayerHandle> _playerHandleByIdx;
         private readonly ImmutableArray<PlayerId> _playerIdByIdx;
         private readonly ImmutableArray<PlayerType> _playerTypeByIdx;
@@ -21,9 +20,9 @@ namespace Sequence.Core
         private ImmutableStack<Card> _discards;
         private PlayerId _currentPlayerId;
         private Coord? _latestMoveAt;
-        private Seq _sequence;
+        private ImmutableArray<Seq> _sequences;
         private int _version;
-        private Winner _winner;
+        private Team? _winner;
 
         public Game(GameInit init, params GameEvent[] gameEvents)
         {
@@ -56,9 +55,11 @@ namespace Sequence.Core
             _deck = new Deck(init.Seed, init.Players.Count);
             _discards = ImmutableStack<Card>.Empty;
             _handByIdx = _deck.DealHands().ToImmutableArray();
+            _numSequencesToWin = init.NumberOfSequencesToWin;
             _playerHandleByIdx = init.Players.Select(p => p.Handle).ToImmutableArray();
             _playerIdByIdx = init.Players.Select(p => p.Id).ToImmutableArray();
             _playerTypeByIdx = init.Players.Select(p => p.Type).ToImmutableArray();
+            _sequences = ImmutableArray<Seq>.Empty;
 
             ImmutableArray<Team> GetTeams()
             {
@@ -79,6 +80,10 @@ namespace Sequence.Core
                 Apply(gameEvent);
             }
         }
+
+        private ImmutableHashSet<Coord> CoordsInSequence => _sequences
+            .SelectMany(s => s.Coords)
+            .ToImmutableHashSet();
 
         public void Apply(GameEvent gameEvent)
         {
@@ -117,16 +122,12 @@ namespace Sequence.Core
 
             _currentPlayerId = gameEvent.NextPlayerId;
             _latestMoveAt = gameEvent.Coord;
-            _sequence = gameEvent.Sequence;
             _version = gameEvent.Index;
+            _winner = gameEvent.Winner;
 
-            if (_sequence != null)
+            if (gameEvent.Sequence != null)
             {
-                _winner = new Winner(_sequence.Team);
-            }
-            else
-            {
-                _winner = null;
+                _sequences = _sequences.Add(gameEvent.Sequence);
             }
         }
 
@@ -188,7 +189,10 @@ namespace Sequence.Core
                     throw new PlayCardFailedException(PlayCardError.ChipBelongsToPlayerTeam);
                 }
 
-                // TODO: Check chip is not part of sequence when multiple sequences are supported in future.
+                if (CoordsInSequence.Contains(coord))
+                {
+                    throw new PlayCardFailedException(PlayCardError.ChipIsPartOfSequence);
+                }
 
                 return new GameEvent
                 {
@@ -214,8 +218,27 @@ namespace Sequence.Core
                 }
 
                 var team = _teamByIdx[playerIdx];
-                var sequence = _boardType.Board.GetSequence(_chips.Add(coord, team), coord, team);
-                var nextPlayerId = sequence == null ? _playerIdByIdx[(playerIdx + 1) % _playerIdByIdx.Length] : null;
+                var sequence = _boardType.Board.GetSequence(
+                    chips: _chips.Add(coord, team),
+                    CoordsInSequence,
+                    coord, team);
+
+                Team? winnerTeam = null;
+
+                if (sequence != null)
+                {
+                    // Test for win condition:
+                    var numSequencesForTeam = _sequences
+                        .Add(sequence)
+                        .Count(seq => seq.Team == team);
+
+                    if (numSequencesForTeam == _numSequencesToWin)
+                    {
+                        winnerTeam = team;
+                    }
+                }
+
+                var nextPlayerId = winnerTeam == null ? _playerIdByIdx[(playerIdx + 1) % _playerIdByIdx.Length] : null;
 
                 return new GameEvent
                 {
@@ -227,6 +250,7 @@ namespace Sequence.Core
                     Index = _version + 1,
                     NextPlayerId = nextPlayerId,
                     Sequence = sequence,
+                    Winner = winnerTeam,
                 };
             }
         }
@@ -248,6 +272,7 @@ namespace Sequence.Core
             var hand = _handByIdx[idx];
             var team = _teamByIdx[idx];
             var moves = ImmutableList.CreateBuilder<Move>();
+            var coordsInSequence = CoordsInSequence;
 
             foreach (var card in hand)
             {
@@ -255,10 +280,13 @@ namespace Sequence.Core
                 {
                     foreach (var chip in _chips)
                     {
-                        if (chip.Value != team)
+                        var coord = chip.Key;
+                        var isNotOwnTeam = chip.Value != team;
+                        var isNotPartOfSequence = !coordsInSequence.Contains(coord);
+
+                        if (isNotOwnTeam && isNotPartOfSequence)
                         {
-                            // TODO: Check for sequence.
-                            moves.Add(new Move(card, coord: chip.Key));
+                            moves.Add(new Move(card, coord));
                         }
                     }
                 }
@@ -315,19 +343,22 @@ namespace Sequence.Core
 
         internal GameView GetViewForPlayer(PlayerId playerId)
         {
+            var coordsInSequence = CoordsInSequence;
+
             var view = new GameView
             {
                 Board = _boardType.Board,
                 Chips = _chips.Select(c => new ChipView
                 {
                     Coord = c.Key,
-                    IsLocked = _sequence?.Coords.Contains(c.Key) == true,
+                    IsLocked = coordsInSequence.Contains(c.Key),
                     Team = c.Value,
                 }).ToImmutableArray(),
                 CurrentPlayerId = _currentPlayerId,
                 Discards = _discards.ToImmutableArray(),
                 LatestMoveAt = _latestMoveAt,
                 NumberOfCardsInDeck = _deck.Count,
+                NumberOfSequencesToWin = _numSequencesToWin,
                 Players = _playerIdByIdx.Select((p, i) => new PlayerView
                 {
                     Id = p,
@@ -372,21 +403,12 @@ namespace Sequence.Core
         CardDoesNotMatchCoord,
         CoordIsEmpty,
         ChipBelongsToPlayerTeam,
+        ChipIsPartOfSequence,
     }
 
     public enum Team
     {
         Red, Green, Blue,
-    }
-
-    public sealed class Winner
-    {
-        public Winner(Team team)
-        {
-            Team = team;
-        }
-
-        public Team Team { get; }
     }
 
     public sealed class PlayerView
@@ -462,10 +484,11 @@ namespace Sequence.Core
         public IImmutableList<Card> Hand { get; internal set; }
         public Coord? LatestMoveAt { get; internal set; }
         public int NumberOfCardsInDeck { get; internal set; }
+        public int NumberOfSequencesToWin { get; internal set; }
         public PlayerId PlayerId { get; internal set; }
         public IImmutableList<PlayerView> Players { get; internal set; }
         public Team Team { get; internal set; }
         public int Version { get; internal set; }
-        public Winner Winner { get; internal set; }
+        public Team? Winner { get; internal set; }
     }
 }

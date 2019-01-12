@@ -131,8 +131,6 @@ class Game extends React.Component {
       }];
     }
 
-    let winner = game.winner;
-
     if (event.sequence) {
       chips = chips.map(chip => {
         const containedInSequence = event.sequence.coords.some(coord =>
@@ -145,11 +143,10 @@ class Game extends React.Component {
           return chip;
         }
       });
-
-      winner = { team: event.sequence.team };
     }
 
     const latestMoveAt = event.coord;
+    const winner = event.winner;
 
     this.setState({
       game: {

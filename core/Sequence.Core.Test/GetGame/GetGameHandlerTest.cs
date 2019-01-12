@@ -86,7 +86,8 @@ namespace Sequence.Core.Test.GetGame
                         new Player(new PlayerId(2), new PlayerHandle("Player 2"))),
                     firstPlayerId: playerId,
                     seed: new Seed(42),
-                    boardType: BoardType.OneEyedJack));
+                    boardType: BoardType.OneEyedJack,
+                    numSequencesToWin: 2));
 
             _provider
                 .Setup(p => p.GetGameByIdAsync(_gameIdDummy, It.IsAny<CancellationToken>()))
@@ -102,6 +103,7 @@ namespace Sequence.Core.Test.GetGame
             Assert.Equal(playerId, actual.CurrentPlayerId);
             Assert.Equal(7, actual.Hand.Count);
             Assert.Equal(90, actual.NumberOfCardsInDeck);
+            Assert.Equal(2, actual.NumberOfSequencesToWin);
             Assert.Equal(2, actual.Players.Count);
             Assert.Equal(Team.Red, actual.Team);
             Assert.Null(actual.Winner);

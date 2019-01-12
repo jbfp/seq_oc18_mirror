@@ -43,6 +43,7 @@ namespace Sequence.Postgres
                         , gp.player_id AS player_handle
                         , gp.player_type AS player_type
                         , g.board_type
+                        , g.num_sequences_to_win
                         , g.seed
                         FROM public.game AS g
 
@@ -73,7 +74,8 @@ namespace Sequence.Postgres
                         players: rows.Select(row => new Player(row.player_id, row.player_handle, row.player_type)).ToImmutableList(),
                         firstPlayerId: rows[0].first_player_id,
                         seed: rows[0].seed,
-                        boardType: rows[0].board_type
+                        boardType: rows[0].board_type,
+                        numSequencesToWin: rows[0].num_sequences_to_win
                     );
                 }
 
@@ -88,6 +90,7 @@ namespace Sequence.Postgres
                         , ge.coord
                         , ge.next_player_id
                         , ge.sequence
+                        , ge.winner
                         FROM public.game_event AS ge
                         INNER JOIN public.game AS g ON g.id = ge.game_id
                         WHERE g.game_id = @gameId
@@ -114,6 +117,7 @@ namespace Sequence.Postgres
                         Index = row.idx,
                         NextPlayerId = row.next_player_id,
                         Sequence = row.sequence?.ToSequence(),
+                        Winner = row.winner,
                     }).ToArray();
                 }
 
@@ -131,6 +135,7 @@ namespace Sequence.Postgres
             public PlayerHandle player_handle;
             public PlayerType player_type;
             public BoardType board_type;
+            public int num_sequences_to_win;
             public Seed seed;
         }
 
@@ -144,6 +149,7 @@ namespace Sequence.Postgres
             public CoordComposite coord;
             public PlayerId next_player_id;
             public SequenceComposite sequence;
+            public Team? winner;
         }
 #pragma warning restore CS0649
     }

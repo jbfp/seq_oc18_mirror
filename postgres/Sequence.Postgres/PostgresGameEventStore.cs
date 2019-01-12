@@ -52,9 +52,9 @@ namespace Sequence.Postgres
                 {
                     var commandText = @"
                         INSERT INTO
-                            game_event (game_id, idx, by_player_id, card_drawn, card_used, chip, coord, next_player_id, sequence)
+                            game_event (game_id, idx, by_player_id, card_drawn, card_used, chip, coord, next_player_id, sequence, winner)
                         VALUES
-                            (@gameId, @idx, @byPlayerId, @cardDrawn, @cardUsed, @chip, @coord, @nextPlayerId, @sequence);";
+                            (@gameId, @idx, @byPlayerId, @cardDrawn, @cardUsed, @chip, @coord, @nextPlayerId, @sequence, @winner);";
 
                     command.CommandText = commandText;
                     command.Parameters.AddWithValue("@gameId", surrogateGameId);
@@ -66,6 +66,7 @@ namespace Sequence.Postgres
                     command.Parameters.AddWithValue("@coord", CoordComposite.FromCoord(gameEvent.Coord));
                     command.Parameters.AddWithValue("@nextPlayerId", (object)gameEvent.NextPlayerId?.ToInt32() ?? DBNull.Value);
                     command.Parameters.AddWithValue("@sequence", (object)SequenceComposite.FromSequence(gameEvent.Sequence) ?? DBNull.Value);
+                    command.Parameters.AddWithValue("@winner", (object)gameEvent.Winner ?? DBNull.Value);
                     command.Transaction = transaction;
 
                     await command.ExecuteNonQueryAsync(cancellationToken);
