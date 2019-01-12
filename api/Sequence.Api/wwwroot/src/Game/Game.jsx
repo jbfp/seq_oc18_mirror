@@ -131,7 +131,6 @@ class Game extends React.Component {
       }];
     }
 
-
     if (event.sequence) {
       chips = chips.map(chip => {
         const containedInSequence = event.sequence.coords.some(coord =>

@@ -1,9 +1,7 @@
 using Sequence.Core.Boards;
 using System;
 using System.Collections.Immutable;
-using System.Diagnostics;
 using System.Linq;
-using System.Runtime.Serialization;
 
 namespace Sequence.Core
 {
@@ -24,7 +22,7 @@ namespace Sequence.Core
         private Coord? _latestMoveAt;
         private ImmutableArray<Seq> _sequences;
         private int _version;
-        private Winner _winner;
+        private Team? _winner;
 
         public Game(GameInit init, params GameEvent[] gameEvents)
         {
@@ -125,15 +123,11 @@ namespace Sequence.Core
             _currentPlayerId = gameEvent.NextPlayerId;
             _latestMoveAt = gameEvent.Coord;
             _version = gameEvent.Index;
+            _winner = gameEvent.Winner;
 
             if (gameEvent.Sequence != null)
             {
                 _sequences = _sequences.Add(gameEvent.Sequence);
-            }
-
-            if (gameEvent.Winner.HasValue)
-            {
-                _winner = new Winner(gameEvent.Winner.Value);
             }
         }
 
@@ -414,21 +408,6 @@ namespace Sequence.Core
         Red, Green, Blue,
     }
 
-    public sealed class Winner : IEquatable<Winner>
-    {
-        public Winner(Team team)
-        {
-            Team = team;
-        }
-
-        public Team Team { get; }
-
-        public bool Equals(Winner other) => other != null && Team.Equals(other.Team);
-        public override bool Equals(object obj) => Equals(obj as Winner);
-        public override int GetHashCode() => Team.GetHashCode();
-        public override string ToString() => $"Winner = {Team}";
-    }
-
     public sealed class PlayerView
     {
         public PlayerId Id { get; internal set; }
@@ -507,6 +486,6 @@ namespace Sequence.Core
         public IImmutableList<PlayerView> Players { get; internal set; }
         public Team Team { get; internal set; }
         public int Version { get; internal set; }
-        public Winner Winner { get; internal set; }
+        public Team? Winner { get; internal set; }
     }
 }

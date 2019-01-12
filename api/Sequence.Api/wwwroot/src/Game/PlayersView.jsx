@@ -31,7 +31,7 @@ class PlayersView extends React.PureComponent {
                         key={player.id}
                         {...player}
                         isCurrentPlayer={player.id === currentPlayerId}
-                        isWinner={player.team === (winner || {}).team} />
+                        isWinner={player.team === winner} />
                 ))}
             </div>
         );
