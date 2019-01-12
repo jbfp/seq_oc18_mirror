@@ -166,7 +166,7 @@ class NewGame extends React.Component {
                     </div>
 
                     <div className="new-game-board-types">
-                        <span>Board:</span>
+                        <strong>Board:</strong>
 
                         <label className="new-game-board-types-type">
                             <input
@@ -178,7 +178,7 @@ class NewGame extends React.Component {
                                 readOnly={busy}
                             />
 
-                            <span>One-Eyed Jack (default)</span>
+                            <span>One-Eyed Jack</span>
                         </label>
 
                         <label className="new-game-board-types-type">
@@ -197,21 +197,21 @@ class NewGame extends React.Component {
 
                     {numSequencesToWin === null ? null : (
                         <div className="new-game-win-condition">
-                            <label>
-                                <span>Win condition:</span>
+                            <label className="new-game-win-condition-container">
+                                <strong className="new-game-win-condition-container-text">Win condition:</strong>
 
-                                <input
-                                    className="new-game-win-condition-input"
-                                    type="number"
-                                    min={1}
-                                    max={4}
-                                    value={numSequencesToWin}
-                                    onChange={this.handleNumSequencesToWinChange}
-                                    readOnly={busy}
-                                />
-
-                                number of sequences to win
-                        </label>
+                                <div className="new-game-win-condition-input-container">
+                                    <input
+                                        className="new-game-win-condition-input"
+                                        type="number"
+                                        min={1}
+                                        max={4}
+                                        value={numSequencesToWin}
+                                        onChange={this.handleNumSequencesToWinChange}
+                                        readOnly={busy}
+                                    /> sequences to win
+                                </div>
+                            </label>
                         </div>
                     )}
 

@@ -48,14 +48,40 @@ input:checked+.new-game-game-size-text {
     padding-top: 1em;
 }
 
-.new-game-board-types-type {
-    padding-left: 1em;
-}
-
 .new-game-win-condition {
     padding-top: 1em;
 }
 
+.new-game-win-condition-input-container {
+    display: inline;
+}
+
 .new-game-win-condition-input {
     text-align: right;
+}
+
+@media only screen and (max-width: 479px) {
+    .new-game-board-types {
+        display: flex;
+        flex-direction: column;
+    }
+    .new-game-board-types label:first-of-type {
+        padding-top: 0.5em;
+    }
+    .new-game-win-condition-container {
+        display: flex;
+        flex-direction: column;
+    }
+    .new-game-win-condition-input-container {
+        padding-top: 0.5em;
+    }
+}
+
+@media only screen and (min-width: 480px) {
+    .new-game-board-types-type {
+        padding-left: 1em;
+    }
+    .new-game-win-condition-input-container {
+        padding-left: 0.5em;
+    }
 }
