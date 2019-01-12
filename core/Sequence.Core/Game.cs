@@ -11,6 +11,7 @@ namespace Sequence.Core
     {
         private readonly IBoardType _boardType;
         private readonly Deck _deck;
+        private readonly int _numSequencesToWin;
         private readonly ImmutableArray<PlayerHandle> _playerHandleByIdx;
         private readonly ImmutableArray<PlayerId> _playerIdByIdx;
         private readonly ImmutableArray<PlayerType> _playerTypeByIdx;
@@ -56,6 +57,7 @@ namespace Sequence.Core
             _deck = new Deck(init.Seed, init.Players.Count);
             _discards = ImmutableStack<Card>.Empty;
             _handByIdx = _deck.DealHands().ToImmutableArray();
+            _numSequencesToWin = init.NumberOfSequencesToWin;
             _playerHandleByIdx = init.Players.Select(p => p.Handle).ToImmutableArray();
             _playerIdByIdx = init.Players.Select(p => p.Id).ToImmutableArray();
             _playerTypeByIdx = init.Players.Select(p => p.Type).ToImmutableArray();
@@ -328,6 +330,7 @@ namespace Sequence.Core
                 Discards = _discards.ToImmutableArray(),
                 LatestMoveAt = _latestMoveAt,
                 NumberOfCardsInDeck = _deck.Count,
+                NumberOfSequencesToWin = _numSequencesToWin,
                 Players = _playerIdByIdx.Select((p, i) => new PlayerView
                 {
                     Id = p,
@@ -462,6 +465,7 @@ namespace Sequence.Core
         public IImmutableList<Card> Hand { get; internal set; }
         public Coord? LatestMoveAt { get; internal set; }
         public int NumberOfCardsInDeck { get; internal set; }
+        public int NumberOfSequencesToWin { get; internal set; }
         public PlayerId PlayerId { get; internal set; }
         public IImmutableList<PlayerView> Players { get; internal set; }
         public Team Team { get; internal set; }

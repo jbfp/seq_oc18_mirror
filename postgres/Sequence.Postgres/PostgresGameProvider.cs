@@ -43,6 +43,7 @@ namespace Sequence.Postgres
                         , gp.player_id AS player_handle
                         , gp.player_type AS player_type
                         , g.board_type
+                        , g.num_sequences_to_win
                         , g.seed
                         FROM public.game AS g
 
@@ -73,7 +74,8 @@ namespace Sequence.Postgres
                         players: rows.Select(row => new Player(row.player_id, row.player_handle, row.player_type)).ToImmutableList(),
                         firstPlayerId: rows[0].first_player_id,
                         seed: rows[0].seed,
-                        boardType: rows[0].board_type
+                        boardType: rows[0].board_type,
+                        numSequencesToWin: rows[0].num_sequences_to_win
                     );
                 }
 
@@ -131,6 +133,7 @@ namespace Sequence.Postgres
             public PlayerHandle player_handle;
             public PlayerType player_type;
             public BoardType board_type;
+            public int num_sequences_to_win;
             public Seed seed;
         }
 
