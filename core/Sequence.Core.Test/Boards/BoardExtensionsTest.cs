@@ -27,6 +27,7 @@ namespace Sequence.Core.Boards.Test
         [MemberData(nameof(Data))]
         public void GetSequence_Test1(params (int, int)[] coords)
         {
+            var coordsInSequence = ImmutableHashSet<Coord>.Empty;
             var boardSize = 10;
             var boardBuilder = ImmutableArray.CreateBuilder<ImmutableArray<Tile>>();
 
@@ -52,9 +53,53 @@ namespace Sequence.Core.Boards.Test
 
             foreach (var coord in chips.Keys)
             {
-                var seq = board.GetSequence(chips, coord, _team);
+                var seq = board.GetSequence(chips, coordsInSequence, coord, _team);
                 Assert.NotNull(seq);
             }
+        }
+
+        [Fact]
+        public void TwoSequencesCanShareOneCoord()
+        {
+            var boardSize = 10;
+            var boardBuilder = ImmutableArray.CreateBuilder<ImmutableArray<Tile>>();
+
+            for (int i = 0; i < boardSize; i++)
+            {
+                var row = ImmutableArray.CreateRange<Tile>(
+                    Enumerable
+                        .Range(0, 10)
+                        .Select(_ => new Tile(Suit.Spades, Rank.Ace)));
+
+                boardBuilder.Add(row);
+            }
+
+            var board = boardBuilder.ToImmutable();
+
+            var chips = ImmutableDictionary<Coord, Team>.Empty
+                .Add(new Coord(1, 0), _team)
+                .Add(new Coord(1, 1), _team)
+                .Add(new Coord(1, 2), _team)
+                .Add(new Coord(1, 3), _team)
+                .Add(new Coord(1, 4), _team)
+                .Add(new Coord(1, 5), _team)
+                .Add(new Coord(1, 6), _team)
+                .Add(new Coord(1, 7), _team)
+                .Add(new Coord(1, 8), _team);
+
+            var coordsInSequence = ImmutableHashSet.Create<Coord>(
+                new Coord(1, 4),
+                new Coord(1, 5),
+                new Coord(1, 6),
+                new Coord(1, 7),
+                new Coord(1, 8)
+            );
+
+            var coord = new Coord(1, 0);
+
+            var seq = board.GetSequence(chips, coordsInSequence, coord, _team);
+
+            Assert.NotNull(seq);
         }
     }
 }

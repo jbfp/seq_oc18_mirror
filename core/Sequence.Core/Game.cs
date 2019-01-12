@@ -218,7 +218,10 @@ namespace Sequence.Core
                 }
 
                 var team = _teamByIdx[playerIdx];
-                var sequence = _boardType.Board.GetSequence(_chips.Add(coord, team), coord, team);
+                var sequence = _boardType.Board.GetSequence(
+                    chips: _chips.Add(coord, team),
+                    CoordsInSequence,
+                    coord, team);
 
                 Team? winnerTeam = null;
 

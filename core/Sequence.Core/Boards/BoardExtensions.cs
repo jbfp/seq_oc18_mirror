@@ -54,6 +54,7 @@ namespace Sequence.Core.Boards
         public static Seq GetSequence(
             this Board board,
             IImmutableDictionary<Coord, Team> chips,
+            IImmutableSet<Coord> coordsInSequences,
             Coord coord,
             Team team)
         {
@@ -73,26 +74,48 @@ namespace Sequence.Core.Boards
             bool TrySequence(IEnumerable<Coord> cs, out IImmutableList<Coord> seq)
             {
                 seq = ImmutableList<Coord>.Empty;
+                bool sharedCoord = false;
 
                 foreach (var c in cs)
                 {
-                    var isCorner =
+                    if (sharedCoord)
+                    {
+                        seq = ImmutableList.Create(c);
+                        sharedCoord = false;
+                    }
+                    else
+                    {
+                        var isCorner =
                         (c.Row >= 0 && c.Row < board.Length) &&
                         (c.Column >= 0 && c.Column < board[c.Row].Length) &&
                         board[c.Row][c.Column] == null;
 
-                    if (isCorner || chips.TryGetValue(c, out var t) && team == t)
-                    {
-                        seq = seq.Add(c);
+                        var teamOwnsCoord = chips.TryGetValue(c, out var t) && team == t;
 
-                        if (seq.Count == Seq.DefaultLength)
+                        if (isCorner || teamOwnsCoord)
                         {
-                            return true;
+                            seq = seq.Add(c);
+
+                            var isPartOfAnotherSequence =
+                                coordsInSequences.Contains(c) &&
+                                chips[c] == team;
+
+                            if (isPartOfAnotherSequence)
+                            {
+                                sharedCoord = true;
+                            }
+
+                            if (seq.Count == Seq.DefaultLength)
+                            {
+                                return true;
+                            }
                         }
-                    }
-                    else
-                    {
-                        seq = ImmutableList<Coord>.Empty;
+                        else
+                        {
+                            // Reset:
+                            seq = ImmutableList<Coord>.Empty;
+                            sharedCoord = false;
+                        }
                     }
                 }
 
