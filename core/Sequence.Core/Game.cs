@@ -22,7 +22,7 @@ namespace Sequence.Core
         private ImmutableStack<Card> _discards;
         private PlayerId _currentPlayerId;
         private Coord? _latestMoveAt;
-        private Seq _sequence;
+        private ImmutableArray<Seq> _sequences;
         private int _version;
         private Winner _winner;
 
@@ -61,6 +61,7 @@ namespace Sequence.Core
             _playerHandleByIdx = init.Players.Select(p => p.Handle).ToImmutableArray();
             _playerIdByIdx = init.Players.Select(p => p.Id).ToImmutableArray();
             _playerTypeByIdx = init.Players.Select(p => p.Type).ToImmutableArray();
+            _sequences = ImmutableArray<Seq>.Empty;
 
             ImmutableArray<Team> GetTeams()
             {
@@ -119,16 +120,18 @@ namespace Sequence.Core
 
             _currentPlayerId = gameEvent.NextPlayerId;
             _latestMoveAt = gameEvent.Coord;
-            _sequence = gameEvent.Sequence;
             _version = gameEvent.Index;
 
-            if (_sequence != null)
+            if (gameEvent.Sequence != null)
             {
-                _winner = new Winner(_sequence.Team);
-            }
-            else
-            {
-                _winner = null;
+                _sequences = _sequences.Add(gameEvent.Sequence);
+
+                // Test for win condition:
+                _winner = _sequences
+                    .GroupBy(seq => seq.Team)
+                    .Where(seqs => seqs.Count() == _numSequencesToWin)
+                    .Select(seqs => new Winner(seqs.Key))
+                    .SingleOrDefault();
             }
         }
 
@@ -317,13 +320,17 @@ namespace Sequence.Core
 
         internal GameView GetViewForPlayer(PlayerId playerId)
         {
+            var coordsInSequence = _sequences
+                .SelectMany(seq => seq.Coords)
+                .ToImmutableHashSet();
+
             var view = new GameView
             {
                 Board = _boardType.Board,
                 Chips = _chips.Select(c => new ChipView
                 {
                     Coord = c.Key,
-                    IsLocked = _sequence?.Coords.Contains(c.Key) == true,
+                    IsLocked = coordsInSequence.Contains(c.Key),
                     Team = c.Value,
                 }).ToImmutableArray(),
                 CurrentPlayerId = _currentPlayerId,
@@ -382,7 +389,7 @@ namespace Sequence.Core
         Red, Green, Blue,
     }
 
-    public sealed class Winner
+    public sealed class Winner : IEquatable<Winner>
     {
         public Winner(Team team)
         {
@@ -390,6 +397,11 @@ namespace Sequence.Core
         }
 
         public Team Team { get; }
+
+        public bool Equals(Winner other) => other != null && Team.Equals(other.Team);
+        public override bool Equals(object obj) => Equals(obj as Winner);
+        public override int GetHashCode() => Team.GetHashCode();
+        public override string ToString() => $"Winner = {Team}";
     }
 
     public sealed class PlayerView
