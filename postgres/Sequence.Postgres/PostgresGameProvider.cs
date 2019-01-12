@@ -90,6 +90,7 @@ namespace Sequence.Postgres
                         , ge.coord
                         , ge.next_player_id
                         , ge.sequence
+                        , ge.winner
                         FROM public.game_event AS ge
                         INNER JOIN public.game AS g ON g.id = ge.game_id
                         WHERE g.game_id = @gameId
@@ -116,6 +117,7 @@ namespace Sequence.Postgres
                         Index = row.idx,
                         NextPlayerId = row.next_player_id,
                         Sequence = row.sequence?.ToSequence(),
+                        Winner = row.winner,
                     }).ToArray();
                 }
 
@@ -147,6 +149,7 @@ namespace Sequence.Postgres
             public CoordComposite coord;
             public PlayerId next_player_id;
             public SequenceComposite sequence;
+            public Team? winner;
         }
 #pragma warning restore CS0649
     }
