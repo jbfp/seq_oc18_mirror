@@ -129,13 +129,11 @@ namespace Sequence.Core
             if (gameEvent.Sequence != null)
             {
                 _sequences = _sequences.Add(gameEvent.Sequence);
+            }
 
-                // Test for win condition:
-                _winner = _sequences
-                    .GroupBy(seq => seq.Team)
-                    .Where(seqs => seqs.Count() == _numSequencesToWin)
-                    .Select(seqs => new Winner(seqs.Key))
-                    .SingleOrDefault();
+            if (gameEvent.Winner.HasValue)
+            {
+                _winner = new Winner(gameEvent.Winner.Value);
             }
         }
 
@@ -229,6 +227,21 @@ namespace Sequence.Core
                 var sequence = _boardType.Board.GetSequence(_chips.Add(coord, team), coord, team);
                 var nextPlayerId = sequence == null ? _playerIdByIdx[(playerIdx + 1) % _playerIdByIdx.Length] : null;
 
+                Team? winnerTeam = null;
+
+                if (sequence != null)
+                {
+                    // Test for win condition:
+                    var numSequencesForTeam = _sequences
+                        .Add(sequence)
+                        .Count(seq => seq.Team == team);
+
+                    if (numSequencesForTeam == _numSequencesToWin)
+                    {
+                        winnerTeam = team;
+                    }
+                }
+
                 return new GameEvent
                 {
                     ByPlayerId = playerId,
@@ -239,6 +252,7 @@ namespace Sequence.Core
                     Index = _version + 1,
                     NextPlayerId = nextPlayerId,
                     Sequence = sequence,
+                    Winner = winnerTeam,
                 };
             }
         }

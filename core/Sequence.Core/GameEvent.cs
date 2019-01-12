@@ -10,5 +10,6 @@ namespace Sequence.Core
         public int Index { get; set; }
         public PlayerId NextPlayerId { get; set; }
         public Seq Sequence { get; set; }
+        public Team? Winner { get; set; }
     }
 }
