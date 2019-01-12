@@ -41,7 +41,8 @@ namespace Sequence.Postgres.Test
                     player1 ?? new NewPlayer(Player1, PlayerType.User),
                     player2 ?? new NewPlayer(Player2, PlayerType.User)),
                 seed: new Seed(42),
-                boardType: BoardType.OneEyedJack);
+                boardType: BoardType.OneEyedJack,
+                numSequencesToWin: 2);
 
             return await gameStore.PersistNewGameAsync(newGame, CancellationToken.None);
         }

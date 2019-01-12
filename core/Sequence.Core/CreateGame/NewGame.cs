@@ -6,7 +6,7 @@ namespace Sequence.Core.CreateGame
     {
         public const int MaxNumberOfSequencesToWin = 4;
 
-        public NewGame(PlayerList players, Seed seed, BoardType boardType, int numSequencesToWin = 1)
+        public NewGame(PlayerList players, Seed seed, BoardType boardType, int numSequencesToWin)
         {
             PlayerList = players ?? throw new ArgumentNullException(nameof(players));
             Seed = seed;

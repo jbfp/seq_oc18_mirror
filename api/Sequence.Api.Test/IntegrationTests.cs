@@ -76,6 +76,7 @@ namespace Sequence.Api.Test
             var body = new
             {
                 boardType = 0,
+                numSequencesToWin = 2,
                 opponents = new[]
                 {
                     new { name = "test", type = 1 },
@@ -98,7 +99,7 @@ namespace Sequence.Api.Test
             var body = new
             {
                 boardType = 0,
-
+                numSequencesToWin = 2,
                 opponents = new[]
                 {
                     new { name = "test", type = "User" },
@@ -129,6 +130,7 @@ namespace Sequence.Api.Test
             var body = new
             {
                 boardType = 0,
+                numSequencesToWin = 2,
                 opponents = new[]
                 {
                     new { name = botType, type = "Bot" },
@@ -157,6 +159,36 @@ namespace Sequence.Api.Test
             var body = new
             {
                 boardType,
+                numSequencesToWin = 2,
+                opponents = new[]
+                {
+                    new { name = "test", type = "User" },
+                },
+            };
+
+            var client = CreateAuthorizedClient(playerId);
+
+            // When:
+            var response = await client.PostAsJsonAsync("/games", body);
+
+            // Then:
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+        [Theory]
+        [InlineData(10000)]
+        [InlineData(-1)]
+        [InlineData(42)]
+        [InlineData(0)]
+        public async Task CreateGameReturnsBadRequestIfWinConditionIsInvalid(int numSequencesToWin)
+        {
+            // Given:
+            var playerId = "test_player";
+
+            var body = new
+            {
+                boardType = 0,
+                numSequencesToWin,
                 opponents = new[]
                 {
                     new { name = "test", type = "User" },
@@ -181,6 +213,7 @@ namespace Sequence.Api.Test
             var body = new
             {
                 boardType = 0,
+                numSequencesToWin = 1,
                 opponents = new[]
                 {
                     new { name = "fail1", type = "User" },
@@ -212,6 +245,7 @@ namespace Sequence.Api.Test
             var body = new
             {
                 BoardType = 0,
+                numSequencesToWin = 3,
                 opponents = new[]
                 {
                     new { name = playerId, type = "User" },
@@ -396,6 +430,7 @@ namespace Sequence.Api.Test
             var form = new
             {
                 boardType = 0,
+                numSequencesToWin = 1,
                 opponents = new[]
                 {
                     new { name = opponent, type = 0 },

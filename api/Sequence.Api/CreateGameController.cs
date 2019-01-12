@@ -52,7 +52,19 @@ namespace Sequence.Api
             }
 
             var boardType = form.BoardType.Value;
-            var gameId = await _handler.CreateGameAsync(playerList, boardType, cancellationToken);
+            var numSequencesToWin = form.NumSequencesToWin;
+
+            GameId gameId;
+
+            try
+            {
+                gameId = await _handler.CreateGameAsync(playerList, boardType, numSequencesToWin, cancellationToken);
+            }
+            catch (ArgumentOutOfRangeException ex)
+            {
+                _logger.LogWarning(ex, "Number of sequences to win {NumSequencesToWin} is invalid", numSequencesToWin);
+                return BadRequest(new { error = "Number of sequences to win is invalid." });
+            }
 
             _logger.LogInformation(
                 "Successfully created game with ID {GameId} for {Players}",
@@ -66,6 +78,9 @@ namespace Sequence.Api
     {
         [Required, Enum(typeof(BoardType))]
         public BoardType? BoardType { get; set; }
+
+        [Required]
+        public int NumSequencesToWin { get; set; }
 
         [Required]
         public Opponent[] Opponents { get; set; }

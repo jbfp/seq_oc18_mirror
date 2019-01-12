@@ -24,7 +24,8 @@ namespace Sequence.Postgres.Test
                     new NewPlayer(Player1, PlayerType.User),
                     new NewPlayer(Player2, PlayerType.User)),
                 seed: new Seed(42),
-                boardType: BoardType.OneEyedJack);
+                boardType: BoardType.OneEyedJack,
+                numSequencesToWin: 2);
 
             // When:
             var gameId = await sut.PersistNewGameAsync(newGame, CancellationToken.None);
@@ -45,7 +46,8 @@ namespace Sequence.Postgres.Test
                     new NewPlayer(botType, PlayerType.Bot),
                     new NewPlayer(botType, PlayerType.Bot)),
                 seed: new Seed(42),
-                boardType: BoardType.Sequence);
+                boardType: BoardType.Sequence,
+                numSequencesToWin: 2);
 
             // When:
             var gameId = await sut.PersistNewGameAsync(newGame, CancellationToken.None);

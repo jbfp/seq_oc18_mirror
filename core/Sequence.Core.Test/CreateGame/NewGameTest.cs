@@ -14,13 +14,14 @@ namespace Sequence.Core.CreateGame.Test
                     PlayerType.User));
         private static readonly Seed _seed = new Seed(42);
         private static readonly BoardType _boardType = BoardType.OneEyedJack;
+        private static readonly int _numSequencesToWin = 2;
 
         [Fact]
         public void NullArgs()
         {
             Assert.Throws<ArgumentNullException>(
                 paramName: "players",
-                testCode: () => new NewGame(players: null, _seed, _boardType)
+                testCode: () => new NewGame(players: null, _seed, _boardType, _numSequencesToWin)
             );
         }
 
@@ -32,7 +33,7 @@ namespace Sequence.Core.CreateGame.Test
         {
             Assert.Throws<ArgumentOutOfRangeException>(
                 paramName: "boardType",
-                testCode: () => new NewGame(_players, _seed, (BoardType)boardType)
+                testCode: () => new NewGame(_players, _seed, (BoardType)boardType, _numSequencesToWin)
             );
         }
 
