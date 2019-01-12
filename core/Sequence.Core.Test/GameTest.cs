@@ -303,52 +303,6 @@ namespace Sequence.Core.Test
             Assert.Equal(expected, actual, new GameEventEqualityComparer());
         }
 
-        [Theory]
-        [InlineData(1)]
-        [InlineData(2)]
-        [InlineData(3)]
-        [InlineData(4)]
-        public void TestWinCondition(int numSequencesToWin)
-        {
-            // Given:
-            var sut = new Game(
-                new GameInit(
-                    ImmutableList.Create(
-                        _player1,
-                        _player2),
-                    _player1.Id,
-                    new Seed(42),
-                    BoardType.OneEyedJack,
-                    numSequencesToWin));
-
-            var view = sut.GetViewForPlayer(_player1.Handle);
-            Assert.Null(view.Winner); // No winner yet.
-
-            // When:
-            for (int i = 0; i < numSequencesToWin; i++)
-            {
-                sut.Apply(new GameEvent
-                {
-                    ByPlayerId = _player1.Id,
-                    CardDrawn = null,
-                    CardUsed = _cardDummy,
-                    Chip = Team.Red,
-                    Coord = _coordDummy,
-                    Index = 1 + i,
-                    NextPlayerId = _player2.Id,
-                    Sequence = new Seq(Team.Red, ImmutableList.CreateRange(
-                        Enumerable
-                            .Range(0, Seq.DefaultLength)
-                            .Select(_ => new Coord(1, 1))
-                    ))
-                });
-            }
-
-            // Then:
-            view = sut.GetViewForPlayer(_player1.Handle);
-            Assert.Equal(new Winner(Team.Red), view.Winner);
-        }
-
         private sealed class GameEventEqualityComparer : EqualityComparer<GameEvent>
         {
             public override bool Equals(GameEvent x, GameEvent y)
