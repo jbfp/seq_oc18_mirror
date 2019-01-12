@@ -83,6 +83,10 @@ namespace Sequence.Core
             }
         }
 
+        private ImmutableHashSet<Coord> CoordsInSequence => _sequences
+            .SelectMany(s => s.Coords)
+            .ToImmutableHashSet();
+
         public void Apply(GameEvent gameEvent)
         {
             if (_version == gameEvent.Index)
@@ -193,7 +197,10 @@ namespace Sequence.Core
                     throw new PlayCardFailedException(PlayCardError.ChipBelongsToPlayerTeam);
                 }
 
-                // TODO: Check chip is not part of sequence when multiple sequences are supported in future.
+                if (CoordsInSequence.Contains(coord))
+                {
+                    throw new PlayCardFailedException(PlayCardError.ChipIsPartOfSequence);
+                }
 
                 return new GameEvent
                 {
@@ -253,6 +260,7 @@ namespace Sequence.Core
             var hand = _handByIdx[idx];
             var team = _teamByIdx[idx];
             var moves = ImmutableList.CreateBuilder<Move>();
+            var coordsInSequence = CoordsInSequence;
 
             foreach (var card in hand)
             {
@@ -260,10 +268,13 @@ namespace Sequence.Core
                 {
                     foreach (var chip in _chips)
                     {
-                        if (chip.Value != team)
+                        var coord = chip.Key;
+                        var isNotOwnTeam = chip.Value != team;
+                        var isNotPartOfSequence = !coordsInSequence.Contains(coord);
+
+                        if (isNotOwnTeam && isNotPartOfSequence)
                         {
-                            // TODO: Check for sequence.
-                            moves.Add(new Move(card, coord: chip.Key));
+                            moves.Add(new Move(card, coord));
                         }
                     }
                 }
@@ -320,9 +331,7 @@ namespace Sequence.Core
 
         internal GameView GetViewForPlayer(PlayerId playerId)
         {
-            var coordsInSequence = _sequences
-                .SelectMany(seq => seq.Coords)
-                .ToImmutableHashSet();
+            var coordsInSequence = CoordsInSequence;
 
             var view = new GameView
             {
@@ -382,6 +391,7 @@ namespace Sequence.Core
         CardDoesNotMatchCoord,
         CoordIsEmpty,
         ChipBelongsToPlayerTeam,
+        ChipIsPartOfSequence,
     }
 
     public enum Team
