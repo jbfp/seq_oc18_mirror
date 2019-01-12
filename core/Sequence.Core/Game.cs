@@ -225,7 +225,6 @@ namespace Sequence.Core
 
                 var team = _teamByIdx[playerIdx];
                 var sequence = _boardType.Board.GetSequence(_chips.Add(coord, team), coord, team);
-                var nextPlayerId = sequence == null ? _playerIdByIdx[(playerIdx + 1) % _playerIdByIdx.Length] : null;
 
                 Team? winnerTeam = null;
 
@@ -241,6 +240,8 @@ namespace Sequence.Core
                         winnerTeam = team;
                     }
                 }
+
+                var nextPlayerId = winnerTeam == null ? _playerIdByIdx[(playerIdx + 1) % _playerIdByIdx.Length] : null;
 
                 return new GameEvent
                 {
