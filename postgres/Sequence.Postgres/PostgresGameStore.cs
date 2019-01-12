@@ -47,7 +47,7 @@ namespace Sequence.Postgres
                         var parameters = new
                         {
                             boardType = (int)newGame.BoardType,
-                            numSequencesToWin = 1,
+                            numSequencesToWin = newGame.NumberOfSequencesToWin,
                             seed = newGame.Seed,
                             version = 1
                         };
