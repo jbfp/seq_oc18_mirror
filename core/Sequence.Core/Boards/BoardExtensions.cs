@@ -98,6 +98,7 @@ namespace Sequence.Core.Boards
 
                             var isPartOfAnotherSequence =
                                 coordsInSequences.Contains(c) &&
+                                chips.ContainsKey(c) && // 'chips' won't contain c is it's a corner.
                                 chips[c] == team;
 
                             if (isPartOfAnotherSequence)
