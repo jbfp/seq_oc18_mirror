@@ -88,24 +88,31 @@ class Game extends React.Component {
       return false;
     }
 
+    const cardDrawn = event.cardDrawn;
     const cardUsed = event.cardUsed;
     const currentPlayerId = event.nextPlayerId;
     const discards = [...game.discards, cardUsed];
 
     let hand = [...game.hand];
 
-    if (typeof event.cardDrawn === 'object') {
+    if (typeof cardDrawn === 'object') {
       // This user performed this action. Remove the used card and add the drawn card.
       const indexOfCardUsed = hand.findIndex(c =>
         c.deckNo === cardUsed.deckNo &&
         c.suit === cardUsed.suit &&
         c.rank === cardUsed.rank);
 
+      // Remove used card.
       hand = [
         ...hand.slice(0, indexOfCardUsed),
         ...hand.slice(indexOfCardUsed + 1),
-        event.cardDrawn,
       ];
+
+      // Add card drawn. cardDrawn can be null if there are no more cards in the deck.
+      // TODO: Use discard pile.
+      if (cardDrawn !== null) {
+        hand = [...hand, cardDrawn];
+      }
     }
 
     const numberOfCardsInDeck = game.numberOfCardsInDeck - (event.cardDrawn ? 1 : 0);
