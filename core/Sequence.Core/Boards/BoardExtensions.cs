@@ -71,52 +71,62 @@ namespace Sequence.Core.Boards
             var row = coord.Row;
             var col = coord.Column;
 
-            bool TrySequence(IEnumerable<Coord> cs, out IImmutableList<Coord> seq)
+            bool IsSequence(IEnumerable<Coord> cs)
             {
-                seq = ImmutableList<Coord>.Empty;
-                bool sharedCoord = false;
+                int shared = 0;
 
                 foreach (var c in cs)
                 {
-                    if (sharedCoord)
-                    {
-                        seq = ImmutableList.Create(c);
-                        sharedCoord = false;
-                    }
-                    else
-                    {
-                        var isCorner =
+                    var isCorner =
                         (c.Row >= 0 && c.Row < board.Length) &&
                         (c.Column >= 0 && c.Column < board[c.Row].Length) &&
                         board[c.Row][c.Column] == null;
 
-                        var teamOwnsCoord = chips.TryGetValue(c, out var t) && team == t;
+                    var teamOwnsCoord = chips.TryGetValue(c, out var t) && team == t;
 
-                        if (isCorner || teamOwnsCoord)
+                    if (isCorner || teamOwnsCoord)
+                    {
+                        var isPartOfAnotherSequence =
+                            coordsInSequences.Contains(c) &&
+                            chips.ContainsKey(c) && // 'chips' won't contain c is it's a corner.
+                            chips[c] == team;
+
+                        if (isPartOfAnotherSequence)
                         {
-                            seq = seq.Add(c);
-
-                            var isPartOfAnotherSequence =
-                                coordsInSequences.Contains(c) &&
-                                chips.ContainsKey(c) && // 'chips' won't contain c is it's a corner.
-                                chips[c] == team;
-
-                            if (isPartOfAnotherSequence)
-                            {
-                                sharedCoord = true;
-                            }
-
-                            if (seq.Count == Seq.DefaultLength)
-                            {
-                                return true;
-                            }
+                            shared++;
                         }
-                        else
-                        {
-                            // Reset:
-                            seq = ImmutableList<Coord>.Empty;
-                            sharedCoord = false;
-                        }
+                    }
+                    else
+                    {
+                        // This is not a valid sequence. Exit early.
+                        return false;
+                    }
+                }
+
+                // This is a valid sequence if all coords of 'cs' are owned by 'team' and only 1
+                // other coord is part of a sequence.
+                return shared < 2;
+            }
+
+            bool TrySequence(IEnumerable<Coord> cs, out IImmutableList<Coord> seq)
+            {
+                int i = 0;
+
+                while (true)
+                {
+                    seq = cs
+                        .Skip(i++)
+                        .Take(Seq.DefaultLength)
+                        .ToImmutableList();
+
+                    if (seq.Count < Seq.DefaultLength)
+                    {
+                        break;
+                    }
+
+                    if (IsSequence(seq))
+                    {
+                        return true;
                     }
                 }
 
