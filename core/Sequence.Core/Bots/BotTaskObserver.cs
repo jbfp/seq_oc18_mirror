@@ -33,7 +33,8 @@ namespace Sequence.Core.Bots
             await _observable
                 .SelectMany(botTask => Observable
                     .FromAsync(ct => _handler.HandleBotTaskAsync(botTask, ct)))
-                .DefaultIfEmpty(Unit.Default);
+                .DefaultIfEmpty(Unit.Default)
+                .RunAsync(stoppingToken);
 
             _logger.LogInformation("Bot task observable complete");
         }
