@@ -452,9 +452,8 @@ div[data-rank="king"]::after {
     /* Make room for crown emojis */
 }
 
-.players-player[data-winner='true']::before,
-.players-player[data-winner='true']::after {
-    content: ' 👑 ';
+.players-player[data-winner='true']::before {
+    content: '👑 ';
 }
 
 kbd {
