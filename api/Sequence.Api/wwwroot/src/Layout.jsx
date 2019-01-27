@@ -47,7 +47,7 @@ class Layout extends React.Component {
             <div className="layout">
                 <div className="layout-header">
                     <h1 className="layout-header-title">
-                        one-eyed jack
+                        one&#8209;eyed&nbsp;jack
                     </h1>
 
                     <h2 className="layout-header-subtitle">
