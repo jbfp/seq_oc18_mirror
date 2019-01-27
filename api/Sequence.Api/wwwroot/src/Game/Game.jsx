@@ -66,6 +66,11 @@ class Game extends React.Component {
   handleKeyboardInput = event => {
     const { key } = event;
 
+    // Ignore event if CTRL, SHIFT, etc. is pressed as well.
+    if (event.ctrlKey || event.shiftKey || event.altKey || event.metaKey) {
+      return;
+    }
+
     if (numberKeys.includes(key)) {
       const num = Number.parseInt(key, 10);
       const { hand } = this.state.game;
@@ -230,7 +235,7 @@ class Game extends React.Component {
     }
 
     await this.initAsync();
-    window.addEventListener('keypress', this.handleKeyboardInput);
+    window.addEventListener('keydown', this.handleKeyboardInput);
   }
 
   async componentDidUpdate(prevProps) {
@@ -244,7 +249,7 @@ class Game extends React.Component {
   }
 
   componentWillUnmount() {
-    window.removeEventListener('keypress', this.handleKeyboardInput);
+    window.removeEventListener('keydown', this.handleKeyboardInput);
     this.closeSse();
   }
 
