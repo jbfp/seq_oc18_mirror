@@ -11,6 +11,7 @@ class Player extends React.PureComponent {
                 data-team={team}
                 data-current-player={isCurrentPlayer}
                 data-winner={isWinner}
+                title={name}
             >
                 <div>
                     {name}

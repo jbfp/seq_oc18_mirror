@@ -447,6 +447,11 @@ div[data-rank="king"]::after {
     background-color: #01AAFE88;
 }
 
+.players-player[data-winner='true']>* {
+    max-width: 65%;
+    /* Make room for crown emojis */
+}
+
 .players-player[data-winner='true']::before,
 .players-player[data-winner='true']::after {
     content: ' 👑 ';
