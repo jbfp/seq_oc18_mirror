@@ -54,13 +54,15 @@ namespace Sequence.Postgres
             public GameId game_id;
             public PlayerHandle next_player_id;
             public string[] opponents;
+            public DateTimeOffset? last_move_at;
 
             public static GameListItem ToGameListItem(get_game_list_for_player row)
             {
                 return new GameListItem(
                     row.game_id,
                     row.next_player_id,
-                    row.opponents.Select(o => new PlayerHandle(o)).ToImmutableList()
+                    row.opponents.Select(o => new PlayerHandle(o)).ToImmutableList(),
+                    row.last_move_at
                 );
             }
         }

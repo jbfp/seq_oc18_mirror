@@ -15,12 +15,12 @@ namespace Sequence.Api.Test
     internal sealed class InMemoryDatabase : IGameEventStore, IGameProvider, IGameListProvider, IGameStore
     {
         private readonly ConcurrentDictionary<GameId, GameInit> _games;
-        private readonly ConcurrentDictionary<(GameId, int), GameEvent> _gameEvents;
+        private readonly ConcurrentDictionary<(GameId, int), GameEventWrapper> _gameEvents;
 
         public InMemoryDatabase()
         {
             _games = new ConcurrentDictionary<GameId, GameInit>();
-            _gameEvents = new ConcurrentDictionary<(GameId, int), GameEvent>();
+            _gameEvents = new ConcurrentDictionary<(GameId, int), GameEventWrapper>();
         }
 
         public Task AddEventAsync(GameId gameId, GameEvent gameEvent, CancellationToken cancellationToken)
@@ -37,7 +37,13 @@ namespace Sequence.Api.Test
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (!_gameEvents.TryAdd((gameId, gameEvent.Index), gameEvent))
+            var wrapper = new GameEventWrapper
+            {
+                GameEvent = gameEvent,
+                Timestamp = DateTimeOffset.UtcNow,
+            };
+
+            if (!_gameEvents.TryAdd((gameId, gameEvent.Index), wrapper))
             {
                 throw new InvalidOperationException();
             }
@@ -62,6 +68,7 @@ namespace Sequence.Api.Test
                     .Where(kvp => kvp.Key.Item1 == gameId)
                     .OrderBy(kvp => kvp.Key.Item2)
                     .Select(kvp => kvp.Value)
+                    .Select(w => w.GameEvent)
                     .ToArray();
 
                 game = new Game(init, gameEvents);
@@ -91,6 +98,7 @@ namespace Sequence.Api.Test
             {
                 var game = _games[gameId];
 
+                DateTimeOffset? lastMoveAt = null;
                 PlayerId nextPlayerId = null;
 
                 var latestGameEventIdx = _gameEvents.Keys
@@ -99,9 +107,10 @@ namespace Sequence.Api.Test
                     .Select(key => key.Item2)
                     .FirstOrDefault();
 
-                if (_gameEvents.TryGetValue((gameId, latestGameEventIdx), out var gameEvent))
+                if (_gameEvents.TryGetValue((gameId, latestGameEventIdx), out var wrapper))
                 {
-                    nextPlayerId = gameEvent.NextPlayerId;
+                    lastMoveAt = wrapper.Timestamp;
+                    nextPlayerId = wrapper.GameEvent.NextPlayerId;
                 }
                 else
                 {
@@ -110,7 +119,7 @@ namespace Sequence.Api.Test
 
                 var nextPlayerName = game.Players.SingleOrDefault(p => p.Id == nextPlayerId)?.Handle;
                 var opponents = game.Players.Select(p => p.Handle).Except(new[] { player }).ToImmutableList();
-                var gameListItem = new GameListItem(gameId, nextPlayerName, opponents);
+                var gameListItem = new GameListItem(gameId, nextPlayerName, opponents, lastMoveAt);
                 gameListItems.Add(gameListItem);
             }
 
@@ -141,6 +150,12 @@ namespace Sequence.Api.Test
             }
 
             return Task.FromResult(gameId);
+        }
+
+        private sealed class GameEventWrapper
+        {
+            public GameEvent GameEvent;
+            public DateTimeOffset Timestamp;
         }
     }
 }

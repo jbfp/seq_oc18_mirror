@@ -15,13 +15,21 @@ class Games extends React.Component {
         const completedGames = [];
         const unfinishedGames = [];
 
-        allGames.forEach(game => {
+        allGames.map(game => {
+            return {
+                ...game,
+                lastMoveAt: new Date(game.lastMoveAt)
+            };
+        }).forEach(game => {
             if (game.currentPlayer) {
                 unfinishedGames.push(game);
             } else {
                 completedGames.push(game);
             }
         });
+
+        // Order completed dates by time of completion ascending.
+        completedGames.sort((a, b) => a.lastMoveAt - b.lastMoveAt);
 
         this.setState({
             games: {
