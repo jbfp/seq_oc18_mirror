@@ -197,6 +197,12 @@ class Game extends React.Component {
     }
   };
 
+  handleVisibilityChanged = async event => {
+    if (!event.target.hidden) {
+      await this.initAsync();
+    }
+  };
+
   async loadGameAsync() {
     const gameId = this.props.match.params.id;
     const game = await this.context.getGameByIdAsync(gameId);
@@ -207,6 +213,7 @@ class Game extends React.Component {
     await this.loadGameAsync();
     const gameId = this.props.match.params.id;
     const playerId = this.context.userName;
+    this.closeSse();
     this._sse = new EventSource(`${window.env.api}/games/${gameId}/stream?player=${playerId}`);
     this._sse.addEventListener('game-updated', this.handleGameUpdatedEvent);
   }
@@ -236,6 +243,7 @@ class Game extends React.Component {
 
     await this.initAsync();
     window.addEventListener('keydown', this.handleKeyboardInput);
+    document.addEventListener('visibilitychange', this.handleVisibilityChanged, false);
   }
 
   async componentDidUpdate(prevProps) {
@@ -243,12 +251,12 @@ class Game extends React.Component {
     const currentGameId = this.props.match.params.id;
 
     if (previousGameId !== currentGameId) {
-      this.closeSse();
       await this.initAsync();
     }
   }
 
   componentWillUnmount() {
+    document.removeEventListener('visibilitychange', this.handleVisibilityChanged, false);
     window.removeEventListener('keydown', this.handleKeyboardInput);
     this.closeSse();
   }
