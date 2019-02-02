@@ -49,7 +49,7 @@ class Game extends React.Component {
         const result = await this.context.playCardAsync(gameId, selectedCard, coord);
 
         if (result.error) {
-          alert(result.error);
+          console.warn(result.error);
         } else {
           this.setState({ selectedCard: null });
 
