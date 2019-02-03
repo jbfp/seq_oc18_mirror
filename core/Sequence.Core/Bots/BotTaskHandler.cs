@@ -80,6 +80,15 @@ namespace Sequence.Core.Bots
                             continue;
                         }
 
+                        if (move == null)
+                        {
+                            _logger.LogWarning(
+                                "#{Attempt}: Bot {Bot} could not produce a move in {GameId}",
+                                attempt, botType.Name, gameId);
+
+                            break;
+                        }
+
                         var (card, coord) = move;
 
                         try
