@@ -67,7 +67,7 @@ class Layout extends React.Component {
 
                 <div className="layout-footer">
                     <span>© <a href="/">jbfp.dk</a></span>
-                    <span>By <a href="mailto:jakobp10@gmail.com">Jakob Pedersen</a></span>
+                    <span>By <a href="mailto:jakob@jbfp.dk">Jakob Pedersen</a></span>
                     <a href="https://www.linkedin.com/in/jakob-pedersen-835a824b" target="_blank" rel="noopener noreferrer">LinkedIn</a>
                     <a href="https://github.com/jbfp" target="_blank" rel="noopener noreferrer">GitHub</a>
                     {!!hash ? <a href={`https://github.com/jbfp/seq_oc18_mirror/commit/${hash}`} target="_blank" rel="noopener noreferrer">{hash}</a> : null}
