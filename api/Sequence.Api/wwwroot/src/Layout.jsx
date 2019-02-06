@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import { Redirect } from "react-router-dom";
+import { Heartbeat } from './Heartbeat';
 import './Layout.css';
 
 class Layout extends React.Component {
@@ -66,7 +67,7 @@ class Layout extends React.Component {
                 <hr className="layout-body-end" />
 
                 <div className="layout-footer">
-                    <span>© <a href="/">jbfp.dk</a></span>
+                    <span>© <a href="/">jbfp.dk</a>&nbsp;<Heartbeat></Heartbeat></span>
                     <span>By <a href="mailto:jakob@jbfp.dk">Jakob Pedersen</a></span>
                     <a href="https://www.linkedin.com/in/jakob-pedersen-835a824b" target="_blank" rel="noopener noreferrer">LinkedIn</a>
                     <a href="https://github.com/jbfp" target="_blank" rel="noopener noreferrer">GitHub</a>

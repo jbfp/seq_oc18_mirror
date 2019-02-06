@@ -1,0 +1,20 @@
+.heartbeat {
+    border: 1px solid #333333;
+    border-radius: 100%;
+    display: inline-block;
+    height: 12px;
+    width: 12px;
+}
+
+.heartbeat[data-status='0'] {
+    background-color: #6c757d;
+}
+
+.heartbeat[data-status='1'] {
+    background-color: #28a745;
+}
+
+.heartbeat[data-status='2'],
+.heartbeat[data-status='3'] {
+    background-color: #dc3545;
+}
