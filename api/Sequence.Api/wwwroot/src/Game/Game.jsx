@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import { ServerContext } from "../contexts";
+import GameEventSource from './game-event-source';
 import GameView from './GameView';
 
 // Keys that respond to a card in hand.
@@ -23,7 +24,7 @@ class Game extends React.Component {
     showNotification: null,
   };
 
-  _sse = null;
+  _gameEventSource = null;
 
   handleCardClick = (card) => {
     if (this.state.selectedCard === card) {
@@ -43,7 +44,7 @@ class Game extends React.Component {
     if (selectedCard) {
       const gameId = this.props.match.params.id;
 
-      this._sse.removeEventListener('game-updated', this.handleGameUpdatedEvent);
+      this._gameEventSource.removeGameEventListener(this.handleGameUpdatedEvent);
 
       try {
         const result = await this.context.playCardAsync(gameId, selectedCard, coord);
@@ -58,7 +59,7 @@ class Game extends React.Component {
           }
         }
       } finally {
-        this._sse.addEventListener('game-updated', this.handleGameUpdatedEvent);
+        this._gameEventSource.addGameEventListener(this.handleGameUpdatedEvent);
       }
     }
   };
@@ -178,7 +179,7 @@ class Game extends React.Component {
   };
 
   handleGameUpdatedEvent = async event => {
-    if (!this.apply(JSON.parse(event.data))) {
+    if (!this.apply(event.data)) {
       await this.loadGameAsync();
     }
 
@@ -213,15 +214,15 @@ class Game extends React.Component {
     await this.loadGameAsync();
     const gameId = this.props.match.params.id;
     const playerId = this.context.userName;
-    this.closeSse();
-    this._sse = new EventSource(`${window.env.api}/games/${gameId}/stream?player=${playerId}`);
-    this._sse.addEventListener('game-updated', this.handleGameUpdatedEvent);
+    this.closeGameEventSource();
+    this._gameEventSource = new GameEventSource(gameId, playerId);
+    this._gameEventSource.addGameEventListener(this.handleGameUpdatedEvent);
   }
 
-  closeSse() {
-    if (this._sse) {
-      this._sse.close();
-      this._sse = null;
+  closeGameEventSource() {
+    if (this._gameEventSource) {
+      this._gameEventSource.removeGameEventListener(this.handleGameUpdatedEvent);
+      this._gameEventSource = null;
     }
   }
 
@@ -258,7 +259,7 @@ class Game extends React.Component {
   componentWillUnmount() {
     document.removeEventListener('visibilitychange', this.handleVisibilityChanged, false);
     window.removeEventListener('keydown', this.handleKeyboardInput);
-    this.closeSse();
+    this.closeGameEventSource();
   }
 
   render() {
