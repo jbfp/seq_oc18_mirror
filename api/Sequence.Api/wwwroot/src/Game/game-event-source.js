@@ -1,17 +1,13 @@
+// EventTarget shim for Safari.
+import { EventTarget } from 'event-target-shim';
+
 const HOST = window.env.api;
 const SSE_EVENT = 'game-updated';
 const API_EVENT = 'game-event';
 
-class GameEvent extends Event {
-    _data = null;
-
+class GameEvent extends CustomEvent {
     constructor(data) {
-        super(API_EVENT);
-        this._data = data;
-    }
-
-    get data() {
-        return this._data;
+        super(API_EVENT, { detail: data });
     }
 }
 

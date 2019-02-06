@@ -179,7 +179,7 @@ class Game extends React.Component {
   };
 
   handleGameUpdatedEvent = async event => {
-    if (!this.apply(event.data)) {
+    if (!this.apply(event.detail)) {
       await this.loadGameAsync();
     }
 
