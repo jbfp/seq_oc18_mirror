@@ -50,15 +50,20 @@ class NewGame extends React.Component {
     }
 
     handleNumSequencesToWinChange = event => {
-        if (event.target.checkValidity()) {
-            event.preventDefault();
-            const value = event.target.value;
-            const numSequencesToWin = Number.parseInt(value, 10);
+        const target = event.target;
+        const value = target.value;
 
-            if (Number.isSafeInteger(numSequencesToWin)) {
-                this.setState({ numSequencesToWin });
+        let numSequencesToWin = null;
+
+        if (value !== null && target.checkValidity()) {
+            numSequencesToWin = Number.parseInt(value, 10);
+
+            if (!Number.isSafeInteger(numSequencesToWin)) {
+                numSequencesToWin = null;
             }
         }
+
+        this.setState({ numSequencesToWin });
     }
 
     handleSubmit = async event => {
@@ -72,7 +77,6 @@ class NewGame extends React.Component {
 
         try {
             gameId = await this.context.createGameAsync(opponents, boardType, numSequencesToWin);
-            console.log(numSequencesToWin);
             this.setState({ busy: false, opponents: [] });
             this.props.history.push(`/games/${gameId}`);
         } catch (e) {
@@ -205,25 +209,26 @@ class NewGame extends React.Component {
                         </label>
                     </div>
 
-                    {numSequencesToWin === null ? null : (
-                        <div className="new-game-win-condition">
-                            <label className="new-game-win-condition-container">
-                                <strong className="new-game-win-condition-container-text">Win condition:</strong>
+                    <div className="new-game-win-condition">
+                        <label className="new-game-win-condition-container">
+                            <strong className="new-game-win-condition-container-text">Win condition:</strong>
 
-                                <div className="new-game-win-condition-input-container">
-                                    <input
-                                        className="new-game-win-condition-input"
-                                        type="number"
-                                        min={1}
-                                        max={4}
-                                        value={numSequencesToWin}
-                                        onChange={this.handleNumSequencesToWinChange}
-                                        readOnly={busy}
-                                    /> sequences to win
+                            <div className="new-game-win-condition-input-container">
+                                <input
+                                    className="new-game-win-condition-input"
+                                    type="number"
+                                    inputMode="numeric"
+                                    pattern="[1-4]*"
+                                    min={1}
+                                    max={4}
+                                    value={numSequencesToWin || ''}
+                                    onFocus={e => e.target.select()}
+                                    onChange={this.handleNumSequencesToWinChange}
+                                    readOnly={busy}
+                                /> sequences to win
                                 </div>
-                            </label>
-                        </div>
-                    )}
+                        </label>
+                    </div>
 
                     <button className="new-game-submit" type="submit" disabled={disabled}>
                         Start game
