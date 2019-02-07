@@ -1,7 +1,6 @@
 .game {
     font-family: 'Inconsolata', monospace;
     margin: 0 auto;
-    width: 674px;
 }
 
 .board {
@@ -87,17 +86,11 @@
     animation-direction: unset;
 }
 
-.cell[data-joker]::before {
-    content: "";
-}
-
 .cell[data-joker]::after {
     content: "★";
-    display: flex;
-    font-size: 150%;
-    height: 100%;
-    line-height: 75%;
-    width: 50%;
+    line-height: 0;
+    margin-top: -3px;
+    text-align: center;
 }
 
 .cell[data-joker]:nth-of-type(1),
@@ -293,8 +286,9 @@ div[data-rank="king"]::after {
 }
 
 .player {
+    display: flex;
+    flex-direction: column;
     padding: 1em;
-    position: relative;
 }
 
 .player[data-team='red'] {
@@ -310,12 +304,8 @@ div[data-rank="king"]::after {
 }
 
 .player-name {
-    font-size: 115%;
-    overflow: hidden;
-    position: absolute;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    width: 15%;
+    margin-top: 0.5em;
+    text-align: center;
 }
 
 .player-name[data-current-player=true] {
@@ -323,16 +313,9 @@ div[data-rank="king"]::after {
     text-decoration: underline;
 }
 
-.player-name {
-    left: 0;
-    text-align: right;
-}
-
 .hand {
     display: flex;
-    justify-content: space-evenly;
-    margin: 0 auto;
-    max-width: 70%;
+    justify-content: center;
 }
 
 .card {
@@ -345,6 +328,7 @@ div[data-rank="king"]::after {
     flex-direction: column;
     justify-content: center;
     height: 55px;
+    margin: 0.5em;
     padding: 0.5em;
     transition: box-shadow 0.1s, transform 0.1s;
     width: 37px;
@@ -483,5 +467,47 @@ kbd {
 @media only screen and (max-width: 600px) {
     .hand-card kbd {
         display: none;
+    }
+}
+
+@media only screen and (max-width: 512px) {
+    div[data-suit] {
+        font-size: 90%;
+    }
+    div[data-suit]::before {
+        display: none;
+    }
+    div[data-suit="hearts"] {
+        color: #FF0000;
+    }
+    div[data-suit="spades"] {
+        color: #000000;
+    }
+    div[data-suit="diamonds"] {
+        color: #0000FF;
+    }
+    div[data-suit="clubs"] {
+        color: #008000;
+    }
+    .card {
+        height: 30px;
+        margin: 0.25em;
+        width: 20px;
+    }
+    .cell {
+        border-width: 1px 0 0 1px;
+    }
+    .cell:nth-of-type(10n) {
+        border-right-width: 1px;
+    }
+    .cell:nth-of-type(n + 91) {
+        border-bottom-width: 1px;
+    }
+    .cell[data-joker]::after {
+        font-size: 90%;
+    }
+    .players {
+        flex-direction: column;
+        font-size: 80%;
     }
 }

@@ -32,8 +32,6 @@ class GameView extends React.PureComponent {
 
             $body = (
                 <div>
-                    <Link to="/">Go back</Link>
-                    <hr />
                     <PlayersView currentPlayerId={game.currentPlayerId} players={game.players} winner={game.winner} />
 
                     <BoardView
@@ -56,6 +54,8 @@ class GameView extends React.PureComponent {
 
         return (
             <div className="game">
+                <Link to="/">Go back</Link>
+                <hr />
                 {$body}
             </div>
         )

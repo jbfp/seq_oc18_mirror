@@ -25,11 +25,11 @@ class PlayerView extends React.PureComponent {
 
         return (
             <div className="player" data-team={team}>
+                <Hand cards={hand} onCardClick={onCardClick} selectedCard={selectedCard} />
+
                 <span className="player-name" data-current-player={isCurrentPlayer}>
                     {handle}
                 </span>
-
-                <Hand cards={hand} onCardClick={onCardClick} selectedCard={selectedCard} />
             </div>
         );
     }
