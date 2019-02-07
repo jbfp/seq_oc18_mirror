@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 namespace Sequence.Api
 {
     [ApiController]
-    public sealed class ServerSentEventsController : ControllerBase
+    public sealed class ServerSentEventsController : ControllerBase, ISubscriber
     {
         private readonly SubscriptionHandler _handler;
         private readonly ILogger _logger;
@@ -29,80 +29,81 @@ namespace Sequence.Api
         [HttpGet("/games/{id:guid}/stream")]
         public async Task Get([FromRoute] Guid id, [FromQuery] string player, CancellationToken cancellationToken)
         {
+            // We can't use HTTP headers with SSE so clients must provide player ID in query string.
             if (string.IsNullOrWhiteSpace(player))
             {
-                Response.StatusCode = 401;
+                Response.StatusCode = 401; // Unauthorized.
                 return;
             }
 
+            // To establish an SSE connection, we set the content-type appropriately.
             Response.Headers["Cache-Control"] = "no-cache";
             Response.Headers["Content-Type"] = "text/event-stream";
             await Response.Body.FlushAsync(cancellationToken);
 
             var gameId = new GameId(id);
-            var subscriber = new Subscriber(Response);
 
             // TODO: Use player ID.
-            using (var subscription = _handler.Subscribe(gameId, subscriber))
+            using (var subscription = _handler.Subscribe(gameId, this))
             {
-                await cancellationToken.WaitAsync();
+                try
+                {
+                    // cancellationToken is signaled when the connection is closed. Task.Delay with
+                    // infinite timeout will therefore wait for the connection to be closed before
+                    // throwing OperationCanceledException and unsubscribing.
+                    await Task.Delay(Timeout.Infinite, cancellationToken);
+                }
+                catch (OperationCanceledException)
+                {
+                }
             }
         }
 
-        private sealed class Subscriber : ISubscriber
+        [NonAction]
+        public async Task UpdateGameAsync(GameEvent gameEvent)
         {
-            private readonly HttpResponse _response;
-
-            public Subscriber(HttpResponse response)
+            if (gameEvent == null)
             {
-                _response = response ?? throw new ArgumentNullException(nameof(response));
+                throw new ArgumentNullException(nameof(gameEvent));
             }
 
-            public async Task UpdateGameAsync(GameEvent gameEvent)
+            var services = Response.HttpContext.RequestServices;
+            var formatter = services.GetRequiredService<JsonOutputFormatter>();
+
+            using (var writer = new StringWriter())
             {
-                if (gameEvent == null)
+                formatter.WriteObject(writer, new
                 {
-                    throw new ArgumentNullException(nameof(gameEvent));
-                }
+                    gameEvent.ByPlayerId,
+                    CardDrawn = gameEvent.CardDrawn != null, // Deliberately excluding which card was drawn.
+                    gameEvent.CardUsed,
+                    gameEvent.Chip,
+                    gameEvent.Coord,
+                    gameEvent.Index,
+                    gameEvent.NextPlayerId,
+                    gameEvent.Sequence,
+                    gameEvent.Winner,
+                });
 
-                var services = _response.HttpContext.RequestServices;
-                var formatter = services.GetRequiredService<JsonOutputFormatter>();
+                await WriteEventAsync("game-updated", writer.ToString());
+            }
+        }
 
-                using (var writer = new StringWriter())
-                {
-                    formatter.WriteObject(writer, new
-                    {
-                        gameEvent.ByPlayerId,
-                        CardDrawn = gameEvent.CardDrawn != null, // Deliberately excluding which card was drawn.
-                        gameEvent.CardUsed,
-                        gameEvent.Chip,
-                        gameEvent.Coord,
-                        gameEvent.Index,
-                        gameEvent.NextPlayerId,
-                        gameEvent.Sequence,
-                        gameEvent.Winner,
-                    });
-
-                    await WriteEventAsync("game-updated", writer.ToString());
-                }
+        private async Task WriteEventAsync(string eventType, string data)
+        {
+            if (string.IsNullOrWhiteSpace(data))
+            {
+                return;
             }
 
-            private async Task WriteEventAsync(string eventType, string data)
+            if (!string.IsNullOrEmpty(eventType))
             {
-                if (string.IsNullOrWhiteSpace(data))
-                {
-                    return;
-                }
-
-                if (!string.IsNullOrEmpty(eventType))
-                {
-                    await _response.WriteAsync($"event: {eventType}\n");
-                }
-
-                await _response.WriteAsync($"data: {data}\n");
-                await _response.WriteAsync("\n");
-                await _response.Body.FlushAsync();
+                await Response.WriteAsync($"event: {eventType}\n");
             }
+
+            await Response.WriteAsync($"data: {data}\n");
+            await Response.WriteAsync("\n");
+            await Response.Body.FlushAsync();
         }
     }
 }
