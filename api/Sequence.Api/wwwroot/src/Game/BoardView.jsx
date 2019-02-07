@@ -30,8 +30,8 @@ class BoardView extends React.PureComponent {
         const numCols = Math.max.apply(Math, board.map(r => r.length));
 
         const style = {
-            'gridTemplateColumns': `repeat(${numCols}, 67px)`,
-            'gridTemplateRows': `repeat(${numRows}, 50px)`,
+            'gridTemplateColumns': `repeat(${numCols}, ${100 / numCols}%)`,
+            'gridTemplateRows': `repeat(${numRows}, ${100 / numRows}%)`,
         };
 
         // TODO: Memoize cells.

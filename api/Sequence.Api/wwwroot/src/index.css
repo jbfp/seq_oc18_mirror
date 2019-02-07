@@ -34,6 +34,11 @@ a:visited {
     color: #777777;
 }
 
+input[type="radio"] {
+    margin-left: 0;
+}
+
+input[type="number"],
 input[type="text"],
 select {
     font-size: 13pt;
