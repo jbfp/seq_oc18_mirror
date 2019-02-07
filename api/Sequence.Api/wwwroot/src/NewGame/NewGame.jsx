@@ -211,7 +211,7 @@ class NewGame extends React.Component {
 
                     <div className="new-game-win-condition">
                         <label className="new-game-win-condition-container">
-                            <strong className="new-game-win-condition-container-text">Win condition:</strong>
+                            <strong className="new-game-win-condition-container-text">Win condition (no. of sequences):</strong>
 
                             <div className="new-game-win-condition-input-container">
                                 <input
@@ -225,8 +225,8 @@ class NewGame extends React.Component {
                                     onFocus={e => e.target.select()}
                                     onChange={this.handleNumSequencesToWinChange}
                                     readOnly={busy}
-                                /> sequences to win
-                                </div>
+                                />
+                            </div>
                         </label>
                     </div>
 
