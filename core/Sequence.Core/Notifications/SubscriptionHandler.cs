@@ -42,8 +42,16 @@ namespace Sequence.Core.Notifications
             {
                 if (_subscriptions.TryGetValue(gameId, out var subscribers))
                 {
+                    _logger.LogInformation(
+                        "Sending update to {NumSubscribers} for {GameId}",
+                        subscribers.Count, gameId);
+
                     whenAll = Task.WhenAll(subscribers.Select(
                         subscriber => NotifySubscriberAsync(subscriber, gameEvent)));
+                }
+                else
+                {
+                    _logger.LogInformation("No subscribers for {GameId}", gameId);
                 }
             }
 
@@ -66,6 +74,8 @@ namespace Sequence.Core.Notifications
 
             lock (_sync)
             {
+                _logger.LogInformation("User subscribing to {GameId}", gameId);
+
                 if (_subscriptions.TryGetValue(gameId, out var subscribers))
                 {
                     subscribers.Add(subscriber);
@@ -93,6 +103,8 @@ namespace Sequence.Core.Notifications
 
             lock (_sync)
             {
+                _logger.LogInformation("User unsubscribing from {GameId}", gameId);
+
                 if (_subscriptions.TryGetValue(gameId, out var subscribers))
                 {
                     subscribers.Remove(subscriber);
