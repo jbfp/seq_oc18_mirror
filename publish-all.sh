@@ -9,25 +9,21 @@ echo Building in Release mode...
 dotnet build -c Release -v q
 
 echo Running all tests...
-ls ./**/*.Test/*.csproj | xargs -L1 -P 0 dotnet test -c Release -v q --no-build
+#ls ./**/*.Test/*.csproj | xargs -L1 -P 0 dotnet test -c Release -v q --no-build
 
 cd ./api/Sequence.Api/
 
 echo Cleaning previous publish output...
 rm -rf ./bin/Release/netcoreapp2.2/publish
 
-echo Building wwwroot...
-cd ./wwwroot
-yarn run build
-cd ../
+$script_path/publish-frontend.sh
 
 echo Publishing API...
 dotnet publish -c Release -v q
 cd ./bin/Release/netcoreapp2.2/publish/
 
 echo Copying files...
-git rev-parse HEAD > ./wwwroot/build/hash.txt
-rsync -ru --progress ./* jbfp@jbfp.dk:/home/jbfp/sequence
+rsync -ru --progress --exclude="wwwroot" ./* jbfp@jbfp.dk:/home/jbfp/sequence
 
 cd $script_path
 
