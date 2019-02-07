@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 using System;
@@ -14,11 +15,13 @@ namespace Sequence.Api
     {
         private readonly IHostingEnvironment _env;
         private readonly IConfiguration _configuration;
+        private readonly ILoggerFactory _loggerFactory;
 
-        public Startup(IHostingEnvironment env, IConfiguration configuration)
+        public Startup(IHostingEnvironment env, IConfiguration configuration, ILoggerFactory loggerFactory)
         {
             _env = env ?? throw new ArgumentNullException(nameof(env));
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+            _loggerFactory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));
         }
 
         public void ConfigureServices(IServiceCollection services)
@@ -36,7 +39,7 @@ namespace Sequence.Api
                 .SetCompatibilityVersion(CompatibilityVersion.Latest);
 
             services.AddHealthChecks();
-            services.AddSequence(_configuration);
+            services.AddSequence(_configuration, _loggerFactory);
 
             if (_env.IsDevelopment())
             {

@@ -12,7 +12,7 @@ namespace Sequence.Api.Test
         [Fact]
         public void Constructor_ThrowsIfArgsAreNull()
         {
-            var handler = new SubscriptionHandler();
+            var handler = new SubscriptionHandler(Mock.Of<ILogger<SubscriptionHandler>>());
             var logger = Mock.Of<ILogger<ServerSentEventsController>>();
 
             Assert.Throws<ArgumentNullException>(

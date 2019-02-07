@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using Moq;
 using Sequence.Core;
 using Sequence.Core.Test;
@@ -11,9 +12,25 @@ namespace Sequence.Core.Notifications.Test
 {
     public sealed class SubscriptionHandlerTest
     {
-        private readonly SubscriptionHandler _sut = new SubscriptionHandler();
+        [Fact]
+        public void Constructor_NullArgs()
+        {
+            Assert.Throws<ArgumentNullException>(
+                paramName: "logger",
+                () => new SubscriptionHandler(logger: null)
+            );
+        }
+
+        private readonly Mock<ILogger<SubscriptionHandler>> _logger = new Mock<ILogger<SubscriptionHandler>>();
+        private readonly SubscriptionHandler _sut;
+
         private readonly GameId _gameIdDummy = GameIdGenerator.Generate();
         private readonly GameEvent _gameEventDummy = new GameEvent();
+
+        public SubscriptionHandlerTest()
+        {
+            _sut = new SubscriptionHandler(_logger.Object);
+        }
 
         [Fact]
         public async Task SendAsync_NullArguments()

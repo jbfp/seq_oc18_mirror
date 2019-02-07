@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,9 +15,11 @@ namespace Sequence.Core.Notifications
     {
         private readonly object _sync;
         private readonly Dictionary<GameId, List<ISubscriber>> _subscriptions;
+        private readonly ILogger _logger;
 
-        public SubscriptionHandler()
+        public SubscriptionHandler(ILogger<SubscriptionHandler> logger)
         {
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _sync = new object();
             _subscriptions = new Dictionary<GameId, List<ISubscriber>>();
         }
@@ -118,9 +121,9 @@ namespace Sequence.Core.Notifications
             {
                 await subscriber.UpdateGameAsync(gameEvent);
             }
-            catch
+            catch (Exception ex)
             {
-                // TODO: Logging.
+                _logger.LogError(ex, "An unhandled exception occurred trying to send game update to client.");
             }
         }
 
