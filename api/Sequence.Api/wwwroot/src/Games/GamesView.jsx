@@ -10,15 +10,23 @@ class GamesView extends React.PureComponent {
         if (games) {
             return (
                 <div className="games">
-                    <div>
-                        <h3>Let's play</h3>
+                    <p>
+                        Pick a game to play from the list, or <Link to="/new-game">click here</Link> to start a new one.
+                    </p>
 
-                        <p>
-                            Pick a game to play from the list, or <Link to="/new-game">click here</Link> to start a new one.
-                        </p>
+                    <div>
+                        <h3>Your turn</h3>
 
                         <div>
-                            <GameList games={games.unfinishedGames} userName={userName} />
+                            <GameList games={games.yourTurn} userName={userName} />
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3>Their turn</h3>
+
+                        <div>
+                            <GameList games={games.theirTurn} userName={userName} />
                         </div>
                     </div>
 

@@ -16,13 +16,13 @@ class GameList extends React.PureComponent {
         }
 
         return (
-            <ol className="game-list">
+            <ul className="game-list">
                 {games.map(game => (
                     <li key={game.gameId}>
                         <GameListItem {...game} userName={userName} />
                     </li>)
                 )}
-            </ol>
+            </ul>
         );
     }
 }

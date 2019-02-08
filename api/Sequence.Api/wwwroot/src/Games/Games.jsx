@@ -11,9 +11,11 @@ class Games extends React.Component {
     };
 
     async loadGamesAsync() {
+        const userName = this.context.userName;
         const allGames = await this.context.getGamesAsync();
         const completedGames = [];
-        const unfinishedGames = [];
+        const yourTurn = [];
+        const theirTurn = [];
 
         allGames.map(game => {
             return {
@@ -22,20 +24,25 @@ class Games extends React.Component {
             };
         }).forEach(game => {
             if (game.currentPlayer) {
-                unfinishedGames.push(game);
+                if (game.currentPlayer === userName) {
+                    yourTurn.push(game)
+                } else {
+                    theirTurn.push(game);
+                }
             } else {
                 completedGames.push(game);
             }
         });
 
-        // Order completed dates by time of completion ascending.
-        completedGames.sort((a, b) => a.lastMoveAt - b.lastMoveAt);
+        // Order completed dates by time of completion descending.
+        completedGames.sort((a, b) => b.lastMoveAt - a.lastMoveAt);
 
         this.setState({
             games: {
-                unfinishedGames,
+                yourTurn,
+                theirTurn,
                 completedGames,
-            }
+            },
         });
     }
 

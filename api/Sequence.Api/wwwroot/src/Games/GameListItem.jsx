@@ -8,31 +8,59 @@ class GameListItem extends React.PureComponent {
         const { currentPlayer, gameId, lastMoveAt, opponents, userName } = this.props;
         const $opponents = opponents.join(', ');
 
-        let $linkText;
+        let $elements = [];
 
         if (currentPlayer) {
-            const $currentPlayer = currentPlayer === userName
-                ? 'you!'
-                : currentPlayer;
+            $elements.push((
+                <div key="opponents">
+                    Playing with <strong>{$opponents}</strong>
+                </div>
+            ));
 
-            const $time = lastMoveAt.valueOf() === 0 ? null : <span>(last move at {time(lastMoveAt)})</span>;
+            if (currentPlayer !== userName) {
+                $elements.push((
+                    <div key="current-player">
+                        It's <strong>{currentPlayer}</strong>'s turn
+                    </div>
+                ));
+            }
 
-            $linkText = (
-                <span>
-                    You vs {$opponents}; current player is <strong>{$currentPlayer}</strong> {$time}
-                </span>
-            );
+            if (lastMoveAt.valueOf() > 0) {
+                $elements.push((
+                    <div key="last-move-at">
+                        <em>Last move at {time(lastMoveAt)}</em>
+                    </div>
+                ));
+            } else {
+                $elements.push((
+                    <div key="last-move-at">
+                        <em>No moves yet</em>
+                    </div>
+                ))
+            }
         } else {
-            $linkText = (
-                <span>
-                    You vs {$opponents} (ended {time(lastMoveAt)})
-                </span>
-            );
+            $elements.push((
+                <div key="opponents">
+                    Played with <strong>{$opponents}</strong>
+                </div>
+            ));
+
+            $elements.push((
+                <div key="ended-at">
+                    <em>Ended at {time(lastMoveAt)}</em>
+                </div>
+            ));
         }
 
         return (
             <div className="game-list-item">
-                <Link to={`/games/${gameId}`}>{$linkText}</Link>
+                <Link to={`/games/${gameId}`}>
+                    {$elements.slice(0, 1)}
+                </Link>
+
+                <div className="game-list-item-subtitle">
+                    {$elements.slice(1)}
+                </div>
             </div>
         );
     }
