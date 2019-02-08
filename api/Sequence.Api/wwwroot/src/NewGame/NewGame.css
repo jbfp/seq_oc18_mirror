@@ -11,6 +11,19 @@
 .new-game-opponent {
     display: flex;
     margin: 1em 0 0 0;
+    padding-left: 0.5em;
+}
+
+.new-game-opponent[data-background-color='red'] {
+    background-color: #FF000088;
+}
+
+.new-game-opponent[data-background-color='green'] {
+    background-color: #00800088;
+}
+
+.new-game-opponent[data-background-color='blue'] {
+    background-color: #01AAFE;
 }
 
 .new-game-game-size {

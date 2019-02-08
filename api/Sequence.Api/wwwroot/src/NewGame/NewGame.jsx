@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import Opponent from './Opponent';
 import { ServerContext } from "../contexts";
+import Opponents from "./Opponents";
 import './NewGame.css';
 
 const defaultOpponent = { name: '', type: 'user' };
@@ -26,7 +26,6 @@ class NewGame extends React.Component {
 
     state = {
         boardType: 0,
-        botTypes: [],
         numSequencesToWin: null,
         opponents: [],
         busy: false,
@@ -95,28 +94,13 @@ class NewGame extends React.Component {
         this.setState({ boardType });
     };
 
-    async componentDidMount() {
-        this.setState({ botTypes: await this.context.getBotsAsync() });
-    }
-
     render() {
-        const { boardType, botTypes, numSequencesToWin, opponents, busy, error } = this.state;
+        const { boardType, numSequencesToWin, opponents, busy, error } = this.state;
         const disabled = opponents.length === 0
             || opponents.some(opponent => !opponent.name)
             || boardType === null
             || numSequencesToWin === null
             || busy;
-
-        const $opponents = opponents.map(({ name, type }, i) => (
-            <Opponent key={i}
-                index={i}
-                botTypes={botTypes}
-                name={name}
-                type={type}
-                onNameChange={name => this.handleOpponentNameChange(i, name)}
-                onTypeChange={type => this.handleOpponentTypeChange(i, type)}
-            />
-        ));
 
         return (
             <div className="new-game">
@@ -167,17 +151,11 @@ class NewGame extends React.Component {
                         </label>
                     </div>
 
-                    <div>
-                        <div className="new-game-opponent">
-                            <input
-                                type="text"
-                                value="You"
-                                readOnly={true}
-                            />
-                        </div>
-
-                        {$opponents}
-                    </div>
+                    <Opponents
+                        opponents={opponents}
+                        onOpponentNameChange={this.handleOpponentNameChange}
+                        onOpponentTypeChange={this.handleOpponentTypeChange}
+                    ></Opponents>
 
                     <div className="new-game-board-types">
                         <strong>Board:</strong>

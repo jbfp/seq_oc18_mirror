@@ -2,7 +2,8 @@ import React from 'react';
 
 class Opponent extends React.PureComponent {
     render() {
-        const { botTypes, busy, index, name, type, onNameChange, onTypeChange } = this.props;
+        const { backgroundColor, botTypes, busy, index, name, type } = this.props;
+        const { onNameChange, onTypeChange } = this.props;
 
         let $input;
 
@@ -48,7 +49,7 @@ class Opponent extends React.PureComponent {
         );
 
         return (
-            <div className="new-game-opponent">
+            <div className="new-game-opponent" data-background-color={backgroundColor}>
                 {$radio('user', 'User')}
                 {$radio('bot', 'Bot')}
                 {$input}
