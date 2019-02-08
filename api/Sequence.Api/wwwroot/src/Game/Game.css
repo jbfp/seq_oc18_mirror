@@ -196,74 +196,12 @@ div[data-rank="ten"]::after {
 div[data-suit="diamonds"][data-rank="jack"]::before,
 div[data-suit="clubs"][data-rank="jack"]::before {
     content: "";
-    animation: two-eyed-jack-suit 4s step-end infinite;
 }
 
 div[data-suit="diamonds"][data-rank="jack"]::after,
 div[data-suit="clubs"][data-rank="jack"]::after {
-    content: "";
-    animation: two-eyed-jack-rank 4s step-end infinite;
-}
-
-@keyframes two-eyed-jack-suit {
-    0% {
-        color: #FF0000;
-        content: "♥";
-    }
-    33.33% {
-        color: #000000;
-        content: "♠";
-    }
-    66.67% {
-        color: #FF0000;
-        content: "♦";
-    }
-    100% {
-        color: #000000;
-        content: "♣";
-    }
-}
-
-@keyframes two-eyed-jack-rank {
-    0% {
-        content: 'A';
-    }
-    8.33% {
-        content: '2';
-    }
-    16.67% {
-        content: '3';
-    }
-    25% {
-        content: '4';
-    }
-    33.33% {
-        content: '5';
-    }
-    41.67% {
-        content: '6';
-    }
-    50% {
-        content: '7';
-    }
-    58.33% {
-        content: '8';
-    }
-    66.67% {
-        content: '9';
-    }
-    75% {
-        content: '10';
-    }
-    83.33% {
-        content: 'Q';
-    }
-    91.67% {
-        content: 'K';
-    }
-    100% {
-        content: 'K';
-    }
+    content: "🤡";
+    font-size: 150%;
 }
 
 div[data-suit="hearts"][data-rank="jack"]::before,
