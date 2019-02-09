@@ -367,6 +367,11 @@ namespace Sequence.Core
                     Team = _teamByIdx[i],
                     Type = _playerTypeByIdx[i],
                 }).ToImmutableArray(),
+                Rules = new Rules
+                {
+                    BoardType = ToBoardType(_boardType),
+                    WinCondition = _numSequencesToWin,
+                },
                 Version = _version,
                 Winner = _winner,
             };
@@ -381,6 +386,26 @@ namespace Sequence.Core
             }
 
             return view;
+        }
+
+        private static BoardType ToBoardType(IBoardType boardType)
+        {
+            if (boardType == null)
+            {
+                throw new ArgumentNullException(nameof(boardType));
+            }
+
+            switch (boardType)
+            {
+                case OneEyedJackBoard b1:
+                    return BoardType.OneEyedJack;
+
+                case SequenceBoard b2:
+                    return BoardType.Sequence;
+
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(boardType), boardType.GetType(), null);
+            }
         }
     }
 
@@ -475,6 +500,12 @@ namespace Sequence.Core
         public Team Team { get; internal set; }
     }
 
+    public sealed class Rules
+    {
+        public BoardType BoardType { get; internal set; }
+        public int WinCondition { get; internal set; }
+    }
+
     public sealed class GameView
     {
         public ImmutableArray<ImmutableArray<Tile>> Board { get; internal set; }
@@ -487,6 +518,7 @@ namespace Sequence.Core
         public int NumberOfSequencesToWin { get; internal set; }
         public PlayerId PlayerId { get; internal set; }
         public IImmutableList<PlayerView> Players { get; internal set; }
+        public Rules Rules { get; internal set; }
         public Team Team { get; internal set; }
         public int Version { get; internal set; }
         public Team? Winner { get; internal set; }

@@ -66,3 +66,25 @@ h6,
 strong {
     font-weight: 500;
 }
+
+dl {
+    display: flex;
+    flex-flow: row;
+    flex-wrap: wrap;
+    margin: 0;
+    padding: 0;
+}
+
+dt {
+    flex: 0 0 50%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+dd {
+    flex: 0 0 50%;
+    margin-left: auto;
+    overflow: hidden;
+    text-align: left;
+    text-overflow: ellipsis;
+}

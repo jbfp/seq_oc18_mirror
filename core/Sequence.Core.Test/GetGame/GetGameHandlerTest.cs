@@ -105,6 +105,8 @@ namespace Sequence.Core.Test.GetGame
             Assert.Equal(90, actual.NumberOfCardsInDeck);
             Assert.Equal(2, actual.NumberOfSequencesToWin);
             Assert.Equal(2, actual.Players.Count);
+            Assert.Equal(BoardType.OneEyedJack, actual.Rules.BoardType);
+            Assert.Equal(2, actual.Rules.WinCondition);
             Assert.Equal(Team.Red, actual.Team);
             Assert.Null(actual.Winner);
 
