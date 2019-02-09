@@ -10,6 +10,7 @@ class PlayerView extends React.PureComponent {
             rank: PropTypes.oneOf(['ace', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'jack', 'queen', 'king']).isRequired,
         })).isRequired,
         handle: PropTypes.string.isRequired,
+        hideCards: PropTypes.bool.isRequired,
         isCurrentPlayer: PropTypes.bool.isRequired,
         onCardClick: PropTypes.func.isRequired,
         selectedCard: PropTypes.shape({
@@ -21,11 +22,11 @@ class PlayerView extends React.PureComponent {
     };
 
     render() {
-        const { hand, handle, isCurrentPlayer, onCardClick, selectedCard, team } = this.props;
+        const { hand, handle, hideCards, isCurrentPlayer, onCardClick, selectedCard, team } = this.props;
 
         return (
             <div className="player" data-team={team}>
-                <Hand cards={hand} onCardClick={onCardClick} selectedCard={selectedCard} />
+                <Hand cards={hand} hideCards={hideCards} onCardClick={onCardClick} selectedCard={selectedCard} />
 
                 <span className="player-name" data-current-player={isCurrentPlayer}>
                     {handle}

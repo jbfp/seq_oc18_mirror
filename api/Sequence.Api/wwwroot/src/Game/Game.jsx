@@ -7,6 +7,9 @@ import GameView from './GameView';
 // Keys that respond to a card in hand.
 const numberKeys = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
 
+const DEFAULT_HIDE_TIMEOUT = 1000;
+const CURRENT_PLAYER_HIDE_TIMEOUT = 5000;
+
 class Game extends React.Component {
   static contextType = ServerContext;
 
@@ -20,11 +23,14 @@ class Game extends React.Component {
 
   state = {
     game: null,
+    hideCards: false,
     selectedCard: null,
     showNotification: null,
   };
 
   _gameEventSource = null;
+  _hideCardsTimeoutHandle = null;
+  _touches = [];
 
   handleCardClick = (card) => {
     if (this.state.selectedCard === card) {
@@ -210,6 +216,59 @@ class Game extends React.Component {
     this.setState({ game });
   }
 
+  handleTouchStart = ({ changedTouches }) => {
+    const numTouches = changedTouches.length;
+
+    for (let i = 0; i < numTouches; i++) {
+      const id = changedTouches[i].identifier;
+
+      if (this._touches.indexOf(id) < 0) {
+        this._touches.push(id);
+      }
+    }
+  };
+
+  handleTouchEnd = ({ changedTouches }) => {
+    const numTouches = changedTouches.length;
+
+    for (let i = 0; i < numTouches; i++) {
+      const idx = this._touches.indexOf(changedTouches[i].identifier);
+
+      if (idx < 0) {
+        continue;
+      }
+
+      this._touches.splice(idx, 1);
+    }
+  };
+
+  handleDeviceOrientation = event => {
+    const isFlat = Math.abs(event.beta) <= 18;
+    const noTouching = this._touches.length === 0;
+
+    if (isFlat && noTouching) {
+      if (this._hideCardsTimeoutHandle) {
+        return;
+      }
+
+      const { game } = this.state;
+      const timeout = game && game.currentPlayerId === game.playerId
+        ? CURRENT_PLAYER_HIDE_TIMEOUT
+        : DEFAULT_HIDE_TIMEOUT;
+
+      this._hideCardsTimeoutHandle = window.setTimeout(() => {
+        this.setState({ hideCards: true });
+      }, timeout);
+    } else {
+      if (this._hideCardsTimeoutHandle) {
+        window.clearTimeout(this._hideCardsTimeoutHandle);
+        this._hideCardsTimeoutHandle = null;
+      }
+
+      this.setState({ hideCards: false });
+    }
+  };
+
   async initAsync() {
     await this.loadGameAsync();
     const gameId = this.props.match.params.id;
@@ -243,6 +302,10 @@ class Game extends React.Component {
     }
 
     await this.initAsync();
+
+    window.addEventListener('deviceorientation', this.handleDeviceOrientation, false);
+    window.addEventListener('touchstart', this.handleTouchStart, false);
+    window.addEventListener('touchend', this.handleTouchEnd, false);
     window.addEventListener('keydown', this.handleKeyboardInput);
     document.addEventListener('visibilitychange', this.handleVisibilityChanged, false);
   }
@@ -259,6 +322,9 @@ class Game extends React.Component {
   componentWillUnmount() {
     document.removeEventListener('visibilitychange', this.handleVisibilityChanged, false);
     window.removeEventListener('keydown', this.handleKeyboardInput);
+    window.removeEventListener('deviceorientation', this.handleDeviceOrientation, false);
+    window.removeEventListener('touchstart', this.handleTouchStart, false);
+    window.removeEventListener('touchend', this.handleTouchEnd, false)
     this.closeGameEventSource();
   }
 
@@ -266,6 +332,7 @@ class Game extends React.Component {
     return (
       <GameView
         game={this.state.game}
+        hideCards={this.state.hideCards}
         onCardClick={this.handleCardClick}
         onCoordClick={this.handleCoordClick}
         selectedCard={this.state.selectedCard}

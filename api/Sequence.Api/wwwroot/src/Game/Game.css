@@ -256,6 +256,10 @@ div[data-rank="king"]::after {
     justify-content: center;
 }
 
+.hand.hide .card {
+    opacity: 0;
+}
+
 .card {
     align-items: center;
     background-color: #FFFFFF;

@@ -14,13 +14,14 @@ class GameView extends React.PureComponent {
 
     static propTypes = {
         game: PropTypes.object,
+        hideCards: PropTypes.bool.isRequired,
         onCardClick: PropTypes.func.isRequired,
         onCoordClick: PropTypes.func.isRequired,
         selectedCard: PropTypes.object,
     };
 
     render() {
-        const { game, onCardClick, onCoordClick, selectedCard } = this.props;
+        const { game, hideCards, onCardClick, onCoordClick, selectedCard } = this.props;
         let $body;
 
         if (game) {
@@ -43,7 +44,7 @@ class GameView extends React.PureComponent {
                         onCoordClick={onCoordClick}
                     />
 
-                    <PlayerView onCardClick={onCardClick} selectedCard={selectedCard} {...playerObj} />
+                    <PlayerView hideCards={hideCards} onCardClick={onCardClick} selectedCard={selectedCard} {...playerObj} />
 
                     <div className="game-metadata">
                         <div>
