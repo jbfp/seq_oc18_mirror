@@ -3,7 +3,8 @@ import { ServerContext } from '../contexts';
 import { Status, getHealthAsync } from './status';
 import './Heartbeat.css';
 
-const DEFAULT_INTERVAL = 15000;
+const DEFAULT_INITIAL_TIMEOUT = 5000;
+const DEFAULT_REPEAT_TIMEOUT = 60000;
 
 class Heartbeat extends React.Component {
     static contextType = ServerContext;
@@ -27,8 +28,8 @@ class Heartbeat extends React.Component {
     }
 
     componentDidMount() {
-        this._timerHandler();
-        this._handle = window.setInterval(this._timerHandler, DEFAULT_INTERVAL);
+        // Start timer initially with shorter delay.
+        this._handle = window.setTimeout(this._timerHandler, DEFAULT_INITIAL_TIMEOUT);
     }
 
     componentWillUnmount() {
@@ -42,6 +43,12 @@ class Heartbeat extends React.Component {
         this.setState({
             status: await getHealthAsync()
         });
+
+        // Only start timer again if it has been started/not been cancelled.
+        if (this._handle) {
+            // Start timer again recursively with longer delay.
+            this._handle = window.setTimeout(this._timerHandler, DEFAULT_REPEAT_TIMEOUT);
+        }
     };
 }
 
