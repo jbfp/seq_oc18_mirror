@@ -6,6 +6,7 @@ import { ServerContext } from "../contexts";
 import DeckView from './DeckView';
 import PlayerView from './PlayerView';
 import PlayersView from './PlayersView';
+import RulesView from './RulesView';
 import './Game.css';
 
 class GameView extends React.PureComponent {
@@ -43,7 +44,16 @@ class GameView extends React.PureComponent {
                     />
 
                     <PlayerView onCardClick={onCardClick} selectedCard={selectedCard} {...playerObj} />
-                    <DeckView discards={game.discards} numberOfCardsInDeck={game.numberOfCardsInDeck} />
+
+                    <div className="game-metadata">
+                        <div>
+                            <DeckView discards={game.discards} numberOfCardsInDeck={game.numberOfCardsInDeck} />
+                        </div>
+
+                        <div>
+                            <RulesView {...game.rules} />
+                        </div>
+                    </div>
                 </div>
             );
         } else {
