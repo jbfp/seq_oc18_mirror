@@ -1,7 +1,4 @@
 // Polyfills:
-// react-app-polyfill for IE11.
-import 'react-app-polyfill/ie11';
-
 // Array.prototype.flat does not yet exist in Edge.
 import 'array.prototype.flat/auto';
 
