@@ -34,7 +34,23 @@ class Games extends React.Component {
             }
         });
 
-        // Order completed dates by time of completion descending.
+        // Order "your turn" games by oldest. Other people might be waiting for you.
+        yourTurn.sort((a, b) => {
+            // Games with no moves have a 'last move' value of 0 which will be ordered in the wrong
+            // order so, in that case, flip the sort order.
+            if (a.lastMoveAt.valueOf() === 0) {
+                return 1;
+            } else if (b.lastMoveAt.valueOf() === 0) {
+                return -1;
+            }
+
+            return a.lastMoveAt - b.lastMoveAt;
+        });
+
+        // Order "their turn" games by time of last move descending.
+        theirTurn.sort((a, b) => b.lastMoveAt - a.lastMoveAt);
+
+        // Order completed games by time of completion descending.
         completedGames.sort((a, b) => b.lastMoveAt - a.lastMoveAt);
 
         this.setState({
