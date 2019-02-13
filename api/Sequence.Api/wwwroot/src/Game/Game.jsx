@@ -248,8 +248,12 @@ class Game extends React.Component {
     }
   };
 
-  handleDeviceOrientation = event => {
-    const isFlat = Math.abs(event.beta) <= 18;
+  handleDeviceOrientation = ({ beta }) => {
+    if (beta === null) {
+      return;
+    }
+
+    const isFlat = Math.abs(beta) <= 18;
     const noTouching = this._touches.length === 0;
 
     if (isFlat && noTouching) {
