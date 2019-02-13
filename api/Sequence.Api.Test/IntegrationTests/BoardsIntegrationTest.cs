@@ -2,21 +2,17 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using System;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Sequence.Api.Test
+namespace Sequence.Api.Test.IntegrationTests
 {
-    public sealed class BoardControllerIntegrationTest : IClassFixture<WebApplicationFactory<Startup>>
+    public sealed class BoardsIntegrationTest : IntegrationTestBase
     {
         private const string BasePath = "/boards";
 
-        private readonly WebApplicationFactory<Startup> _factory;
-
-        public BoardControllerIntegrationTest(WebApplicationFactory<Startup> factory)
+        public BoardsIntegrationTest(WebApplicationFactory<Startup> factory) : base(factory)
         {
-            _factory = factory;
         }
 
         [Theory]
@@ -24,8 +20,7 @@ namespace Sequence.Api.Test
         [InlineData(BasePath + "/sequence")]
         public async Task RoutesAreProtected(string route)
         {
-            using (var client = _factory.CreateDefaultClient())
-            using (var response = await client.GetAsync(route))
+            using (var response = await UnauthorizedClient.GetAsync(route))
             {
                 Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
             }
@@ -68,18 +63,6 @@ namespace Sequence.Api.Test
             }
         }
 
-        private HttpClient CreateAuthorizedClient(string playerId = "test_player")
-        {
-            if (playerId == null)
-            {
-                throw new ArgumentNullException(nameof(playerId));
-            }
-
-            var client = _factory.CreateDefaultClient();
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("test_player");
-            return client;
-        }
-
         private async Task<HttpResponseMessage> GetAsync(string path = null)
         {
             if (path != null)
@@ -87,12 +70,7 @@ namespace Sequence.Api.Test
                 path = $"/{Uri.EscapeDataString(path)}";
             }
 
-            string requestUri = $"{BasePath}{path}";
-
-            using (var client = CreateAuthorizedClient())
-            {
-                return await client.GetAsync(requestUri);
-            }
+            return await AuthorizedClient.GetAsync($"{BasePath}{path}");
         }
     }
 }
