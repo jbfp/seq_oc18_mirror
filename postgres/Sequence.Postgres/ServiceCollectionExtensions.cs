@@ -13,7 +13,9 @@ namespace Sequence.Postgres
     {
         public static IServiceCollection AddPostgres(this IServiceCollection services, IConfiguration configuration)
         {
-            services.Configure<PostgresOptions>(configuration.GetSection("Postgres"));
+            var configSection = configuration.GetSection("Postgres");
+
+            services.Configure<PostgresOptions>(configSection);
             services.AddSingleton<NpgsqlConnectionFactory>();
             services.AddSingleton<PostgresListener>();
             services.AddSingleton<IHostedService>(sp => sp.GetRequiredService<PostgresListener>());
@@ -28,6 +30,9 @@ namespace Sequence.Postgres
             services.AddTransient<IGameEventStore>(sp => new NotifyingGameEventStore(
                 sp.GetRequiredService<PostgresGameEventStore>(),
                 sp.GetRequiredService<IGameUpdatedNotifier>()));
+
+            services.AddHealthChecks()
+                .AddNpgSql(configSection["ConnectionString"]);
 
             return services;
         }
