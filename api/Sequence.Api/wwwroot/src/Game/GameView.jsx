@@ -32,7 +32,7 @@ class GameView extends React.PureComponent {
                 team: game.team,
             };
 
-            const latestMoveAt = game.moves.length > 0 ? game.moves[game.moves.length - 1].coord : null;
+            const latestMoveAt = game.moves.length > 0 ? game.moves[0].coord : null;
 
             $body = (
                 <div>

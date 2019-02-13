@@ -164,11 +164,11 @@ class Game extends React.Component {
       });
     }
 
-    const moves = [...game.moves, {
+    const moves = [{
       byPlayerId: event.byPlayerId,
       cardUsed: event.cardUsed,
       coord: event.coord,
-    }];
+    }, ...game.moves];
 
     const winner = event.winner;
 
