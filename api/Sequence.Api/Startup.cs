@@ -39,6 +39,7 @@ namespace Sequence.Api
                 .SetCompatibilityVersion(CompatibilityVersion.Latest);
 
             services.AddHealthChecks();
+            services.AddMemoryCache();
             services.AddSequence(_configuration, _loggerFactory);
 
             if (_env.IsDevelopment())

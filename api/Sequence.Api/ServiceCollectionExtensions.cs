@@ -1,6 +1,8 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Sequence.Api.Caching;
+using Sequence.Core;
 using Sequence.Core.Bots;
 using Sequence.Core.CreateGame;
 using Sequence.Core.GetGame;
@@ -46,6 +48,9 @@ namespace Sequence.Api
             services.AddTransient<ISeedProvider, RandomSeedProvider>();
 
             services.AddHostedService<BotTaskObserver>();
+
+            services.Decorate<IGameProvider, CachedGameStore>();
+            services.Decorate<IGameEventStore, CachedGameEventStore>();
 
             return services;
         }
