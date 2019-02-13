@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Sequence.Postgres;
 using Serilog;
@@ -16,17 +17,8 @@ namespace Sequence.Api
     {
         public static async Task<int> Main(string[] args)
         {
-            Log.Logger = new LoggerConfiguration()
-                .MinimumLevel.Debug()
-                .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
-                .Enrich.FromLogContext()
-                .WriteTo.Console(theme: AnsiConsoleTheme.Code)
-                .WriteTo.File(new CompactJsonFormatter(), "./log.json")
-                .CreateLogger();
-
             try
             {
-                Log.Information("Building web host");
                 var builder = CreateWebHostBuilder(args);
 
                 using (var host = builder.Build())
@@ -44,9 +36,9 @@ namespace Sequence.Api
 
                     Log.Information("Starting web host");
                     await host.RunAsync(CancellationToken.None);
+                    Log.Information("Goodbye");
                 }
 
-                Log.Information("Goodbye");
                 return 0;
             }
             catch (Exception ex)
@@ -63,7 +55,14 @@ namespace Sequence.Api
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) => WebHost
             .CreateDefaultBuilder(args)
             .UseStartup<Startup>()
+            .SuppressStatusMessages(true)
             .ConfigureServices((builder, services) => services.AddPostgres(builder.Configuration))
+            .ConfigureServices((builder, _services) =>
+            {
+                Log.Logger = new LoggerConfiguration()
+                    .ReadFrom.Configuration(builder.Configuration)
+                    .CreateLogger();
+            })
             .UseSerilog()
             .UseUrls("http://localhost:5000");
     }

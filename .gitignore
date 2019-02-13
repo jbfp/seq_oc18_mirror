@@ -242,6 +242,7 @@ _Pvt_Extensions
 
 # Log files.
 log.json
+logs/
 
 # IdentityServer developer key.
 tempkey.rsa
