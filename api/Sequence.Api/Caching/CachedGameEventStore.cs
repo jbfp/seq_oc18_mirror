@@ -16,7 +16,7 @@ namespace Sequence.Api.Caching
         public CachedGameEventStore(
             IGameEventStore gameEventStore,
             IMemoryCache cache,
-            ILogger logger)
+            ILogger<CachedGameEventStore> logger)
         {
             _gameEventStore = gameEventStore ?? throw new ArgumentNullException(nameof(gameEventStore));
             _cache = cache ?? throw new ArgumentNullException(nameof(cache));
