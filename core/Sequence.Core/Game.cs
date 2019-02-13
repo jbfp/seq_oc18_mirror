@@ -15,11 +15,11 @@ namespace Sequence.Core
         private readonly ImmutableArray<PlayerType> _playerTypeByIdx;
         private readonly ImmutableArray<Team> _teamByIdx;
 
+        private ImmutableStack<GameEvent> _moves;
         private ImmutableDictionary<Coord, Team> _chips;
         private ImmutableArray<IImmutableList<Card>> _handByIdx;
         private ImmutableStack<Card> _discards;
         private PlayerId _currentPlayerId;
-        private Coord? _latestMoveAt;
         private ImmutableArray<Seq> _sequences;
         private int _version;
         private Team? _winner;
@@ -55,6 +55,7 @@ namespace Sequence.Core
             _deck = new Deck(init.Seed, init.Players.Count);
             _discards = ImmutableStack<Card>.Empty;
             _handByIdx = _deck.DealHands().ToImmutableArray();
+            _moves = ImmutableStack<GameEvent>.Empty;
             _numSequencesToWin = init.NumberOfSequencesToWin;
             _playerHandleByIdx = init.Players.Select(p => p.Handle).ToImmutableArray();
             _playerIdByIdx = init.Players.Select(p => p.Id).ToImmutableArray();
@@ -121,7 +122,6 @@ namespace Sequence.Core
             }
 
             _currentPlayerId = gameEvent.NextPlayerId;
-            _latestMoveAt = gameEvent.Coord;
             _version = gameEvent.Index;
             _winner = gameEvent.Winner;
 
@@ -129,6 +129,8 @@ namespace Sequence.Core
             {
                 _sequences = _sequences.Add(gameEvent.Sequence);
             }
+
+            _moves = _moves.Push(gameEvent);
         }
 
         public GameEvent PlayCard(PlayerHandle player, Card card, Coord coord)
@@ -356,7 +358,12 @@ namespace Sequence.Core
                 }).ToImmutableArray(),
                 CurrentPlayerId = _currentPlayerId,
                 Discards = _discards.ToImmutableArray(),
-                LatestMoveAt = _latestMoveAt,
+                Moves = _moves.Select(e => new MoveView
+                {
+                    ByPlayerId = e.ByPlayerId,
+                    CardUsed = e.CardUsed,
+                    Coord = e.Coord,
+                }).ToImmutableList(),
                 NumberOfCardsInDeck = _deck.Count,
                 NumberOfSequencesToWin = _numSequencesToWin,
                 Players = _playerIdByIdx.Select((p, i) => new PlayerView
@@ -506,6 +513,13 @@ namespace Sequence.Core
         public int WinCondition { get; internal set; }
     }
 
+    public sealed class MoveView
+    {
+        public PlayerId ByPlayerId { get; internal set; }
+        public Card CardUsed { get; internal set; }
+        public Coord Coord { get; internal set; }
+    }
+
     public sealed class GameView
     {
         public ImmutableArray<ImmutableArray<Tile>> Board { get; internal set; }
@@ -513,7 +527,7 @@ namespace Sequence.Core
         public PlayerId CurrentPlayerId { get; internal set; }
         public IImmutableList<Card> Discards { get; internal set; }
         public IImmutableList<Card> Hand { get; internal set; }
-        public Coord? LatestMoveAt { get; internal set; }
+        public IImmutableList<MoveView> Moves { get; internal set; }
         public int NumberOfCardsInDeck { get; internal set; }
         public int NumberOfSequencesToWin { get; internal set; }
         public PlayerId PlayerId { get; internal set; }

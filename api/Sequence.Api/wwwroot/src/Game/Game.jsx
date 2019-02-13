@@ -164,7 +164,12 @@ class Game extends React.Component {
       });
     }
 
-    const latestMoveAt = event.coord;
+    const moves = [...game.moves, {
+      byPlayerId: event.byPlayerId,
+      cardUsed: event.cardUsed,
+      coord: event.coord,
+    }];
+
     const winner = event.winner;
 
     this.setState({
@@ -174,7 +179,7 @@ class Game extends React.Component {
         currentPlayerId,
         discards,
         hand,
-        latestMoveAt,
+        moves,
         numberOfCardsInDeck,
         version,
         winner,

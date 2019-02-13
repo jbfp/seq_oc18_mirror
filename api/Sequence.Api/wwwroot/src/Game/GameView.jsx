@@ -32,6 +32,8 @@ class GameView extends React.PureComponent {
                 team: game.team,
             };
 
+            const latestMoveAt = game.moves.length > 0 ? game.moves[game.moves.length - 1].coord : null;
+
             $body = (
                 <div>
                     <PlayersView currentPlayerId={game.currentPlayerId} players={game.players} winner={game.winner} />
@@ -40,7 +42,7 @@ class GameView extends React.PureComponent {
                         board={game.board}
                         chips={game.chips}
                         highlightedCellValue={selectedCard}
-                        latestMoveAt={game.latestMoveAt}
+                        latestMoveAt={latestMoveAt}
                         onCoordClick={onCoordClick}
                     />
 
