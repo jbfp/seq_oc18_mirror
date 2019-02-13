@@ -55,6 +55,22 @@ class Server {
     }
   }
 
+  async getBoardAsync(boardType) {
+    if (!boardType) {
+      throw new Error(`'${boardType}' is not a valid board type.`);
+    }
+
+    const response = await fetch(`${this._endpoint}/boards/${boardType}`, {
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': this._userName,
+      },
+      method: 'GET',
+    });
+
+    return await response.json();
+  }
+
   async getBotsAsync() {
     const response = await fetch(`${this._endpoint}/bots`, {
       headers: {

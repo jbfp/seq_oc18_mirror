@@ -218,7 +218,8 @@ class Game extends React.Component {
   async loadGameAsync() {
     const gameId = this.props.match.params.id;
     const game = await this.context.getGameByIdAsync(gameId);
-    this.setState({ game });
+    const board = await this.context.getBoardAsync(game.rules.boardType);
+    this.setState({ game: { ...game, board } });
   }
 
   handleTouchStart = ({ changedTouches }) => {

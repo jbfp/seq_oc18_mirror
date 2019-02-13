@@ -336,7 +336,6 @@ namespace Sequence.Core
 
             var view = new GameView
             {
-                Board = _boardType.Board,
                 Chips = _chips.Select(c => new ChipView
                 {
                     Coord = c.Key,
@@ -509,7 +508,6 @@ namespace Sequence.Core
 
     public sealed class GameView
     {
-        public ImmutableArray<ImmutableArray<Tile>> Board { get; internal set; }
         public IImmutableList<ChipView> Chips { get; internal set; }
         public PlayerId CurrentPlayerId { get; internal set; }
         public IImmutableList<Card> Discards { get; internal set; }
