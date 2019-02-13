@@ -11,3 +11,35 @@ import './index.css';
 ReactDOM.render(<App />, document.getElementById('root'));
 
 serviceWorker.register();
+
+// Global unhandled error event handler:
+const LOG_URL = `${window.env.api}/logs`;
+
+window.addEventListener('error', async event => {
+    // Cannot serialize Error from event so we convert it to a plain object first.
+    // Spread operator does not work (i.e. {...error}).
+    const error = event.error;
+
+    const plain = {
+        columnNumber: error.columnNumber,
+        fileName: error.fileName,
+        lineNumber: error.lineNumber,
+        message: error.message,
+        stack: error.stack,
+    };
+
+    try {
+        const response = await window.fetch(LOG_URL, {
+            body: JSON.stringify(plain),
+            headers: { 'Content-Type': 'application/json' },
+            method: 'POST',
+        });
+
+        if (!response.ok) {
+            console.warn('Failed to log', response.status, response.statusText);
+        }
+    } catch (error) {
+        // Log to prevent unhandled error handler being called again.
+        console.error(error);
+    }
+});
