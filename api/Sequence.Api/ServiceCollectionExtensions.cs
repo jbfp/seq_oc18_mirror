@@ -7,7 +7,6 @@ using Sequence.Core.Bots;
 using Sequence.Core.CreateGame;
 using Sequence.Core.GetGame;
 using Sequence.Core.GetGames;
-using Sequence.Core.Notifications;
 using Sequence.Core.Play;
 using System;
 
@@ -40,10 +39,6 @@ namespace Sequence.Api
             services.AddTransient<GetGameHandler>();
             services.AddTransient<GetGamesHandler>();
             services.AddTransient<PlayHandler>();
-
-            var subscriptionHandler = new SubscriptionHandler(loggerFactory.CreateLogger<SubscriptionHandler>());
-            services.AddSingleton<SubscriptionHandler>(subscriptionHandler);
-            services.AddSingleton<IGameUpdatedNotifier>(subscriptionHandler);
 
             services.AddTransient<ISeedProvider, RandomSeedProvider>();
 

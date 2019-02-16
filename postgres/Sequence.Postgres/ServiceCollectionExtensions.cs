@@ -5,7 +5,6 @@ using Sequence.Core;
 using Sequence.Core.Bots;
 using Sequence.Core.CreateGame;
 using Sequence.Core.GetGames;
-using Sequence.Core.Notifications;
 
 namespace Sequence.Postgres
 {
@@ -26,10 +25,6 @@ namespace Sequence.Postgres
             services.AddTransient<IGameStore, PostgresGameStore>();
 
             services.AddSingleton<PostgresMigrations>();
-
-            services.AddTransient<IGameEventStore>(sp => new NotifyingGameEventStore(
-                sp.GetRequiredService<PostgresGameEventStore>(),
-                sp.GetRequiredService<IGameUpdatedNotifier>()));
 
             services.AddHealthChecks()
                 .AddNpgSql(configSection["ConnectionString"]);
