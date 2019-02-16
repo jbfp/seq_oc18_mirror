@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 using System;
@@ -28,15 +29,12 @@ namespace Sequence.Api
         {
             services
                 .AddMvc()
-                .AddJsonOptions(options =>
-                {
-                    options.SerializerSettings.Converters.Add(new GameIdJsonConverter());
-                    options.SerializerSettings.Converters.Add(new PlayerHandleJsonConverter());
-                    options.SerializerSettings.Converters.Add(new PlayerIdJsonConverter());
-                    options.SerializerSettings.Converters.Add(new StringEnumConverter(new CamelCaseNamingStrategy()));
-                    options.SerializerSettings.Converters.Add(new TileJsonConverter());
-                })
+                .AddJsonOptions(options => ConfigureJsonSerializerSettings(options.SerializerSettings))
                 .SetCompatibilityVersion(CompatibilityVersion.Latest);
+
+            services
+                .AddSignalR()
+                .AddJsonProtocol(options => ConfigureJsonSerializerSettings(options.PayloadSerializerSettings));
 
             services.AddHealthChecks();
             services.AddMemoryCache();
@@ -80,7 +78,17 @@ namespace Sequence.Api
             }
 
             app.UseHealthChecks("/health");
+            app.UseSignalR(builder => builder.MapHub<MyHub>("/myHub"));
             app.UseMvc();
+        }
+
+        private static void ConfigureJsonSerializerSettings(JsonSerializerSettings settings)
+        {
+            settings.Converters.Add(new GameIdJsonConverter());
+            settings.Converters.Add(new PlayerHandleJsonConverter());
+            settings.Converters.Add(new PlayerIdJsonConverter());
+            settings.Converters.Add(new StringEnumConverter(new CamelCaseNamingStrategy()));
+            settings.Converters.Add(new TileJsonConverter());
         }
     }
 }

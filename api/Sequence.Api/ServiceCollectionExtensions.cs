@@ -51,6 +51,7 @@ namespace Sequence.Api
 
             services.Decorate<IGameProvider, CachedGameStore>();
             services.Decorate<IGameEventStore, CachedGameEventStore>();
+            services.Decorate<IGameEventStore, SignalRGameEventStoreDecorator>();
 
             return services;
         }
