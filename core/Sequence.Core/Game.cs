@@ -349,6 +349,7 @@ namespace Sequence.Core
                     ByPlayerId = e.ByPlayerId,
                     CardUsed = e.CardUsed,
                     Coord = e.Coord,
+                    Index = e.Index,
                 }).ToImmutableList(),
                 NumberOfCardsInDeck = _deck.Count,
                 NumberOfSequencesToWin = _numSequencesToWin,
@@ -504,6 +505,7 @@ namespace Sequence.Core
         public PlayerId ByPlayerId { get; internal set; }
         public Card CardUsed { get; internal set; }
         public Coord Coord { get; internal set; }
+        public int Index { get; set; }
     }
 
     public sealed class GameView
