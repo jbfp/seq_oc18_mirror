@@ -38,51 +38,55 @@ namespace Sequence.Postgres
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            using (var connection = await _connectionFactory.CreateAndOpenAsync(stoppingToken))
+            try
             {
-                var notifications = Observable
-                    .FromEvent<NotificationEventHandler, NpgsqlNotificationEventArgs>(
-                        action => new NotificationEventHandler((_, args) => action(args)),
-                        handler => connection.Notification += handler,
-                        handler => connection.Notification -= handler)
-                    .Select(ParseNotificationBody)
-                    .SelectMany(GetLatestBotTaskForGame)
-                    .Replay(window: TimeSpan.FromSeconds(30));
-
-                notifications.Connect();
-
-                var command = new CommandDefinition(
-                    commandText: "LISTEN game_event_inserted;",
-                    cancellationToken: stoppingToken);
-
-                _logger.LogInformation("Starting game_event_inserted listener");
-
-                await connection.ExecuteAsync(command);
-
-                foreach (var botTask in await GetInitialBotTasksAsync(stoppingToken))
+                using (var connection = await _connectionFactory.CreateAndOpenAsync(stoppingToken))
                 {
-                    _subject.OnNext(botTask);
-                }
+                    var notifications = Observable
+                        .FromEvent<NotificationEventHandler, NpgsqlNotificationEventArgs>(
+                            action => new NotificationEventHandler((_, args) => action(args)),
+                            handler => connection.Notification += handler,
+                            handler => connection.Notification -= handler)
+                        .Select(ParseNotificationBody)
+                        .SelectMany(GetLatestBotTaskForGame)
+                        .Replay(window: TimeSpan.FromSeconds(30));
 
-                notifications.Subscribe(_subject);
+                    notifications.Connect();
 
-                try
-                {
-                    while (!stoppingToken.IsCancellationRequested)
+                    var command = new CommandDefinition(
+                        commandText: "LISTEN game_event_inserted;",
+                        cancellationToken: stoppingToken);
+
+                    _logger.LogInformation("Starting game_event_inserted listener");
+
+                    await connection.ExecuteAsync(command);
+
+                    foreach (var botTask in await GetInitialBotTasksAsync(stoppingToken))
                     {
-                        await connection.WaitAsync(stoppingToken);
+                        _subject.OnNext(botTask);
                     }
-                }
-                catch (OperationCanceledException)
-                {
-                }
-                catch (Exception ex)
-                {
-                    _subject.OnError(ex);
-                    throw;
-                }
 
-                _subject.OnCompleted();
+                    notifications.Subscribe(_subject);
+
+                    try
+                    {
+                        while (!stoppingToken.IsCancellationRequested)
+                        {
+                            await connection.WaitAsync(stoppingToken);
+                        }
+                    }
+                    catch (OperationCanceledException)
+                    {
+                    }
+
+                    _subject.OnCompleted();
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical(ex, "Unhandled exception. Restarting loop");
+                await Task.Delay(TimeSpan.FromSeconds(10)); // Give system a chance to recover.
+                await ExecuteAsync(stoppingToken);
             }
         }
 
