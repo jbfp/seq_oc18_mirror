@@ -1,58 +1,53 @@
 // EventTarget shim for Safari.
 import { EventTarget } from 'event-target-shim';
+import * as SignalR from '@aspnet/signalr';
 
-const HOST = window.env.api;
-const SSE_EVENT = 'game-updated';
-const API_EVENT = 'game-event';
+const URL = `${window.env.api}/myHub`;
+const API_EVENT = 'UpdateGame';
+const MY_EVENT = 'game-event';
 
 class GameEvent extends CustomEvent {
     constructor(data) {
-        super(API_EVENT, { detail: data });
+        super(MY_EVENT, { detail: data });
     }
 }
 
-export default class GameEventSource {
+async function startAsync(connection) {
+    try {
+        await connection.start();
+    } catch (err) {
+        setTimeout(() => startAsync(connection), 5000);
+    }
+}
+
+export default async function subscribeAsync(gameId) {
+    const connection = new SignalR.HubConnectionBuilder()
+        .withUrl(URL)
+        .configureLogging(SignalR.LogLevel.Information)
+        .build();
+
+    connection.onclose(() => startAsync(this));
+
+    await connection.start();
+    await connection.invoke('Subscribe', gameId);
+
+    return new MyClient(connection);
+}
+
+export class MyClient {
     _target = new EventTarget();
-    _numListeners = 0;
-    _sse = null;
-    _url = null;
 
-    constructor(gameId, playerId) {
-        if (!gameId) {
-            throw new Error(`Game ID '${gameId}' is not valid.`);
-        }
-
-        if (!playerId) {
-            throw new Error(`Player ID '${playerId}' is not valid.`);
-        }
-
-        this._url = `${HOST}/games/${gameId}/stream?player=${playerId}`;
+    constructor(connection) {
+        connection.on(API_EVENT, gameEvent => {
+            this._target.dispatchEvent(new GameEvent(gameEvent));
+        });
     }
 
     addGameEventListener(listener) {
-        this._target.addEventListener(API_EVENT, listener, false);
-        this._numListeners++;
-
-        if (this._numListeners === 1) {
-            this._sse = new EventSource(this._url);
-            this._sse.addEventListener(SSE_EVENT, this._onGameUpdated, false);
-        }
+        this._target.addEventListener(MY_EVENT, listener, false);
     }
 
     removeGameEventListener(listener) {
-        this._target.removeEventListener(API_EVENT, listener, false);
-        this._numListeners--;
-
-        if (this._numListeners === 0) {
-            this._sse.removeEventListener(SSE_EVENT, this._onGameUpdated, false);
-            this._sse.close();
-            this._sse = null;
-        }
+        this._target.removeEventListener(MY_EVENT, listener, false);
     }
-
-    _onGameUpdated = e => {
-        const init = JSON.parse(e.data);
-        const event = new GameEvent(init);
-        this._target.dispatchEvent(event);
-    };
 }

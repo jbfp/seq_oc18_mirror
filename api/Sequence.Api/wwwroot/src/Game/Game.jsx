@@ -1,8 +1,8 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import { ServerContext } from "../contexts";
-import GameEventSource from './game-event-source';
 import GameView from './GameView';
+import subscribeAsync from './game-event-source';
 
 // Keys that respond to a card in hand.
 const numberKeys = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
@@ -284,7 +284,7 @@ class Game extends React.Component {
     const gameId = this.props.match.params.id;
     const playerId = this.context.userName;
     this.closeGameEventSource();
-    this._gameEventSource = new GameEventSource(gameId, playerId);
+    this._gameEventSource = await subscribeAsync(gameId, playerId);
     this._gameEventSource.addGameEventListener(this.handleGameUpdatedEvent);
   }
 

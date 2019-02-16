@@ -5,7 +5,6 @@ using Sequence.Core;
 using Sequence.Core.Bots;
 using Sequence.Core.CreateGame;
 using Sequence.Core.GetGames;
-using Sequence.Core.Notifications;
 using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -33,9 +32,6 @@ namespace Sequence.Api.Test.IntegrationTests
                 {
                     services.AddSingleton<InMemoryDatabase>(_database);
                     services.AddSingleton<IBotTaskObservable>(_botTaskObservable);
-                    services.AddSingleton<IGameEventStore>(sp => new NotifyingGameEventStore(
-                        sp.GetRequiredService<InMemoryDatabase>(),
-                        sp.GetRequiredService<IGameUpdatedNotifier>()));
                     services.AddSingleton<IGameProvider>(_database);
                     services.AddSingleton<IGameListProvider>(_database);
                     services.AddSingleton<IGameStore>(_database);
