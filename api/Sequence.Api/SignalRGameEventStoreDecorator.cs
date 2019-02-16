@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Logging;
 using Sequence.Core;
 using System;
 using System.Threading;
@@ -10,13 +11,16 @@ namespace Sequence.Api
     {
         private readonly IGameEventStore _store;
         private readonly IHubContext<MyHub, IMyHubClient> _hubContext;
+        private readonly ILogger _logger;
 
         public SignalRGameEventStoreDecorator(
             IGameEventStore store,
-            IHubContext<MyHub, IMyHubClient> hubContext)
+            IHubContext<MyHub, IMyHubClient> hubContext,
+            ILogger<SignalRGameEventStoreDecorator> logger)
         {
             _store = store ?? throw new ArgumentNullException(nameof(store));
             _hubContext = hubContext ?? throw new ArgumentNullException(nameof(hubContext));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public async Task AddEventAsync(
@@ -41,6 +45,7 @@ namespace Sequence.Api
 
             var groupName = gameId.ToString();
             var group = _hubContext.Clients.Group(groupName);
+            _logger.LogInformation("Sending game update for {GameId}", gameId);
             await group.UpdateGame(dto);
         }
     }
