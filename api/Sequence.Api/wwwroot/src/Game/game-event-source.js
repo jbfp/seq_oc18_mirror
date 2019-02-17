@@ -3,6 +3,11 @@ import { EventTarget } from 'event-target-shim';
 import * as SignalR from '@aspnet/signalr';
 
 const URL = `${window.env.api}/myHub`;
+const CONNECTION_OPTIONS = Object.freeze({
+    skipNegotiation: true,
+    transport: SignalR.HttpTransportType.WebSockets,
+});
+
 const API_EVENT = 'UpdateGame';
 const MY_EVENT = 'game-event';
 
@@ -22,7 +27,7 @@ async function startAsync(connection) {
 
 export default async function subscribeAsync(gameId) {
     const connection = new SignalR.HubConnectionBuilder()
-        .withUrl(URL)
+        .withUrl(URL, { ...CONNECTION_OPTIONS })
         .configureLogging(SignalR.LogLevel.Information)
         .build();
 
