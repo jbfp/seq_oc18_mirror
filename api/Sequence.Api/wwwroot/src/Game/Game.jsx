@@ -1,14 +1,22 @@
 import PropTypes from 'prop-types';
 import React from 'react';
+import * as SignalR from '@aspnet/signalr';
 import { ServerContext } from "../contexts";
 import GameView from './GameView';
-import subscribeAsync from './game-event-source';
 
 // Keys that respond to a card in hand.
 const numberKeys = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
 
 const DEFAULT_HIDE_TIMEOUT = 1000;
 const CURRENT_PLAYER_HIDE_TIMEOUT = 5000;
+
+async function startAsync(connection) {
+  try {
+    await connection.start();
+  } catch (err) {
+    setTimeout(async () => await startAsync(connection), 5000);
+  }
+}
 
 class Game extends React.Component {
   static contextType = ServerContext;
@@ -32,6 +40,34 @@ class Game extends React.Component {
   _hideCardsTimeoutHandle = null;
   _touches = [];
 
+  constructor(props) {
+    super(props);
+
+    const URL = `${window.env.api}/myHub`;
+
+    const CONNECTION_OPTIONS = Object.freeze({
+      skipNegotiation: true,
+      transport: SignalR.HttpTransportType.WebSockets,
+    });
+
+    const connection = new SignalR.HubConnectionBuilder()
+      .withUrl(URL, { ...CONNECTION_OPTIONS })
+      .configureLogging(SignalR.LogLevel.Information)
+      .build();
+
+    connection.on('UpdateGame', gameEvent => {
+      this.handleGameUpdatedEvent(gameEvent);
+    });
+
+    connection.onclose(async error => {
+      if (error) {
+        await startAsync(this);
+      }
+    });
+
+    this._connection = connection;
+  }
+
   handleCardClick = (card) => {
     if (this.state.selectedCard === card) {
       this.setState({ selectedCard: null });
@@ -50,8 +86,6 @@ class Game extends React.Component {
     if (selectedCard) {
       const gameId = this.props.match.params.id;
 
-      this._gameEventSource.removeGameEventListener(this.handleGameUpdatedEvent);
-
       try {
         const result = await this.context.playCardAsync(gameId, selectedCard, coord);
 
@@ -65,12 +99,15 @@ class Game extends React.Component {
           }
         }
       } finally {
-        this._gameEventSource.addGameEventListener(this.handleGameUpdatedEvent);
       }
     }
   };
 
   handleKeyboardInput = event => {
+    if (!this.state.game) {
+      return;
+    }
+
     const { key } = event;
 
     // Ignore event if CTRL, SHIFT, etc. is pressed as well.
@@ -189,8 +226,8 @@ class Game extends React.Component {
     return true;
   };
 
-  handleGameUpdatedEvent = async event => {
-    if (!this.apply(event.detail)) {
+  handleGameUpdatedEvent = async gameEvent => {
+    if (!this.apply(gameEvent)) {
       await this.loadGameAsync();
     }
 
@@ -283,15 +320,13 @@ class Game extends React.Component {
     await this.loadGameAsync();
     const gameId = this.props.match.params.id;
     const playerId = this.context.userName;
-    this.closeGameEventSource();
-    this._gameEventSource = await subscribeAsync(gameId, playerId);
-    this._gameEventSource.addGameEventListener(this.handleGameUpdatedEvent);
+    await this.unsubscribeAsync();
+    await this._connection.invoke('Subscribe', gameId);
   }
 
-  closeGameEventSource() {
-    if (this._gameEventSource) {
-      this._gameEventSource.removeGameEventListener(this.handleGameUpdatedEvent);
-      this._gameEventSource = null;
+  async unsubscribeAsync() {
+    if (this._connection.state === SignalR.HubConnectionState.Connected) {
+      await this._connection.invoke('Unsubscribe', this.props.match.params.id);
     }
   }
 
@@ -311,12 +346,13 @@ class Game extends React.Component {
       }
     }
 
-    await this.initAsync();
-
     window.addEventListener('deviceorientation', this.handleDeviceOrientation, false);
     window.addEventListener('touchstart', this.handleTouchStart, false);
     window.addEventListener('touchend', this.handleTouchEnd, false);
     window.addEventListener('keydown', this.handleKeyboardInput);
+
+    await startAsync(this._connection);
+    await this.initAsync();
   }
 
   async componentDidUpdate(prevProps) {
@@ -328,13 +364,13 @@ class Game extends React.Component {
     }
   }
 
-  componentWillUnmount() {
+  async componentWillUnmount() {
     document.removeEventListener('visibilitychange', this.handleVisibilityChanged, false);
     window.removeEventListener('keydown', this.handleKeyboardInput);
     window.removeEventListener('deviceorientation', this.handleDeviceOrientation, false);
     window.removeEventListener('touchstart', this.handleTouchStart, false);
-    window.removeEventListener('touchend', this.handleTouchEnd, false)
-    this.closeGameEventSource();
+    window.removeEventListener('touchend', this.handleTouchEnd, false);
+    await this._connection.stop();
   }
 
   render() {
