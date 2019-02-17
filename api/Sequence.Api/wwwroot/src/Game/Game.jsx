@@ -317,7 +317,6 @@ class Game extends React.Component {
     window.addEventListener('touchstart', this.handleTouchStart, false);
     window.addEventListener('touchend', this.handleTouchEnd, false);
     window.addEventListener('keydown', this.handleKeyboardInput);
-    document.addEventListener('visibilitychange', this.handleVisibilityChanged, false);
   }
 
   async componentDidUpdate(prevProps) {
