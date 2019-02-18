@@ -5,7 +5,7 @@ import 'array.prototype.flat/auto';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './App';
-import * as serviceWorker from './custom-service-worker';
+import * as serviceWorker from './serviceWorker';
 import './index.css';
 
 ReactDOM.render(<App />, document.getElementById('root'));
@@ -13,6 +13,10 @@ ReactDOM.render(<App />, document.getElementById('root'));
 serviceWorker.register();
 
 // Global unhandled error event handler:
+declare global {
+    interface Window { env: any; }
+}
+
 const LOG_URL = `${window.env.api}/logs`;
 
 window.addEventListener('error', async event => {
@@ -43,3 +47,8 @@ window.addEventListener('error', async event => {
         console.error(error);
     }
 });
+
+// Number.isSafeInteger polyfill:
+Number.isSafeInteger = Number.isSafeInteger || function (value) {
+    return Number.isInteger(value) && Math.abs(value) <= Number.MAX_SAFE_INTEGER;
+};

@@ -32,7 +32,7 @@ export default function App() {
 
     useEffect(() => {
         getHashAsync().then(setHash);
-    });
+    }, []);
 
     return (
         <Router>

@@ -1,29 +1,43 @@
 import React from 'react';
+import { BackgroundColor, BotType, OpponentType } from './types';
 
-class Opponent extends React.PureComponent {
+interface OpponentProps {
+    backgroundColor: BackgroundColor,
+    botTypes: BotType[];
+    index: number;
+    name: string;
+    type: OpponentType;
+    onNameChange: (name: string) => void;
+    onTypeChange: (type: OpponentType) => void;
+}
+
+const OpponentTypes: Array<[OpponentType, string]> = [
+    [OpponentType.User, 'User'],
+    [OpponentType.Bot, 'Bot']
+];
+
+class Opponent extends React.PureComponent<OpponentProps> {
     render() {
-        const { backgroundColor, botTypes, busy, index, name, type } = this.props;
+        const { backgroundColor, botTypes, index, name, type } = this.props;
         const { onNameChange, onTypeChange } = this.props;
 
         let $input;
 
-        if (type === 'user') {
+        if (type === OpponentType.User) {
             $input = (
                 <input
                     type="text"
                     value={name}
                     onChange={event => onNameChange(event.target.value)}
                     placeholder={`Opponent #${index + 1}`}
-                    readOnly={busy}
                     autoFocus={true}
                 />
             );
-        } else if (type === 'bot') {
+        } else if (type === OpponentType.Bot) {
             $input = (
                 <select
                     value={name}
                     onChange={event => onNameChange(event.target.value)}
-                    readOnly={busy}
                     autoFocus={true}
                 >
                     <option value="">Select bot type</option>
@@ -36,22 +50,20 @@ class Opponent extends React.PureComponent {
             throw new Error(`'Type '${type}' is invalid.`);
         }
 
-        const $radio = (value, text) => (
-            <label className="new-game-opponent-type">
-                <input
-                    type="radio"
-                    value={value}
-                    checked={type === value}
-                    onChange={event => onTypeChange(event.target.value)}
-                />
-                <span>{text}</span>
-            </label>
-        );
-
         return (
             <div className="new-game-opponent" data-background-color={backgroundColor}>
-                {$radio('user', 'User')}
-                {$radio('bot', 'Bot')}
+                {OpponentTypes.map(([value, text]) => (
+                    <label key={value} className="new-game-opponent-type">
+                        <input
+                            type="radio"
+                            checked={type === value}
+                            onChange={() => onTypeChange(value)}
+                        />
+
+                        <span>{text}</span>
+                    </label>
+                ))}
+
                 {$input}
             </div>
         );

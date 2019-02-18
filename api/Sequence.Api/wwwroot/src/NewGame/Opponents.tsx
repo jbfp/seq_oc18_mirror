@@ -1,18 +1,19 @@
 import React from 'react';
+import { NewGameAction, setOpponentName, setOpponentType } from "./actions";
 import { ServerContext } from "../contexts";
+import { BackgroundColor, BotType, OpponentType } from './types';
 import Opponent from './Opponent';
 
-function getBackgroundColors(n) {
-    switch (n) {
-        case 1: return ['green'];
-        case 2: return ['green', 'blue'];
-        case 3: return ['green', 'red', 'green'];
-        case 5: return ['green', 'blue', 'red', 'green', 'blue'];
-        default: return new Array(n).fill('');
-    }
+interface OpponentsProps {
+    opponents: Array<{ name: string, type: OpponentType }>;
+    dispatch: (action: NewGameAction) => void;
 }
 
-class Opponents extends React.Component {
+interface OpponentsState {
+    botTypes: BotType[];
+}
+
+class Opponents extends React.Component<OpponentsProps, OpponentsState> {
     static contextType = ServerContext;
 
     state = {
@@ -34,7 +35,7 @@ class Opponents extends React.Component {
     render() {
         const { botTypes } = this.state;
         const { opponents } = this.props;
-        const { onOpponentNameChange, onOpponentTypeChange } = this.props;
+        const { dispatch } = this.props;
         const backgroundColors = getBackgroundColors(opponents.length);
 
         return (
@@ -55,8 +56,8 @@ class Opponents extends React.Component {
                         name={name}
                         type={type}
                         backgroundColor={backgroundColors[i]}
-                        onNameChange={name => onOpponentNameChange(i, name)}
-                        onTypeChange={type => onOpponentTypeChange(i, type)}
+                        onNameChange={name => dispatch(setOpponentName(i, name))}
+                        onTypeChange={type => dispatch(setOpponentType(i, type))}
                     />
                 ))}
             </div>
@@ -65,3 +66,13 @@ class Opponents extends React.Component {
 }
 
 export default Opponents;
+
+function getBackgroundColors(n: number): BackgroundColor[] {
+    switch (n) {
+        case 1: return [BackgroundColor.Green];
+        case 2: return [BackgroundColor.Green, BackgroundColor.Blue];
+        case 3: return [BackgroundColor.Green, BackgroundColor.Red, BackgroundColor.Green];
+        case 5: return [BackgroundColor.Green, BackgroundColor.Blue, BackgroundColor.Red, BackgroundColor.Green, BackgroundColor.Blue];
+        default: return new Array(n).fill(BackgroundColor.None);
+    }
+}
