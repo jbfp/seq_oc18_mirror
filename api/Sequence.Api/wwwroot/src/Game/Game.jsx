@@ -55,9 +55,7 @@ class Game extends React.Component {
       .configureLogging(SignalR.LogLevel.Information)
       .build();
 
-    connection.on('UpdateGame', gameEvent => {
-      this.handleGameUpdatedEvent(gameEvent);
-    });
+    connection.on('UpdateGame', this.handleGameUpdatedEvent);
 
     connection.onclose(async error => {
       if (error) {
@@ -86,6 +84,8 @@ class Game extends React.Component {
     if (selectedCard) {
       const gameId = this.props.match.params.id;
 
+      this._connection.off('UpdateGame', this.handleGameUpdatedEvent);
+
       try {
         const result = await this.context.playCardAsync(gameId, selectedCard, coord);
 
@@ -99,6 +99,7 @@ class Game extends React.Component {
           }
         }
       } finally {
+        this._connection.on('UpdateGame', this.handleGameUpdatedEvent);
       }
     }
   };
