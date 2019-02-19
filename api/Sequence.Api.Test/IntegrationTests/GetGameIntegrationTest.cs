@@ -48,5 +48,23 @@ namespace Sequence.Api.Test.IntegrationTests
                 Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             }
         }
+
+        [Fact]
+        public async Task GetGameReturnsNotModified()
+        {
+            var gamePath = await CreateGameAsync();
+
+            using (var response = await AuthorizedClient.GetAsync(gamePath))
+            {
+                Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            }
+
+            var gamePathWithVersion = $"{gamePath}?version={0}";
+
+            using (var response = await AuthorizedClient.GetAsync(gamePathWithVersion))
+            {
+                Assert.Equal(HttpStatusCode.NotModified, response.StatusCode);
+            }
+        }
     }
 }

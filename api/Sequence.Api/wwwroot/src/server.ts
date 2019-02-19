@@ -94,8 +94,8 @@ class Server implements CanCreateGame, CanGetBotTypes {
     return body.games;
   }
 
-  async getGameByIdAsync(id: t.GameId) {
-    const url = this.buildUrl('games', id);
+  async getGameByIdAsync(id: t.GameId, version: number | null) {
+    const url = `${this.buildUrl('games', id)}?version=${version || ''}`;
 
     const response = await fetch(url, {
       headers: {
@@ -104,6 +104,10 @@ class Server implements CanCreateGame, CanGetBotTypes {
       },
       method: 'GET',
     });
+
+    if (response.status === 304) {
+      return null;
+    }
 
     const body: GetGameByIdResponseBody = await response.json();
 

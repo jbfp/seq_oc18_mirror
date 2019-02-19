@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Sequence.Core;
 using Sequence.Core.Play;
@@ -12,11 +13,16 @@ namespace Sequence.Api
     public sealed class PlayController : SequenceControllerBase
     {
         private readonly PlayHandler _handler;
+        private readonly IMemoryCache _cache;
         private readonly ILogger _logger;
 
-        public PlayController(PlayHandler handler, ILogger<PlayController> logger)
+        public PlayController(
+            PlayHandler handler,
+            IMemoryCache cache,
+            ILogger<PlayController> logger)
         {
             _handler = handler ?? throw new ArgumentNullException(nameof(handler));
+            _cache = cache ?? throw new ArgumentNullException(nameof(cache));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -30,6 +36,11 @@ namespace Sequence.Api
             var gameId = new GameId(id);
             var coord = new Coord(form.Column.Value, form.Row.Value);
             var gameEvent = await _handler.PlayCardAsync(gameId, Player, form.Card, coord, cancellationToken);
+
+            // Invalidate cache:
+            var cacheKey = string.Format(CacheKeys.GameVersionKey, gameId, Player);
+            _cache.Remove(cacheKey);
+
             return Ok(gameEvent);
         }
     }

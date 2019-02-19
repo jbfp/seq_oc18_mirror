@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Sequence.Core;
@@ -12,20 +13,23 @@ namespace Sequence.Api.Test
         [Fact]
         public void Constructor_ThrowsIfArgsAreNull()
         {
-            var handler = new PlayHandler(
-                Mock.Of<IGameProvider>(),
-                Mock.Of<IGameEventStore>());
-
+            var handler = new PlayHandler(Mock.Of<IGameProvider>(), Mock.Of<IGameEventStore>());
+            var cache = Mock.Of<IMemoryCache>();
             var logger = Mock.Of<ILogger<PlayController>>();
 
             Assert.Throws<ArgumentNullException>(
                 paramName: "handler",
-                testCode: () => new PlayController(handler: null, logger)
+                testCode: () => new PlayController(handler: null, cache, logger)
+            );
+
+            Assert.Throws<ArgumentNullException>(
+                paramName: "cache",
+                testCode: () => new PlayController(handler, cache: null, logger)
             );
 
             Assert.Throws<ArgumentNullException>(
                 paramName: "logger",
-                testCode: () => new PlayController(handler, logger: null)
+                testCode: () => new PlayController(handler, cache, logger: null)
             );
         }
     }

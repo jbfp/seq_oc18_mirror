@@ -255,7 +255,13 @@ class Game extends React.Component {
 
   async loadGameAsync() {
     const gameId = this.props.match.params.id;
-    const game = await this.context.getGameByIdAsync(gameId);
+    const version = this.state.game ? this.state.game.index : null;
+    const game = await this.context.getGameByIdAsync(gameId, version);
+
+    if (game === null) {
+      return;
+    }
+
     const board = await this.context.getBoardAsync(game.rules.boardType);
     this.setState({ game: { ...game, board } });
   }
@@ -319,10 +325,8 @@ class Game extends React.Component {
 
   async initAsync() {
     await this.loadGameAsync();
-    const gameId = this.props.match.params.id;
-    const playerId = this.context.userName;
     await this.unsubscribeAsync();
-    await this._connection.invoke('Subscribe', gameId);
+    await this._connection.invoke('Subscribe', this.props.match.params.id);
   }
 
   async unsubscribeAsync() {
@@ -351,6 +355,7 @@ class Game extends React.Component {
     window.addEventListener('touchstart', this.handleTouchStart, false);
     window.addEventListener('touchend', this.handleTouchEnd, false);
     window.addEventListener('keydown', this.handleKeyboardInput);
+    document.addEventListener('visibilitychange', this.handleVisibilityChanged, false);
 
     await startAsync(this._connection);
     await this.initAsync();
