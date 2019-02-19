@@ -344,6 +344,7 @@ namespace Sequence.Core
                 }).ToImmutableArray(),
                 CurrentPlayerId = _currentPlayerId,
                 Discards = _discards.ToImmutableArray(),
+                Index = _moves.Select(m => m.Index).DefaultIfEmpty().Max(),
                 Moves = _moves.Select(e => new MoveView
                 {
                     ByPlayerId = e.ByPlayerId,
@@ -514,6 +515,7 @@ namespace Sequence.Core
         public PlayerId CurrentPlayerId { get; internal set; }
         public IImmutableList<Card> Discards { get; internal set; }
         public IImmutableList<Card> Hand { get; internal set; }
+        public int Index { get; internal set; }
         public IImmutableList<MoveView> Moves { get; internal set; }
         public int NumberOfCardsInDeck { get; internal set; }
         public int NumberOfSequencesToWin { get; internal set; }
