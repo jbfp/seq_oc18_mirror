@@ -18,10 +18,6 @@ export default function NewGame(props: NewGameProps) {
     const context = useContext(ServerContext);
 
     async function submitAsync(event: React.FormEvent<HTMLFormElement>) {
-        if (context === null) {
-            return;
-        }
-
         if (state.numSequencesToWin === null) {
             return;
         }

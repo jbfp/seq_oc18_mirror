@@ -9,11 +9,9 @@ export default function Games() {
     const intervalId = useRef<number | undefined>(undefined);
 
     async function loadGamesAsync() {
-        if (context) {
-            const allGames = await context.getGamesAsync();
-            const value = mapAllGamesToCollection(allGames, context.userName);
-            setGames(value);
-        }
+        const allGames = await context.getGamesAsync();
+        const value = mapAllGamesToCollection(allGames, context.userName);
+        setGames(value);
     }
 
     useEffect(() => { loadGamesAsync(); }, [context]);
