@@ -66,7 +66,7 @@ function App(props: RouteProps) {
             <div className="layout-body">
                 {userName ? (
                     <div>
-                        <form className="sign-out-form" onSubmit={Auth.signOutAsync}>
+                        <form className="sign-out-form" onSubmit={() => Auth.signOutAsync()}>
                             <span>Hello, <strong>{userName}</strong></span>
                             <span>   |   </span>
                             <button className="sign-out-btn" type="submit">
