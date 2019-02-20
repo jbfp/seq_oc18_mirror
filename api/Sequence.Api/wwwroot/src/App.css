@@ -16,6 +16,14 @@
     margin-bottom: 0.5em;
 }
 
+.layout-header-link {
+    text-decoration: none;
+}
+
+.layout-header-link:visited {
+    color: inherit;
+}
+
 .layout-header-title {
     font-size: 28pt;
     margin: 0;
@@ -25,7 +33,6 @@
     color: #999;
     font-size: 28pt;
     margin: 0;
-    margin-left: 0.25em;
 }
 
 .layout-body {

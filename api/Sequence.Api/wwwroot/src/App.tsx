@@ -1,47 +1,104 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router } from 'react-router-dom';
-import { LoginWithAuth, ProtectedRoute, RouteWithLayout } from './Routing';
+import { Link, Redirect, Route, RouteComponentProps, RouteProps, Switch, withRouter } from 'react-router-dom';
+import { Auth } from './auth';
+import { ServerContext } from "./contexts";
+import { getHashAsync } from './hash';
+import Server from "./server";
 import { Game } from './Game';
 import { Games } from './Games';
+import { Heartbeat } from './Heartbeat';
+import { Login } from './Login';
 import { NewGame } from './NewGame';
+import './App.css';
 
-const GET_HASH_PATH = '/hash.txt';
+function ProtectedRoute(props: RouteProps) {
+    const { component: Component, ...rest } = props;
 
-const GET_HASH_REQUEST = Object.freeze({
-    headers: { 'Accept': 'text/plain' },
-});
-
-async function getHashAsync() {
-    try {
-        const response = await window.fetch(GET_HASH_PATH, GET_HASH_REQUEST);
-
-        if (response.ok) {
-            const body = await response.text();
-            const hash = body.trim().substr(0, 7);
-            return hash;
-        }
-    } catch {
-        // Ignore.
+    if (!Component) {
+        throw new Error('Component is not defined.');
     }
 
-    return 'master';
+    const render = (props: RouteComponentProps) => (
+        Auth.isAuthenticated
+            ? <Component {...props} />
+            : (<Redirect to={{
+                pathname: "/login",
+                state: { from: props.location }
+            }} />)
+    );
+
+    return <Route {...rest} render={render} />;
 }
 
-export default function App() {
+function App(props: RouteProps) {
     const [hash, setHash] = useState('master');
 
     useEffect(() => {
         getHashAsync().then(setHash);
     }, []);
 
+    const userName = Auth.userName;
+
     return (
-        <Router>
-            <React.Fragment>
-                <RouteWithLayout path="/login" component={LoginWithAuth} hash={hash} title="sign in" />
-                <ProtectedRoute exact path="/" component={Games} hash={hash} title="games" />
-                <ProtectedRoute exact path="/new-game" component={NewGame} hash={hash} title="new game" />
-                <ProtectedRoute path="/games/:id" component={Game} hash={hash} title="play" />
-            </React.Fragment>
-        </Router>
+        <div className="layout">
+            <div className="layout-header">
+                <Link to="/" className="layout-header-link">
+                    <h1 className="layout-header-title">
+                        one&#8209;eyed&nbsp;jack
+                    </h1>
+                </Link>
+                &nbsp;&nbsp;
+                <Link to={props.location || { pathname: '/' }} className="layout-header-link">
+                    <h2 className="layout-header-subtitle">
+                        <Switch>
+                            <Route path="/login" render={() => 'sign in'} />
+                            <Route path="/" exact render={() => 'games'} />
+                            <Route path="/new-game" exact render={() => 'new game'} />
+                            <Route path="/games/:id" render={() => 'play'} />
+                            <Route render={() => 'not found'} />
+                        </Switch>
+                    </h2>
+                </Link>
+            </div>
+
+            <hr />
+
+            <div className="layout-body">
+                {userName ? (
+                    <div>
+                        <form className="sign-out-form" onSubmit={Auth.signOutAsync}>
+                            <span>Hello, <strong>{userName}</strong></span>
+                            <span>   |   </span>
+                            <button className="sign-out-btn" type="submit">
+                                Sign out
+                                </button>
+                        </form>
+                    </div>
+                ) : null}
+
+                <Switch>
+                    <Route path="/login" component={Login} />
+
+                    <ServerContext.Provider value={new Server(window.env.api, userName)}>
+                        <ProtectedRoute path="/" exact component={Games} />
+                        <ProtectedRoute path="/games" exact component={Games} />
+                        <ProtectedRoute path="/new-game" exact component={NewGame} />
+                        <ProtectedRoute path="/games/:id" component={Game} />
+                    </ServerContext.Provider>
+                </Switch>
+            </div>
+
+            <hr className="layout-body-end" />
+
+            <div className="layout-footer">
+                <span>© <a href="/">jbfp.dk</a>&nbsp;<Heartbeat></Heartbeat></span>
+                <span>By <a href="mailto:jakob@jbfp.dk">Jakob Pedersen</a></span>
+                <a href="https://www.linkedin.com/in/jakob-pedersen-835a824b" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+                <a href="https://github.com/jbfp" target="_blank" rel="noopener noreferrer">GitHub</a>
+                <a href={`https://github.com/jbfp/one_eyed_jack/commit/${hash}`} target="_blank" rel="noopener noreferrer">{hash}</a>
+            </div>
+        </div>
     );
 }
+
+export default withRouter(App);

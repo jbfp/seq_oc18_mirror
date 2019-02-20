@@ -1,26 +1,28 @@
-import { History, Location } from "history";
 import React, { useState } from 'react';
+import { RouteChildrenProps, Redirect } from "react-router";
+import { Auth } from '../auth';
 import './Login.css';
 
-interface LoginProps {
-    history: History;
-    location: Location
-    onLogin: (userName: string) => void;
-}
-
-export default function Login(props: LoginProps) {
+export default function Login(props: RouteChildrenProps) {
+    const [redirectToReferrer, setRedirectToReferrer] = useState(false);
     const [userName, setUserName] = useState('');
 
-    function submit() {
-        props.onLogin(userName);
-
+    if (redirectToReferrer) {
         const { from } = props.location.state || { from: { pathname: '/' } };
 
         if (from.pathname === '/login') {
             from.pathname = '/';
         }
 
-        props.history.push(from);
+        return <Redirect to={from} />
+    }
+
+    if (Auth.isAuthenticated) {
+        setRedirectToReferrer(true);
+    }
+
+    async function submit() {
+        await Auth.signInAsync(userName).then(() => setRedirectToReferrer(true));
     }
 
     return (
