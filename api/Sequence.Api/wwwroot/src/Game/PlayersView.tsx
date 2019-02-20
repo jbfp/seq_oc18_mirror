@@ -2,7 +2,7 @@ import React from 'react';
 import * as t from '../types';
 
 interface PlayersViewProps {
-    currentPlayerId: t.PlayerId;
+    currentPlayerId: t.PlayerId | null;
     players: t.Player[];
     winner: t.Team | null;
 }
