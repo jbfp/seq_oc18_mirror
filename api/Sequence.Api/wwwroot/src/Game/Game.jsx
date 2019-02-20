@@ -33,10 +33,9 @@ class Game extends React.Component {
     game: null,
     hideCards: false,
     selectedCard: null,
-    showNotification: null,
   };
 
-  _gameEventSource = null;
+  _showNotification = false;
   _hideCardsTimeoutHandle = null;
   _touches = [];
 
@@ -232,7 +231,7 @@ class Game extends React.Component {
       await this.loadGameAsync();
     }
 
-    if (this.state.showNotification) {
+    if (this._showNotification) {
       const { game } = this.state;
       const isCurrentPlayer = game.currentPlayerId === game.playerId;
 
@@ -337,10 +336,7 @@ class Game extends React.Component {
 
   async componentDidMount() {
     if (typeof Notification !== 'undefined') {
-      const handlePermissionCallback = result => {
-        this.setState({ showNotification: result === 'granted' });
-      };
-
+      const handlePermissionCallback = result => this._showNotification = result === 'granted';
       const promise = Notification.requestPermission();
 
       if (typeof promise === 'undefined') {
