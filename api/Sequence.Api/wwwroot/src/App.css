@@ -25,13 +25,20 @@
 }
 
 .layout-header-title {
-    font-size: 28pt;
+    font-size: 120%;
+}
+
+.layout-header-title h1 {
     margin: 0;
 }
 
 .layout-header-subtitle {
+    font-size: 115%;
+    margin-left: 0.25em;
+}
+
+.layout-header-subtitle h2 {
     color: #999;
-    font-size: 28pt;
     margin: 0;
 }
 
@@ -95,10 +102,12 @@
         flex-direction: column;
         margin: 0;
     }
-    .layout-header-title,
     .layout-header-subtitle {
+        margin: 0;
+    }
+    .layout-header-title h1,
+    .layout-header-subtitle h2 {
         font-size: 20pt;
         line-height: 24pt;
-        margin: 0;
     }
 }

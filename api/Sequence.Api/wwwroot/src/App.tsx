@@ -42,14 +42,14 @@ function App(props: RouteProps) {
     return (
         <div className="layout">
             <div className="layout-header">
-                <Link to="/" className="layout-header-link">
-                    <h1 className="layout-header-title">
+                <Link to="/" className="layout-header-link layout-header-title">
+                    <h1>
                         one&#8209;eyed&nbsp;jack
                     </h1>
                 </Link>
-                &nbsp;&nbsp;
-                <Link to={props.location || { pathname: '/' }} className="layout-header-link">
-                    <h2 className="layout-header-subtitle">
+
+                <Link to={props.location || { pathname: '/' }} className="layout-header-link layout-header-subtitle">
+                    <h2>
                         <Switch>
                             <Route path="/login" render={() => 'sign in'} />
                             <Route path="/" exact render={() => 'games'} />
