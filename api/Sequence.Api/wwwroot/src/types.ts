@@ -1,6 +1,6 @@
 export enum BoardType {
-    OneEyedJack,
-    Sequence,
+    OneEyedJack = 'oneEyedJack',
+    Sequence = 'sequence',
 }
 
 export type Board = Array<Array<Tile>>;
