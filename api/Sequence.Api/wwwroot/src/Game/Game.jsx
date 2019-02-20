@@ -30,6 +30,7 @@ class Game extends React.Component {
   };
 
   state = {
+    board: null,
     game: null,
     hideCards: false,
     selectedCard: null,
@@ -262,7 +263,7 @@ class Game extends React.Component {
     }
 
     const board = await this.context.getBoardAsync(game.rules.boardType);
-    this.setState({ game: { ...game, board } });
+    this.setState({ game, board });
   }
 
   handleTouchStart = ({ changedTouches }) => {
@@ -378,6 +379,7 @@ class Game extends React.Component {
   render() {
     return (
       <GameView
+        board={this.state.board}
         game={this.state.game}
         hideCards={this.state.hideCards}
         onCardClick={this.handleCardClick}
