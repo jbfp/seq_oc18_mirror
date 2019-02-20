@@ -12,7 +12,7 @@ interface GameViewProps {
     board: t.Board;
     game: t.GameState;
     hideCards: boolean;
-    selectedCard: t.Card;
+    selectedCard: t.Card | null;
     userName: string;
     onCardClick: (card: t.Card) => void;
     onCoordClick: (coord: t.Coord) => void;
@@ -22,19 +22,21 @@ export default function GameView(props: GameViewProps) {
     const { board, game, hideCards, selectedCard, userName } = props;
     const { onCardClick, onCoordClick } = props;
 
-    let $body;
+    const playerObj = {
+        hand: game.hand,
+        handle: userName,
+        isCurrentPlayer: game.currentPlayerId === game.playerId,
+        team: game.team,
+    };
 
-    if (game) {
-        const playerObj = {
-            hand: game.hand,
-            handle: userName,
-            isCurrentPlayer: game.currentPlayerId === game.playerId,
-            team: game.team,
-        };
+    const latestMoveAt = game.moves.length > 0
+        ? game.moves[0].coord
+        : null;
 
-        const latestMoveAt = game.moves.length > 0 ? game.moves[0].coord : null;
-
-        $body = (
+    return (
+        <div className="game">
+            <Link to="/">Go back</Link>
+            <hr />
             <div>
                 <PlayersView currentPlayerId={game.currentPlayerId} players={game.players} winner={game.winner} />
 
@@ -58,18 +60,6 @@ export default function GameView(props: GameViewProps) {
                     </div>
                 </div>
             </div>
-        );
-    } else {
-        $body = (
-            <div>Loading...</div>
-        );
-    }
-
-    return (
-        <div className="game">
-            <Link to="/">Go back</Link>
-            <hr />
-            {$body}
         </div>
-    )
+    );
 }
