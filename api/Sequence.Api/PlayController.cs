@@ -38,7 +38,7 @@ namespace Sequence.Api
             var gameEvent = await _handler.PlayCardAsync(gameId, Player, form.Card, coord, cancellationToken);
 
             // Invalidate cache:
-            var cacheKey = string.Format(CacheKeys.GameVersionKey, gameId, Player);
+            var cacheKey = string.Format(CacheKeys.GameVersionKey, gameId);
             _cache.Remove(cacheKey);
 
             return Ok(gameEvent);

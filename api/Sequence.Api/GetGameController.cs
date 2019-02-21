@@ -32,9 +32,10 @@ namespace Sequence.Api
             CancellationToken cancellationToken)
         {
             var gameId = new GameId(id);
-            var cacheKey = string.Format(CacheKeys.GameVersionKey, gameId, Player);
+            var cacheKey = string.Format(CacheKeys.GameVersionKey, gameId);
+            var collection = _cache.GetOrCreate<GameViewCollection>(cacheKey, (_factory) => new GameViewCollection());
 
-            if (_cache.TryGetValue<GameView>(cacheKey, out var view))
+            if (collection.TryGetValue(Player, out var view))
             {
                 if (version.HasValue && version.Equals(view.Index))
                 {
@@ -48,7 +49,7 @@ namespace Sequence.Api
             else
             {
                 view = await _handler.GetGameViewForPlayerAsync(gameId, Player, cancellationToken);
-                _cache.Set(cacheKey, view);
+                collection.Set(Player, view);
                 return Ok(new GetGameResult(view));
             }
         }
