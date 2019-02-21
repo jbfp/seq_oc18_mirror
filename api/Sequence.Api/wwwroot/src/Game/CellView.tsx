@@ -2,11 +2,11 @@ import React from 'react';
 import { Chip, Coord, Tile } from "../types";
 
 interface CellViewProps {
-    tile: Tile | null;
-    coord: Coord;
     chip: Chip | null;
+    coord: Coord;
     isHighlighted: boolean | null;
     isLatest: boolean;
+    tile: Tile | null;
     onCoordClick: (coord: Coord) => void;
 }
 
