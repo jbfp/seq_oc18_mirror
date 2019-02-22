@@ -1,39 +1,21 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { RouteComponentProps } from "react-router";
 import { ServerContext } from '../contexts';
-import { Board, GameId, GameState } from "../types";
+import { Board, GameId, GameState, LoadGameResponseKind } from "../types";
 import Game from './Game';
 
 interface GameLoaderProps {
     id: GameId;
 }
 
+interface GameLoaderState {
+    board: Board;
+    game: GameState;
+}
+
 export default function GameLoader(props: RouteComponentProps<GameLoaderProps>) {
     const context = useContext(ServerContext);
-    const [game, setGame] = useState<GameState | null>(null);
-    const [board, setBoard] = useState<Board | null>(null);
-
-    async function loadGameAsync() {
-        const gameId = props.match.params.id;
-        const version = game ? game.index : null;
-        const gameState = await context.getGameByIdAsync(gameId, version);
-        setGame(gameState);
-
-        if (gameState === null) {
-            return;
-        }
-
-        const board = await context.getBoardAsync(gameState.rules.boardType);
-        setBoard(board);
-    }
-
-    async function handleVisibilityChange(event: Event) {
-        const $document = event.target as HTMLDocument;
-
-        if ($document && !$document.hidden) {
-            await loadGameAsync();
-        }
-    }
+    const [state, setState] = useState<GameLoaderState | null>(null);
 
     useEffect(() => {
         loadGameAsync();
@@ -42,15 +24,41 @@ export default function GameLoader(props: RouteComponentProps<GameLoaderProps>) 
     useEffect(() => {
         document.addEventListener('visibilitychange', handleVisibilityChange, false);
         return () => document.removeEventListener('visibilitychange', handleVisibilityChange, false);
-    }, []);
+    });
 
-    if (game && board) {
+    async function loadGameAsync() {
+        const gameId = props.match.params.id;
+        const version = state ? state.game.index : null;
+        const result = await context.getGameByIdAsync(gameId, version);
+
+        if (result.kind === LoadGameResponseKind.Ok) {
+            setState({ game: result.game, board: result.board });
+        } else if (result.kind === LoadGameResponseKind.NotChanged) {
+            return;
+        } else if (result.kind === LoadGameResponseKind.NotFound) {
+            setState(null);
+        }
+    }
+
+    async function handleVisibilityChange(event: Event) {
+        const $document = event.target as HTMLDocument;
+
+        if ($document && $document.visibilityState === 'visible') {
+            await loadGameAsync();
+        }
+    }
+
+    async function handleRequestReload() {
+        await loadGameAsync();
+    }
+
+    if (state) {
         return (
             <Game
                 id={props.match.params.id}
-                game={game}
-                board={board}
-                onRequestReload={() => loadGameAsync()}
+                game={state.game}
+                board={state.board}
+                onRequestReload={handleRequestReload}
             />
         );
     } else {

@@ -124,3 +124,26 @@ export interface CardPlayed {
     sequence: Sequence | null;
     winner: Team | null;
 }
+
+export enum LoadGameResponseKind {
+    Ok, NotChanged, NotFound,
+}
+
+export interface OkLoadGameResponse {
+    kind: LoadGameResponseKind.Ok;
+    game: GameState;
+    board: Board;
+}
+
+export interface NotChangedLoadGameResponse {
+    kind: LoadGameResponseKind.NotChanged;
+}
+
+export interface NotFoundLoadGameResponse {
+    kind: LoadGameResponseKind.NotFound;
+}
+
+export type LoadGameResponse =
+    | OkLoadGameResponse
+    | NotChangedLoadGameResponse
+    | NotFoundLoadGameResponse;

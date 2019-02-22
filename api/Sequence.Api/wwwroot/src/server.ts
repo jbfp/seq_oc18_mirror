@@ -94,7 +94,7 @@ class Server implements CanCreateGame, CanGetBotTypes {
     return body.games;
   }
 
-  async getGameByIdAsync(id: t.GameId, version: number | null) {
+  async getGameByIdAsync(id: t.GameId, version: number | null): Promise<t.LoadGameResponse> {
     const url = `${this.buildUrl('games', id)}?version=${version || ''}`;
 
     const response = await fetch(url, {
@@ -106,12 +106,17 @@ class Server implements CanCreateGame, CanGetBotTypes {
     });
 
     if (response.status === 304) {
-      return null;
+      return { kind: t.LoadGameResponseKind.NotChanged };
+    }
+
+    if (response.status === 404) {
+      return { kind: t.LoadGameResponseKind.NotFound };
     }
 
     const body: GetGameByIdResponseBody = await response.json();
-
-    return body.game;
+    const game = body.game;
+    const board = await this.getBoardAsync(game.rules.boardType);
+    return { kind: t.LoadGameResponseKind.Ok, game, board };
   }
 
   async playCardAsync(id: t.GameId, card: t.Card, coord: t.Coord) {
