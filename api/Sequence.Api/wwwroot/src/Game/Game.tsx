@@ -21,13 +21,19 @@ const CONNECTION_OPTIONS: SignalR.IHttpConnectionOptions = {
 };
 
 async function startAsync(connection: SignalR.HubConnection, callback: () => Promise<void>) {
+    console.log('Trying to connect...');
+
     try {
         await connection.start();
+
+        try {
+            await callback();
+        } catch (err) {
+            console.error('Error executing SignalR connection callback', err);
+        }
     } catch (err) {
         setTimeout(async () => await startAsync(connection, callback), 5000);
     }
-
-    await callback();
 }
 
 interface GameProps {
