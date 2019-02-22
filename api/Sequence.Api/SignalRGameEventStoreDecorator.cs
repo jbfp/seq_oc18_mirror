@@ -10,12 +10,12 @@ namespace Sequence.Api
     public sealed class SignalRGameEventStoreDecorator : IGameEventStore
     {
         private readonly IGameEventStore _store;
-        private readonly IHubContext<MyHub, IMyHubClient> _hubContext;
+        private readonly IHubContext<GameHub, IGameHubClient> _hubContext;
         private readonly ILogger _logger;
 
         public SignalRGameEventStoreDecorator(
             IGameEventStore store,
-            IHubContext<MyHub, IMyHubClient> hubContext,
+            IHubContext<GameHub, IGameHubClient> hubContext,
             ILogger<SignalRGameEventStoreDecorator> logger)
         {
             _store = store ?? throw new ArgumentNullException(nameof(store));

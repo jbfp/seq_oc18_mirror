@@ -12,7 +12,7 @@ const numberKeys = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
 const DEFAULT_HIDE_TIMEOUT = 1000;
 const CURRENT_PLAYER_HIDE_TIMEOUT = 5000;
 
-const HUB_URL = `${window.env.api}/myHub`;
+const HUB_URL = `${window.env.api}/game-hub`;
 
 const CONNECTION_OPTIONS: SignalR.IHttpConnectionOptions = {
     skipNegotiation: true,

@@ -78,7 +78,7 @@ namespace Sequence.Api
             }
 
             app.UseHealthChecks("/health");
-            app.UseSignalR(builder => builder.MapHub<MyHub>("/myHub"));
+            app.UseSignalR(builder => builder.MapHub<GameHub>("/game-hub"));
             app.UseMvc();
         }
 

@@ -19,16 +19,16 @@ namespace Sequence.Api
         public Team? Winner { get; set; }
     }
 
-    public interface IMyHubClient
+    public interface IGameHubClient
     {
         Task UpdateGame(GameEventDto gameEvent);
     }
 
-    public sealed class MyHub : Hub<IMyHubClient>
+    public sealed class GameHub : Hub<IGameHubClient>
     {
         private readonly ILogger _logger;
 
-        public MyHub(ILogger<MyHub> logger)
+        public GameHub(ILogger<GameHub> logger)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
