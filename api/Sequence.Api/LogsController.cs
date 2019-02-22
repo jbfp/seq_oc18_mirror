@@ -1,3 +1,4 @@
+using System;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -10,11 +11,11 @@ namespace Sequence.Api
 
         public LogsController(ILogger<LogsController> logger)
         {
-            _logger = logger;
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         [HttpPost("/logs")]
-        public void Post([FromBody]LogModel model)
+        public void Post([FromBody] LogModel model)
         {
             _logger.LogError("Client side error: {@Error}", model);
         }
