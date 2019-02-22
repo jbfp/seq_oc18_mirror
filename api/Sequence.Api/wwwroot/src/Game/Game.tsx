@@ -323,6 +323,7 @@ export default class Game extends React.Component<GameProps, GameState> {
 
     async handleConnectionStarted() {
         await this._connection.invoke('Subscribe', this.props.id);
+        await this.props.onRequestReload();
     }
 
     async componentDidMount() {
