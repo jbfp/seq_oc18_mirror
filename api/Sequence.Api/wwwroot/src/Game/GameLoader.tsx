@@ -1,7 +1,8 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { RouteComponentProps } from "react-router";
 import { ServerContext } from '../contexts';
 import { Board, GameId, GameState, LoadGameResponseKind } from "../types";
+import PageVisibility from './page-visibility';
 import Game from './Game';
 
 interface GameLoaderProps {
@@ -16,14 +17,45 @@ interface GameLoaderState {
 export default function GameLoader(props: RouteComponentProps<GameLoaderProps>) {
     const context = useContext(ServerContext);
     const [state, setState] = useState<GameLoaderState | null>(null);
+    const timerHandle = useRef<number | undefined>(undefined);
 
     useEffect(() => {
         loadGameAsync();
     }, [props.match.params.id]);
 
     useEffect(() => {
-        document.addEventListener('visibilitychange', handleVisibilityChange, false);
-        return () => document.removeEventListener('visibilitychange', handleVisibilityChange, false);
+        const DEFAULT_TIMEOUT = 5000;
+
+        const timerHandler = async () => {
+            await loadGameAsync();
+            timerHandle.current = window.setTimeout(timerHandler, DEFAULT_TIMEOUT);
+        };
+
+        timerHandler();
+
+        return () => {
+            window.clearInterval(timerHandle.current);
+        };
+    });
+
+    useEffect(() => {
+        if (PageVisibility) {
+            const { hidden, visibilityChange } = PageVisibility;
+
+            const eventHandler = async () => {
+                const document = window.document as any;
+
+                if (document[hidden] === false) {
+                    await loadGameAsync();
+                }
+            };
+
+            document.addEventListener(visibilityChange, eventHandler, false);
+
+            return () => {
+                document.removeEventListener(visibilityChange, eventHandler, false);
+            };
+        }
     });
 
     async function loadGameAsync() {
@@ -37,14 +69,6 @@ export default function GameLoader(props: RouteComponentProps<GameLoaderProps>) 
             return;
         } else if (result.kind === LoadGameResponseKind.NotFound) {
             setState(null);
-        }
-    }
-
-    async function handleVisibilityChange(event: Event) {
-        const $document = event.target as HTMLDocument;
-
-        if ($document && $document.visibilityState === 'visible') {
-            await loadGameAsync();
         }
     }
 
