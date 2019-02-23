@@ -1,5 +1,4 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import * as t from '../types';
 import BoardView from './BoardView';
 import DeckView from './DeckView';
@@ -34,30 +33,26 @@ export default function GameView(props: GameViewProps) {
         : null;
 
     return (
-        <div className="game">
-            <Link to="/">Go back</Link>
-            <hr />
-            <div>
-                <PlayersView currentPlayerId={game.currentPlayerId} players={game.players} winner={game.winner} />
+        <div>
+            <PlayersView currentPlayerId={game.currentPlayerId} players={game.players} winner={game.winner} />
 
-                <BoardView
-                    board={board}
-                    chips={game.chips}
-                    highlightedCellValue={selectedCard}
-                    latestMoveAt={latestMoveAt}
-                    onCoordClick={onCoordClick}
-                />
+            <BoardView
+                board={board}
+                chips={game.chips}
+                highlightedCellValue={selectedCard}
+                latestMoveAt={latestMoveAt}
+                onCoordClick={onCoordClick}
+            />
 
-                <PlayerView hideCards={hideCards} onCardClick={onCardClick} selectedCard={selectedCard} {...playerObj} />
+            <PlayerView hideCards={hideCards} onCardClick={onCardClick} selectedCard={selectedCard} {...playerObj} />
 
-                <div className="game-metadata">
-                    <div>
-                        <DeckView numberOfCardsInDeck={game.numberOfCardsInDeck} />
-                    </div>
+            <div className="game-metadata">
+                <div>
+                    <DeckView numberOfCardsInDeck={game.numberOfCardsInDeck} />
+                </div>
 
-                    <div>
-                        <RulesView {...game.rules} />
-                    </div>
+                <div>
+                    <RulesView {...game.rules} />
                 </div>
             </div>
         </div>

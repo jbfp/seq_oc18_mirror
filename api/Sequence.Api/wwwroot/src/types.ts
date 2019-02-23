@@ -126,7 +126,7 @@ export interface CardPlayed {
 }
 
 export enum LoadGameResponseKind {
-    Ok, NotChanged, NotFound,
+    Ok, NotChanged, NotFound, Error
 }
 
 export interface OkLoadGameResponse {
@@ -143,7 +143,13 @@ export interface NotFoundLoadGameResponse {
     kind: LoadGameResponseKind.NotFound;
 }
 
+export interface ErrorLoadGameResponse {
+    kind: LoadGameResponseKind.Error;
+    error: Error;
+}
+
 export type LoadGameResponse =
     | OkLoadGameResponse
     | NotChangedLoadGameResponse
-    | NotFoundLoadGameResponse;
+    | NotFoundLoadGameResponse
+    | ErrorLoadGameResponse;
