@@ -10,16 +10,16 @@ using System.Threading.Tasks;
 namespace Sequence.Api.Caching
 {
 
-    public sealed class CachedGameStore : IGameProvider
+    public sealed class CachedGameProvider : IGameProvider
     {
         private readonly IGameProvider _gameProvider;
         private readonly IMemoryCache _cache;
         private readonly ILogger _logger;
 
-        public CachedGameStore(
+        public CachedGameProvider(
             IGameProvider gameProvider,
             IMemoryCache cache,
-            ILogger<CachedGameStore> logger)
+            ILogger<CachedGameProvider> logger)
         {
             _gameProvider = gameProvider ?? throw new ArgumentNullException(nameof(gameProvider));
             _cache = cache ?? throw new ArgumentNullException(nameof(cache));

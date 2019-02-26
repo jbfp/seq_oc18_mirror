@@ -44,7 +44,7 @@ namespace Sequence.Api
 
             services.AddHostedService<BotTaskObserver>();
 
-            services.Decorate<IGameProvider, CachedGameStore>();
+            services.Decorate<IGameProvider, CachedGameProvider>();
             services.Decorate<IGameEventStore, CachedGameEventStore>();
             services.Decorate<IGameEventStore, SignalRGameEventStoreDecorator>();
 

@@ -8,28 +8,28 @@ using Xunit;
 
 namespace Sequence.Api.Test.Caching
 {
-    public sealed class CachedGameStoreTest
+    public sealed class CachedGameProviderTest
     {
         [Fact]
         public void Constructor_ThrowsIfArgsAreNull()
         {
             var gameProvider = Mock.Of<IGameProvider>();
             var cache = Mock.Of<IMemoryCache>();
-            var logger = Mock.Of<ILogger<CachedGameStore>>();
+            var logger = Mock.Of<ILogger<CachedGameProvider>>();
 
             Assert.Throws<ArgumentNullException>(
                 paramName: "gameProvider",
-                testCode: () => new CachedGameStore(gameProvider: null, cache, logger)
+                testCode: () => new CachedGameProvider(gameProvider: null, cache, logger)
             );
 
             Assert.Throws<ArgumentNullException>(
                 paramName: "cache",
-                testCode: () => new CachedGameStore(gameProvider, cache: null, logger)
+                testCode: () => new CachedGameProvider(gameProvider, cache: null, logger)
             );
 
             Assert.Throws<ArgumentNullException>(
                 paramName: "logger",
-                testCode: () => new CachedGameStore(gameProvider, cache, logger: null)
+                testCode: () => new CachedGameProvider(gameProvider, cache, logger: null)
             );
         }
     }
