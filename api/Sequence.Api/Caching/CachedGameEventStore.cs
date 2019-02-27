@@ -37,11 +37,11 @@ namespace Sequence.Api.Caching
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            // Remove game from cache and force reload from database.
-            _logger.LogInformation("Evicting game {GameId} from cache because of new game event.", gameId);
-            _cache.Remove(gameId);
-
             await _gameEventStore.AddEventAsync(gameId, gameEvent, cancellationToken);
+
+            // Remove game from cache and force reload from database.
+            _logger.LogInformation("Evicted game {GameId} from cache because of new game event.", gameId);
+            _cache.Remove(gameId);
         }
     }
 }
