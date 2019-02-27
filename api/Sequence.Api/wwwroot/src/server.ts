@@ -116,6 +116,11 @@ class Server implements CanCreateGame, CanGetBotTypes {
 
       const body: GetGameByIdResponseBody = await response.json();
       const game = body.game;
+
+      if (game.version === version) {
+        return { kind: t.LoadGameResponseKind.NotChanged };
+      }
+
       const board = await this.getBoardAsync(game.rules.boardType);
       return { kind: t.LoadGameResponseKind.Ok, game, board };
     } catch (error) {
