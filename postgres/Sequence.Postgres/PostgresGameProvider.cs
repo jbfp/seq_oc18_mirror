@@ -1,6 +1,7 @@
 using Dapper;
 using Microsoft.Extensions.Options;
 using Sequence.Core;
+using Sequence.Core.Bots;
 using System;
 using System.Collections.Immutable;
 using System.Linq;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Sequence.Postgres
 {
-    public sealed class PostgresGameProvider : IGameProvider
+    public sealed class PostgresGameProvider : IBotGameProvider, IGameProvider
     {
         private readonly NpgsqlConnectionFactory _connectionFactory;
 

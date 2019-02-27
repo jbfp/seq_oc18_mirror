@@ -7,12 +7,12 @@ namespace Sequence.Core.Bots
 {
     public sealed class BotTaskHandler
     {
-        private readonly IGameProvider _provider;
+        private readonly IBotGameProvider _provider;
         private readonly IGameEventStore _store;
         private readonly ILogger _logger;
 
         public BotTaskHandler(
-            IGameProvider provider,
+            IBotGameProvider provider,
             IGameEventStore store,
             ILogger<BotTaskHandler> logger)
         {

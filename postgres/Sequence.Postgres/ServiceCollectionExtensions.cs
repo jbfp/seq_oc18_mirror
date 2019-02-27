@@ -18,6 +18,7 @@ namespace Sequence.Postgres
             services.AddSingleton<NpgsqlConnectionFactory>();
             services.AddSingleton<PostgresListener>();
             services.AddSingleton<IHostedService>(sp => sp.GetRequiredService<PostgresListener>());
+            services.AddTransient<IBotGameProvider, PostgresGameProvider>();
             services.AddSingleton<IBotTaskObservable>(sp => sp.GetRequiredService<PostgresListener>());
             services.AddTransient<IGameEventStore, PostgresGameEventStore>();
             services.AddTransient<IGameProvider, PostgresGameProvider>();
