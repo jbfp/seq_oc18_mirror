@@ -27,15 +27,6 @@ rsync -ru --progress --exclude="wwwroot" --exclude="logs" ./* jbfp@jbfp.dk:/home
 
 cd $script_path
 
-echo Publishing Auth...
-cd ./auth/Sequence.Auth/
-
-dotnet publish -c Release -v q
-cd ./bin/Release/netcoreapp2.2/publish/
-
-echo Copying files...
-rsync -ru --progress ./* jbfp@jbfp.dk:/home/jbfp/auth
-
 echo Restarting server processes...
 ssh jbfp@jbfp.dk "pkill dotnet" || true
 
