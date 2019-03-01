@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from "react-router-dom";
 import * as t from '../types';
 import BoardView from './BoardView';
 import DeckView from './DeckView';
@@ -32,8 +33,37 @@ export default function GameView(props: GameViewProps) {
         ? game.moves[0].coord
         : null;
 
+    let reCreateLink = null;
+
+    if (game.winner) {
+        const players = game.players;
+        const numPlayers = game.players.length;
+        const startIndex = players.findIndex(player => player.id === game.playerId);
+
+        const query = new URLSearchParams();
+        query.append('board-type', game.rules.boardType);
+        query.append('win-condition', game.rules.winCondition.toString());
+        query.append('num-players', numPlayers.toString());
+
+        for (let i = 0; i < numPlayers - 1; i++) {
+            const player = players[(startIndex + i + 1) % numPlayers];
+            query.append('opponent-name', player.handle);
+            query.append('opponent-type', player.type);
+        }
+
+        const url = `/new-game?${query.toString()}`;
+
+        reCreateLink = (
+            <div className="re-create-game">
+                <Link to={url}>Re-create game</Link>
+            </div>
+        );
+    }
+
     return (
         <div>
+            {reCreateLink}
+
             <PlayersView currentPlayerId={game.currentPlayerId} players={game.players} winner={game.winner} />
 
             <BoardView

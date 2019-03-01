@@ -5,7 +5,7 @@ import { setBoardType, setBusy, setError, setGameSize, setWinCondition } from '.
 import { ServerContext } from '../contexts';
 import { reducer } from './reducer';
 import { BoardType } from "../types";
-import { GameSize, NewGameState, NumSequencesToWin } from "./types";
+import { GameSize, NewGameState, NumSequencesToWin, Opponent, OpponentType } from "./types";
 import Opponents from "./Opponents";
 import './NewGame.css';
 
@@ -14,7 +14,57 @@ interface NewGameProps {
 }
 
 export default function NewGame(props: NewGameProps) {
-    const [state, dispatch] = useReducer(reducer, initialState);
+    const query = new URLSearchParams(props.history.location.search);
+
+    let init = { ...initialState };
+
+    try {
+        if (query.has('board-type')) {
+            init.boardType = query.getAll('board-type')[0] as BoardType;
+        }
+
+        if (query.has('win-condition')) {
+            init.numSequencesToWin = Number.parseInt(query.getAll('win-condition')[0]) as NumSequencesToWin;
+        }
+
+        if (query.has('num-players')) {
+            let numPlayers = Number.parseInt(query.getAll('num-players')[0]) - 1;
+
+            if (numPlayers > GameSize.TwoVsTwoVsTwo) {
+                numPlayers = GameSize.TwoVsTwoVsTwo;
+            }
+
+            while (typeof GameSize[numPlayers] === 'undefined') {
+                numPlayers++;
+            }
+
+            const opponentNames = query.getAll('opponent-name');
+            const opponentTypes = query.getAll('opponent-type');
+
+            init.opponents = new Array<Opponent>(numPlayers);
+
+            for (let i = 0; i < numPlayers; i++) {
+                const name = opponentNames[i] || '';
+                const typeStr = opponentTypes[i] || '';
+                let type: OpponentType;
+
+                if (typeStr === 'user') {
+                    type = OpponentType.User;
+                } else if (typeStr === 'bot') {
+                    type = OpponentType.Bot;
+                } else {
+                    type = OpponentType.User;
+                }
+
+                init.opponents[i] = { name, type };
+            }
+        }
+    } catch (err) {
+        console.error('Failed to init game from query', err);
+        init = initialState;
+    }
+
+    const [state, dispatch] = useReducer(reducer, init);
     const context = useContext(ServerContext);
 
     async function submitAsync(event: React.FormEvent<HTMLFormElement>) {

@@ -3,6 +3,10 @@
     margin: 0 auto;
 }
 
+.re-create-game {
+    margin-bottom: 0.5em;
+}
+
 .board {
     display: grid;
     justify-content: center;
