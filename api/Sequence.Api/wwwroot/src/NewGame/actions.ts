@@ -1,12 +1,12 @@
 import { BoardType } from "../types";
-import { GameSize, OpponentType, NumSequencesToWin } from "./types";
-import NewGame from "./NewGame";
+import { GameSize, NumSequencesToWin, Opponent, OpponentType } from "./types";
 
 export enum NewGameActionKind {
     SetBoardType = 'set-board-type',
     SetBusy = 'set-busy',
     SetError = 'set-error',
     SetGameSize = 'set-game-size',
+    SetOpponents = 'set-opponents',
     SetOpponentName = 'set-opponent-name',
     SetOpponentType = 'set-opponent-type',
     SetWinCondition = 'set-win-condition',
@@ -32,6 +32,11 @@ export interface SetGameSizeAction {
     newGameSize: GameSize;
 }
 
+export interface SetOpponentsAction {
+    kind: NewGameActionKind.SetOpponents;
+    newOpponents: Opponent[];
+}
+
 export interface SetOpponentNameAction {
     kind: NewGameActionKind.SetOpponentName;
     index: number;
@@ -54,9 +59,14 @@ export type NewGameAction =
     | SetBusyAction
     | SetErrorAction
     | SetGameSizeAction
+    | SetOpponentsAction
     | SetOpponentNameAction
     | SetOpponentTypeAction
     | SetWinConditionAction;
+
+export function setOpponents(opponents: Opponent[]): SetOpponentsAction {
+    return { kind: NewGameActionKind.SetOpponents, newOpponents: opponents };
+}
 
 export function setBoardType(boardType: BoardType): SetBoardTypeAction {
     return { kind: NewGameActionKind.SetBoardType, newBoardType: boardType };

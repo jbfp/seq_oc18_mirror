@@ -78,6 +78,21 @@ input:checked+.new-game-game-size-text {
     text-align: right;
 }
 
+.new-game-randomize-order-btn {
+    appearance: none;
+    background: none;
+    border: none;
+    color: #0366d6;
+    cursor: pointer;
+    height: auto;
+    margin: 0;
+    width: auto;
+}
+
+.new-game-randomize-order-btn:hover {
+    text-decoration: underline;
+}
+
 @media only screen and (max-width: 479px) {
     .new-game-board-types {
         display: flex;

@@ -1,7 +1,8 @@
 import { History } from "history";
 import React, { useContext, useReducer } from 'react';
 import { Link } from 'react-router-dom';
-import { setBoardType, setBusy, setError, setGameSize, setWinCondition } from './actions';
+import shuffle from 'lodash.shuffle';
+import { setBoardType, setBusy, setError, setGameSize, setOpponents, setWinCondition, NewGameActionKind } from './actions';
 import { ServerContext } from '../contexts';
 import { reducer } from './reducer';
 import { BoardType } from "../types";
@@ -67,6 +68,12 @@ export default function NewGame(props: NewGameProps) {
     const [state, dispatch] = useReducer(reducer, init);
     const context = useContext(ServerContext);
 
+    function randomizeOpponentOrder() {
+        const opponents = shuffle(state.opponents);
+        const action = setOpponents(opponents);
+        dispatch(action);
+    }
+
     async function submitAsync(event: React.FormEvent<HTMLFormElement>) {
         if (state.numSequencesToWin === null) {
             return;
@@ -126,6 +133,10 @@ export default function NewGame(props: NewGameProps) {
                 </div>
 
                 <Opponents opponents={state.opponents} dispatch={dispatch}></Opponents>
+
+                <button className="new-game-randomize-order-btn" onClick={randomizeOpponentOrder} type="button">
+                    Randomize player order
+                </button>
 
                 <div className="new-game-board-types">
                     <strong>Board:</strong>

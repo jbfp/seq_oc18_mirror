@@ -22,6 +22,10 @@ export function reducer(state: Readonly<NewGameState>, action: NewGameAction): R
             return Object.freeze({ ...state, numSequencesToWin, opponents });
         }
 
+        case NewGameActionKind.SetOpponents: {
+            return Object.freeze({ ...state, opponents: action.newOpponents });
+        }
+
         case NewGameActionKind.SetOpponentName:
         case NewGameActionKind.SetOpponentType: {
             const partial: Partial<Opponent> = action.kind === NewGameActionKind.SetOpponentName
