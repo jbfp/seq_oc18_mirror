@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { RouteComponentProps } from "react-router";
 import { Link } from 'react-router-dom';
 import { ServerContext } from '../contexts';
@@ -34,7 +34,7 @@ export default function GameLoader(props: RouteComponentProps<GameLoaderProps>) 
         return () => {
             window.clearTimeout(timerHandle.current);
         };
-    }, [state]);
+    }, []);
 
     useEffect(() => {
         if (PageVisibility) {
@@ -54,7 +54,7 @@ export default function GameLoader(props: RouteComponentProps<GameLoaderProps>) 
                 document.removeEventListener(visibilityChange, eventHandler, false);
             };
         }
-    }, [state]);
+    }, []);
 
     async function loadGameAsync() {
         const gameId = props.match.params.id;
@@ -80,9 +80,9 @@ export default function GameLoader(props: RouteComponentProps<GameLoaderProps>) 
         }
     }
 
-    async function handleRequestReload() {
+    const handleRequestReload = useCallback(async () => {
         await loadGameAsync();
-    }
+    }, []);
 
     const elements = [];
 
@@ -90,7 +90,7 @@ export default function GameLoader(props: RouteComponentProps<GameLoaderProps>) 
         elements.push((
             <div key="error">
                 Failed to load newest game state: {error}&nbsp;
-                <a href="#" onClick={() => loadGameAsync()}>Click here to try again</a>.
+                <a href="#" onClick={loadGameAsync}>Click here to try again</a>.
                 <br /><br />
             </div>
         ));
