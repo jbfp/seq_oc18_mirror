@@ -2,6 +2,7 @@ using Dapper;
 using Microsoft.Extensions.Options;
 using Sequence.Postgres;
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -51,9 +52,9 @@ namespace Sequence.PlayCard
                 {
                     var commandText = @"
                         INSERT INTO
-                            game_event (game_id, idx, by_player_id, card_drawn, card_used, chip, coord, next_player_id, sequence, winner)
+                            game_event (game_id, idx, by_player_id, card_drawn, card_used, chip, coord, next_player_id, sequences, winner)
                         VALUES
-                            (@gameId, @idx, @byPlayerId, @cardDrawn, @cardUsed, @chip, @coord, @nextPlayerId, @sequence, @winner);";
+                            (@gameId, @idx, @byPlayerId, @cardDrawn, @cardUsed, @chip, @coord, @nextPlayerId, @sequences, @winner);";
 
                     command.CommandText = commandText;
                     command.Parameters.AddWithValue("@gameId", surrogateGameId);
@@ -64,7 +65,7 @@ namespace Sequence.PlayCard
                     command.Parameters.AddWithValue("@chip", (object)gameEvent.Chip ?? DBNull.Value);
                     command.Parameters.AddWithValue("@coord", CoordComposite.FromCoord(gameEvent.Coord));
                     command.Parameters.AddWithValue("@nextPlayerId", (object)gameEvent.NextPlayerId?.ToInt32() ?? DBNull.Value);
-                    command.Parameters.AddWithValue("@sequence", (object)SequenceComposite.FromSequence(gameEvent.Sequence) ?? DBNull.Value);
+                    command.Parameters.AddWithValue("@sequences", gameEvent.Sequences.Select(SequenceComposite.FromSequence).ToArray());
                     command.Parameters.AddWithValue("@winner", (object)gameEvent.Winner ?? DBNull.Value);
                     command.Transaction = transaction;
 

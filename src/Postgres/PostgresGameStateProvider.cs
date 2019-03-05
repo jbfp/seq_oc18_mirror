@@ -87,7 +87,7 @@ namespace Sequence.Postgres
                         , ge.chip
                         , ge.coord
                         , ge.next_player_id
-                        , ge.sequence
+                        , ge.sequences
                         , ge.winner
                         FROM public.game_event AS ge
                         INNER JOIN public.game AS g ON g.id = ge.game_id
