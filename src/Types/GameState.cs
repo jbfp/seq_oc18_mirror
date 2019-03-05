@@ -78,6 +78,12 @@ namespace Sequence
                 }
 
                 CurrentPlayerId = gameEvent.NextPlayerId;
+
+                DeadCards = PlayerHandByIdx
+                    .SelectMany(hand => hand)
+                    .Where(IsCardDead)
+                    .ToImmutableHashSet();
+
                 Discards = Discards.Push(cardUsed);
                 GameEvents = GameEvents.Add(gameEvent);
 
@@ -98,6 +104,7 @@ namespace Sequence
             ImmutableDictionary<Coord, Team>.Empty;
         public IImmutableSet<Coord> CoordsInSequence { get; } = ImmutableHashSet<Coord>.Empty;
         public PlayerId CurrentPlayerId { get; }
+        public IImmutableSet<Card> DeadCards { get; } = ImmutableHashSet<Card>.Empty;
         public IImmutableList<Card> Deck { get; } = ImmutableList<Card>.Empty;
         public IImmutableStack<Card> Discards { get; } = ImmutableStack<Card>.Empty;
         public IImmutableList<GameEvent> GameEvents { get; } = ImmutableList<GameEvent>.Empty;
@@ -129,6 +136,15 @@ namespace Sequence
             }
 
             return new GameState(state._init, state.GameEvents.Add(gameEvent).ToArray());
+        }
+
+        private bool IsCardDead(Card card)
+        {
+            var tile = new Tile(card.Suit, card.Rank);
+
+            return BoardType.CoordsByTile.TryGetValue(tile, out var coords)
+                && Chips.ContainsKey(coords.Item1)
+                && Chips.ContainsKey(coords.Item2);
         }
     }
 }
