@@ -9,9 +9,9 @@ echo Building in Release mode...
 dotnet build -c Release -v q
 
 echo Running all tests...
-#ls ./**/*.Test/*.csproj | xargs -L1 -P 0 dotnet test -c Release -v q --no-build
+ls ./test/*.csproj | xargs -L1 -P 0 dotnet test -c Release -v q --no-build
 
-cd ./api/Sequence.Api/
+cd ./src
 
 echo Cleaning previous publish output...
 rm -rf ./bin/Release/netcoreapp2.2/publish

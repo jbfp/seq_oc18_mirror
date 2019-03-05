@@ -1,2 +1,0 @@
-ALTER TABLE public.game_player
-ALTER COLUMN id SET DATA TYPE INTEGER;

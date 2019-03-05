@@ -1,5 +1,0 @@
-ALTER TABLE public.game
-ADD COLUMN board_type INTEGER NOT NULL DEFAULT 0;
-
-ALTER TABLE public.game
-ALTER COLUMN board_type DROP DEFAULT;
