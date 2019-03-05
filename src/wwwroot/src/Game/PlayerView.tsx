@@ -3,6 +3,7 @@ import Hand from './Hand';
 import { Card, PlayerHandle, Team } from "../types";
 
 interface PlayerViewProps {
+    deadCards: number[];
     hand: Card[];
     handle: PlayerHandle;
     hideCards: boolean;
@@ -13,11 +14,18 @@ interface PlayerViewProps {
 }
 
 export default function PlayerView(props: PlayerViewProps) {
-    const { hand, handle, hideCards, isCurrentPlayer, onCardClick, selectedCard, team } = props;
+    const { deadCards, hand, handle, hideCards, isCurrentPlayer, selectedCard, team } = props;
+    const { onCardClick } = props;
 
     return (
         <div className="player" data-team={team}>
-            <Hand cards={hand} hideCards={hideCards} onCardClick={onCardClick} selectedCard={selectedCard} />
+            <Hand
+                cards={hand}
+                deadCards={deadCards}
+                hideCards={hideCards}
+                onCardClick={onCardClick}
+                selectedCard={selectedCard}
+            />
 
             <span className="player-name" data-current-player={isCurrentPlayer}>
                 {handle}
