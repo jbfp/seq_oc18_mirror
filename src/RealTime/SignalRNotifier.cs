@@ -52,7 +52,7 @@ namespace Sequence.RealTime
                 Coord = gameEvent.Coord,
                 Index = gameEvent.Index,
                 NextPlayerId = gameEvent.NextPlayerId,
-                Sequence = gameEvent.Sequence,
+                Sequences = gameEvent.Sequences,
                 Winner = gameEvent.Winner,
             };
         }

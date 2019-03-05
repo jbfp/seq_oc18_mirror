@@ -8,6 +8,6 @@ export interface GameEvent {
     coord: Coord;
     index: number;
     nextPlayerId: PlayerId | null;
-    sequence: Sequence | null;
+    sequences: Sequence[];
     winner: Team | null;
 }

@@ -47,21 +47,15 @@ namespace Sequence.Postgres
         public Team team;
         public CoordComposite[] coords;
 
-        public static SequenceComposite FromSequence(Seq sequence)
+        public static SequenceComposite FromSequence(Seq sequence) => new SequenceComposite
         {
-            if (sequence == null)
-            {
-                return null;
-            }
+            team = sequence.Team,
+            coords = sequence.Coords.Select(CoordComposite.FromCoord).ToArray(),
+        };
 
-            return new SequenceComposite
-            {
-                team = sequence.Team,
-                coords = sequence.Coords.Select(CoordComposite.FromCoord).ToArray(),
-            };
-        }
-
-        public Seq ToSequence() => new Seq(team, coords.Select(c => c.ToCoord()).ToImmutableList());
+        public static Seq ToSequence(SequenceComposite seq) => new Seq(
+            seq.team,
+            seq.coords.Select(c => c.ToCoord()).ToImmutableList());
     }
 #pragma warning restore CS0649
 }

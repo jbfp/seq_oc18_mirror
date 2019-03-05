@@ -106,21 +106,21 @@ namespace Sequence.PlayCard
                     throw new PlayCardFailedException(PlayCardError.CardDoesNotMatchCoord);
                 }
 
-                var sequence = board.GetSequence(
+                var sequences = board.GetSequences(
                     chips: chips.Add(coord, team),
                     state.CoordsInSequence,
                     coord, team);
 
                 Team? winnerTeam = null;
 
-                if (sequence != null)
+                if (sequences.Count > 0)
                 {
                     // Test for win condition:
                     var numSequencesForTeam = state.Sequences
-                        .Add(sequence)
+                        .AddRange(sequences)
                         .Count(seq => seq.Team == team);
 
-                    if (numSequencesForTeam == state.WinCondition)
+                    if (numSequencesForTeam >= state.WinCondition)
                     {
                         winnerTeam = team;
                     }
@@ -139,7 +139,7 @@ namespace Sequence.PlayCard
                     Coord = coord,
                     Index = state.Version + 1,
                     NextPlayerId = nextPlayerId,
-                    Sequence = sequence,
+                    Sequences = sequences.ToArray(),
                     Winner = winnerTeam,
                 };
             }

@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 
 namespace Sequence.Postgres
 {
@@ -14,7 +15,7 @@ namespace Sequence.Postgres
         public CoordComposite coord;
         public int id;
         public DateTimeOffset timestamp;
-        public SequenceComposite sequence;
+        public SequenceComposite[] sequences;
         public PlayerId by_player_id;
         public PlayerId next_player_id;
         public Team? winner;
@@ -32,7 +33,7 @@ namespace Sequence.Postgres
                 Coord = row.coord.ToCoord(),
                 Index = row.idx,
                 NextPlayerId = row.next_player_id,
-                Sequence = row.sequence?.ToSequence(),
+                Sequences = row.sequences.Select(SequenceComposite.ToSequence).ToArray(),
                 Winner = row.winner,
             };
         }

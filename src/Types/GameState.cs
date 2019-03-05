@@ -80,18 +80,15 @@ namespace Sequence
                 CurrentPlayerId = gameEvent.NextPlayerId;
                 Discards = Discards.Push(cardUsed);
                 GameEvents = GameEvents.Add(gameEvent);
-                Version = gameEvent.Index;
 
-                if (gameEvent.Sequence != null)
+                Sequences = Sequences.AddRange(gameEvent.Sequences);
+
+                foreach (var coord in gameEvent.Sequences.SelectMany(seq => seq.Coords))
                 {
-                    Sequences = Sequences.Add(gameEvent.Sequence);
-
-                    foreach (var coord in gameEvent.Sequence.Coords)
-                    {
-                        CoordsInSequence = CoordsInSequence.Add(coord);
-                    }
+                    CoordsInSequence = CoordsInSequence.Add(coord);
                 }
 
+                Version = gameEvent.Index;
                 Winner = gameEvent.Winner;
             }
         }

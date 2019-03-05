@@ -207,21 +207,19 @@ export default class Game extends React.Component<GameProps, GameState> {
             }];
         }
 
-        if (event.sequence) {
-            const sequence = event.sequence;
+        const sequences = event.sequences.flatMap(sequence => sequence.coords);
 
-            chips = chips.map(chip => {
-                const containedInSequence = sequence.coords.some(coord =>
-                    coord.column === chip.coord.column &&
-                    coord.row === chip.coord.row);
+        chips = chips.map(chip => {
+            const containedInSequence = sequences.some(coord =>
+                coord.column === chip.coord.column &&
+                coord.row === chip.coord.row);
 
-                if (containedInSequence) {
-                    return { ...chip, isLocked: true };
-                } else {
-                    return chip;
-                }
-            });
-        }
+            if (containedInSequence) {
+                return { ...chip, isLocked: true };
+            } else {
+                return chip;
+            }
+        });
 
         const moves: t.Move[] = [{
             byPlayerId: event.byPlayerId,

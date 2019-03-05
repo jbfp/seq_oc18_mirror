@@ -99,13 +99,15 @@ namespace Sequence.Test.Postgres
                 Coord = new Coord(4, 2),
                 Index = 2,
                 NextPlayerId = new PlayerId(2),
-                Sequence = new Seq(Team.Blue, ImmutableList.Create(
-                    new Coord(4, 2),
-                    new Coord(5, 2),
-                    new Coord(6, 2),
-                    new Coord(7, 2),
-                    new Coord(8, 2)
-                )),
+                Sequences = new[]
+                {
+                    new Seq(Team.Blue, ImmutableList.Create(
+                        new Coord(4, 2),
+                        new Coord(5, 2),
+                        new Coord(6, 2),
+                        new Coord(7, 2),
+                        new Coord(8, 2))),
+                },
             });
 
             var sut = new PostgresGameStateProvider(db);

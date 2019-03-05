@@ -99,7 +99,7 @@ namespace Sequence.Postgres
                 Coord = row.coord.ToCoord(),
                 Index = row.idx,
                 NextPlayerId = row.next_player_id,
-                Sequence = row.sequence?.ToSequence(),
+                Sequences = row.sequences.Select(SequenceComposite.ToSequence).ToArray(),
                 Winner = row.winner,
             };
 

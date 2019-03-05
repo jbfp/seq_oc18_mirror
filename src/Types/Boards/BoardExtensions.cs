@@ -151,5 +151,104 @@ namespace Sequence
 
             return null;
         }
+
+        public static IImmutableList<Seq> GetSequences(
+            this Board board,
+            IImmutableDictionary<Coord, Team> chips,
+            IImmutableSet<Coord> coordsInSequences,
+            Coord coord,
+            Team team)
+        {
+            if (board == null)
+            {
+                throw new ArgumentNullException(nameof(board));
+            }
+
+            if (chips == null)
+            {
+                throw new ArgumentNullException(nameof(chips));
+            }
+
+            var row = coord.Row;
+            var col = coord.Column;
+
+            bool IsSequence(IEnumerable<Coord> cs)
+            {
+                int shared = 0;
+
+                foreach (var c in cs)
+                {
+                    var isCorner =
+                        (c.Row >= 0 && c.Row < board.Length) &&
+                        (c.Column >= 0 && c.Column < board[c.Row].Length) &&
+                        board[c.Row][c.Column] == null;
+
+                    var teamOwnsCoord = chips.TryGetValue(c, out var t) && team == t;
+
+                    if (isCorner || teamOwnsCoord)
+                    {
+                        var isPartOfAnotherSequence =
+                            coordsInSequences.Contains(c) &&
+                            chips.ContainsKey(c) && // 'chips' won't contain c is it's a corner.
+                            chips[c] == team;
+
+                        if (isPartOfAnotherSequence)
+                        {
+                            shared++;
+                        }
+                    }
+                    else
+                    {
+                        // This is not a valid sequence. Exit early.
+                        return false;
+                    }
+                }
+
+                // This is a valid sequence if all coords of 'cs' are owned by 'team' and only 1
+                // other coord is part of a sequence.
+                return shared < 2;
+            }
+
+            IEnumerable<Seq> TrySequence(IEnumerable<Coord> cs)
+            {
+                int i = 0;
+
+                while (true)
+                {
+                    var seq = cs
+                        .Skip(i++)
+                        .Take(Seq.DefaultLength)
+                        .ToImmutableList();
+
+                    if (seq.Count < Seq.DefaultLength)
+                    {
+                        // Not enough coordinates to form a sequence, stop.
+                        yield break;
+                    }
+
+                    if (IsSequence(seq))
+                    {
+                        yield return new Seq(team, seq);
+
+                        // One coordinate can be shared so we jump forward to that one in the next
+                        // iteration. Since 'i' has already been incremented once, we add only
+                        // N - 2, not N - 1.
+                        i += Seq.DefaultLength - 2;
+                    }
+                }
+            }
+
+            var range = Enumerable.Range(-5, 11);
+
+            return new[]
+            {
+                range.Select(d => new Coord(col, row + d)),     // Vertical
+                range.Select(d => new Coord(col + d, row)),     // Horizontal
+                range.Select(d => new Coord(col + d, row + d)), // (0, 0) -> (9, 9) diagonal
+                range.Select(d => new Coord(col + d, row - d)), // (0, 9) -> (9, 0) diagonal
+            }.AsParallel()
+             .SelectMany(TrySequence)
+             .ToImmutableList();
+        }
     }
 }

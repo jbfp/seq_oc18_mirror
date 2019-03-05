@@ -225,7 +225,10 @@ namespace Sequence.Test.PlayCard
                 Coord = coord,
                 Index = 1,
                 NextPlayerId = _player2.Id,
-                Sequence = new Seq(Team.Red, ImmutableArray.Create(coord, coord, coord, coord, coord)),
+                Sequences = new[]
+                {
+                    new Seq(Team.Red, ImmutableArray.Create(coord, coord, coord, coord, coord))
+                },
             });
 
             // Add a one-eyed jack to Player2 to use for this test.
@@ -308,7 +311,7 @@ namespace Sequence.Test.PlayCard
                     && x.Coord.Equals(y.Coord)
                     && x.Index.Equals(y.Index)
                     && (x.NextPlayerId?.Equals(y.NextPlayerId) ?? true)
-                    && (x.Sequence?.Equals(y.Sequence) ?? true);
+                    && x.Sequences.SequenceEqual(y.Sequences);
             }
 
             public override int GetHashCode(GameEvent obj)
