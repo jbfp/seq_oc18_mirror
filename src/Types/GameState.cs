@@ -84,7 +84,7 @@ namespace Sequence
                     .Where(IsCardDead)
                     .ToImmutableHashSet();
 
-                Discards = Discards.Push(cardUsed);
+                Discards = Discards.Add(cardUsed);
                 GameEvents = GameEvents.Add(gameEvent);
 
                 Sequences = Sequences.AddRange(gameEvent.Sequences);
@@ -96,6 +96,12 @@ namespace Sequence
 
                 Version = gameEvent.Index;
                 Winner = gameEvent.Winner;
+
+                if (Deck.Count == 0)
+                {
+                    Deck = Sequence.Deck.Shuffle(Discards, init.Seed);
+                    Discards = ImmutableList<Card>.Empty;
+                }
             }
         }
 
@@ -106,7 +112,7 @@ namespace Sequence
         public PlayerId CurrentPlayerId { get; }
         public IImmutableSet<Card> DeadCards { get; } = ImmutableHashSet<Card>.Empty;
         public IImmutableList<Card> Deck { get; } = ImmutableList<Card>.Empty;
-        public IImmutableStack<Card> Discards { get; } = ImmutableStack<Card>.Empty;
+        public IImmutableList<Card> Discards { get; } = ImmutableList<Card>.Empty;
         public IImmutableList<GameEvent> GameEvents { get; } = ImmutableList<GameEvent>.Empty;
         public int NumberOfPlayers { get; }
         public IImmutableList<IImmutableList<Card>> PlayerHandByIdx { get; } =

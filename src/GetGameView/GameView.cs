@@ -58,7 +58,7 @@ namespace Sequence.GetGameView
         public IImmutableList<ChipView> Chips { get; }
         public PlayerId CurrentPlayerId { get; }
         public IImmutableList<int> DeadCards { get; }
-        public IImmutableStack<Card> Discards { get; }
+        public IImmutableList<Card> Discards { get; }
         public IImmutableList<Card> Hand { get; }
         public IImmutableList<MoveView> Moves { get; }
         public int NumberOfCardsInDeck { get; }

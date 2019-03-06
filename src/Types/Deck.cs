@@ -65,6 +65,30 @@ namespace Sequence
             }
         }
 
+        public static IImmutableList<Card> Shuffle(IImmutableList<Card> cards, Seed seed)
+        {
+            if (cards.Count == 0)
+            {
+                return cards;
+            }
+
+            var deck = cards.ToList();
+            var rng = seed.ToRandom();
+
+            // Shuffle with Fisher-Yates algorithm.
+            var n = deck.Count;
+
+            for (int i = 0; i < n; i++)
+            {
+                int r = i + rng.Next(n - i);
+                var t = deck[r];
+                deck[r] = deck[i];
+                deck[i] = t;
+            }
+
+            return deck.ToImmutableList();
+        }
+
         public IImmutableList<IImmutableList<Card>> DealHands()
         {
             int GetNumCards()
