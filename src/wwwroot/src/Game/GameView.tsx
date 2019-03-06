@@ -74,7 +74,13 @@ export default function GameView(props: GameViewProps) {
                 onCoordClick={onCoordClick}
             />
 
-            <PlayerView hideCards={hideCards} onCardClick={onCardClick} selectedCard={selectedCard} {...playerObj} />
+            <PlayerView
+                deadCards={game.deadCards}
+                hideCards={hideCards}
+                onCardClick={onCardClick}
+                selectedCard={selectedCard}
+                {...playerObj}
+            />
 
             <div className="game-metadata">
                 <div>

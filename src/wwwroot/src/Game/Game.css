@@ -299,6 +299,11 @@ div[data-rank="king"]::after {
     transform: translateY(-0.5em);
 }
 
+.card[data-dead=true] {
+    background-color: #bbbbbb;
+    filter: grayscale(0.5);
+}
+
 .deck {
     color: #FFFFFF;
     margin: 0;

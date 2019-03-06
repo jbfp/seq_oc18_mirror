@@ -203,7 +203,7 @@ namespace Sequence
                 [new Tile(Suit.Clubs, Rank.Four)] = (new Coord(5, 6), new Coord(7, 8)),
                 [new Tile(Suit.Clubs, Rank.Five)] = (new Coord(6, 6), new Coord(8, 8)),
                 [new Tile(Suit.Clubs, Rank.Six)] = (new Coord(7, 6), new Coord(9, 8)),
-                [new Tile(Suit.Clubs, Rank.Seven)] = (new Coord(7, 5), new Coord(9, 6)),
+                [new Tile(Suit.Clubs, Rank.Seven)] = (new Coord(7, 5), new Coord(9, 7)),
                 [new Tile(Suit.Clubs, Rank.Eight)] = (new Coord(7, 4), new Coord(9, 6)),
                 [new Tile(Suit.Clubs, Rank.Nine)] = (new Coord(7, 3), new Coord(9, 5)),
                 [new Tile(Suit.Clubs, Rank.Ten)] = (new Coord(7, 2), new Coord(9, 4)),

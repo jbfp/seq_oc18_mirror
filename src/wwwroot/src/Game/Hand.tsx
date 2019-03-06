@@ -4,13 +4,14 @@ import Card from './Card';
 
 interface HandProps {
     cards: t.Card[];
+    deadCards: number[];
     hideCards: boolean;
     selectedCard: t.Card | null;
     onCardClick: (card: t.Card) => void;
 }
 
 export default function Hand(props: HandProps) {
-    const { cards, hideCards, onCardClick, selectedCard } = props;
+    const { cards, deadCards, hideCards, onCardClick, selectedCard } = props;
     const classes = ['hand'];
 
     if (hideCards) {
@@ -26,6 +27,7 @@ export default function Hand(props: HandProps) {
                     <div key={key} className="hand-card">
                         <Card
                             card={card}
+                            isDead={deadCards.includes(idx)}
                             isSelected={card === selectedCard}
                             onCardClick={onCardClick}
                         />
