@@ -221,12 +221,12 @@ export default class Game extends React.Component<GameProps, GameState> {
             }
         });
 
-        const moves: t.Move[] = [{
+        const moves: t.Move[] = [...game.moves, {
             byPlayerId: event.byPlayerId,
             cardUsed: event.cardUsed,
             coord: event.coord,
             index: event.index,
-        }, ...game.moves];
+        }];
 
         const winner = event.winner;
 
