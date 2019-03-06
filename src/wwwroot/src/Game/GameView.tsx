@@ -30,7 +30,7 @@ export default function GameView(props: GameViewProps) {
     };
 
     const latestMoveAt = game.moves.length > 0
-        ? game.moves[0].coord
+        ? game.moves[game.moves.length - 1].coord
         : null;
 
     let reCreateLink = null;
