@@ -354,6 +354,12 @@ export default class Game extends React.Component<GameProps, GameState> {
         await startAsync(this._connection, () => this.handleConnectionStarted());
     }
 
+    componentDidUpdate(newProps: GameProps) {
+        if (this.state.game.version < newProps.game.version) {
+            this.setState({ game: { ...newProps.game } });
+        }
+    }
+
     async componentWillUnmount() {
         window.removeEventListener('keydown', this.handleKeyboardInput);
         window.removeEventListener('deviceorientation', this.handleDeviceOrientation, false);
