@@ -15,7 +15,8 @@ const CURRENT_PLAYER_HIDE_TIMEOUT = 5000;
 const HUB_URL = `${window.env.api}/game-hub`;
 
 const CONNECTION_OPTIONS: SignalR.IHttpConnectionOptions = {
-    transport: SignalR.HttpTransportType.LongPolling | SignalR.HttpTransportType.ServerSentEvents,
+    skipNegotiation: true,
+    transport: SignalR.HttpTransportType.WebSockets,
     logMessageContent: true,
 };
 
