@@ -123,6 +123,11 @@ namespace Sequence
         public int WinCondition { get; }
         public Team? Winner { get; }
 
+        public GameState Apply(GameEvent gameEvent)
+        {
+            return Apply(this, gameEvent);
+        }
+
         public static GameState Apply(GameState state, GameEvent gameEvent)
         {
             if (state == null)
