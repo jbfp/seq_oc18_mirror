@@ -28,7 +28,7 @@ rsync -ru --progress --exclude="wwwroot" --exclude="logs" ./* jbfp@jbfp.dk:/home
 cd $script_path
 
 echo Restarting server processes...
-ssh jbfp@jbfp.dk "pkill dotnet" || true
+ssh -t jbfp@jbfp.dk "sudo systemctl restart sequence" || true
 
 echo Done!
 
