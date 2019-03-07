@@ -27,7 +27,7 @@ export default function Hand(props: HandProps) {
                     <div key={key} className="hand-card">
                         <Card
                             card={card}
-                            isDead={deadCards.includes(idx)}
+                            isDead={false}
                             isSelected={card === selectedCard}
                             onCardClick={onCardClick}
                         />
