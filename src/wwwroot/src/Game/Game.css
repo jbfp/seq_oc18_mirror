@@ -265,6 +265,7 @@ div[data-rank="king"]::after {
     border: 1px black solid;
     border-radius: 7.5%;
     box-sizing: content-box;
+    color: #000000;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -278,6 +279,13 @@ div[data-rank="king"]::after {
 .card::before,
 .card::after {
     font-size: 125%;
+}
+
+.card.small {
+    font-size: 65%;
+    height: 27.5px;
+    margin: 0.25em;
+    width: 18.5px;
 }
 
 .card-back {
@@ -314,11 +322,11 @@ div[data-rank="king"]::after {
 }
 
 .players-player {
-    display: inline-block;
+    display: flex;
     flex: 1;
     font-weight: bold;
+    justify-content: space-between;
     padding: 0.5em;
-    text-align: center;
     transition: background-color 250ms ease, color 250ms ease;
     overflow: hidden;
 }
@@ -349,12 +357,8 @@ div[data-rank="king"]::after {
     color: #01AAFE88;
 }
 
-.players-player[data-current-player='true']::before {
-    content: ' > ';
-}
-
-.players-player[data-current-player='true']::after {
-    content: ' < ';
+.players-player[data-current-player='true']>.players-player-name {
+    text-decoration: underline;
 }
 
 .players-player[data-current-player='true'],
@@ -375,15 +379,6 @@ div[data-rank="king"]::after {
 .players-player[data-current-player='true'][data-team='blue'],
 .players-player[data-winner='true'][data-team='blue'] {
     background-color: #01AAFE88;
-}
-
-.players-player[data-winner='true']>* {
-    max-width: 65%;
-    /* Make room for crown emojis */
-}
-
-.players-player[data-winner='true']::before {
-    content: '👑 ';
 }
 
 kbd {
@@ -456,6 +451,12 @@ kbd {
         height: 30px;
         margin: 0.25em;
         width: 20px;
+    }
+    .card.small {
+        font-size: 75%;
+        height: 15px;
+        margin: 0.125em;
+        width: 10px;
     }
     .cell {
         border-width: 1px 0 0 1px;

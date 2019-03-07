@@ -1,9 +1,14 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import * as t from '../types';
+import Card from './Card';
+
+interface Player extends t.Player {
+    lastMove: t.Move | null;
+}
 
 interface PlayersViewProps {
     currentPlayerId: t.PlayerId | null;
-    players: t.Player[];
+    players: Player[];
     winner: t.Team | null;
 }
 
@@ -28,13 +33,15 @@ interface PlayerViewProps {
     handle: t.PlayerHandle;
     isCurrentPlayer: boolean;
     isWinner: boolean;
+    lastMove: t.Move | null;
     team: t.Team;
     type: t.PlayerType;
 }
 
 function PlayerView(props: PlayerViewProps) {
-    const { handle, isCurrentPlayer, isWinner, team, type } = props;
-    const name = type === t.PlayerType.Bot ? `🤖 ${handle} 🤖` : handle;
+    const { handle, isCurrentPlayer, isWinner, lastMove, team } = props;
+    const name = isWinner ? `👑 ${handle}` : handle;
+    const handleCardClick = useCallback(() => { }, []);
 
     return (
         <div
@@ -44,8 +51,18 @@ function PlayerView(props: PlayerViewProps) {
             data-winner={isWinner}
             title={name}
         >
-            <div>
+            <div className="players-player-name">
                 {name}
+            </div>
+
+            <div>
+                {lastMove === null ? null : (<Card
+                    card={lastMove.cardUsed}
+                    className="small"
+                    isDead={false}
+                    isSelected={false}
+                    onCardClick={handleCardClick}
+                />)}
             </div>
         </div>
     );

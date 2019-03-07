@@ -14,7 +14,7 @@ interface PlayerViewProps {
 }
 
 export default function PlayerView(props: PlayerViewProps) {
-    const { deadCards, hand, handle, hideCards, isCurrentPlayer, selectedCard, team } = props;
+    const { deadCards, hand, hideCards, selectedCard, team } = props;
     const { onCardClick } = props;
 
     return (
@@ -26,10 +26,6 @@ export default function PlayerView(props: PlayerViewProps) {
                 onCardClick={onCardClick}
                 selectedCard={selectedCard}
             />
-
-            <span className="player-name" data-current-player={isCurrentPlayer}>
-                {handle}
-            </span>
         </div>
     );
 }

@@ -60,11 +60,21 @@ export default function GameView(props: GameViewProps) {
         );
     }
 
+    const players = game.players.map(player => {
+        return {
+            ...player,
+            lastMove: game.moves
+                .filter(move => move.byPlayerId === player.id)
+                .reverse()
+                .shift() || null,
+        };
+    });
+
     return (
         <div>
             {reCreateLink}
 
-            <PlayersView currentPlayerId={game.currentPlayerId} players={game.players} winner={game.winner} />
+            <PlayersView currentPlayerId={game.currentPlayerId} players={players} winner={game.winner} />
 
             <BoardView
                 board={board}
