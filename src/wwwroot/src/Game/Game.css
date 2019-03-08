@@ -476,6 +476,9 @@ kbd {
         flex-direction: column;
         font-size: 80%;
     }
+    .player {
+        padding: 0.4em;
+    }
     .rules {
         font-size: 80%;
     }
