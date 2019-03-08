@@ -322,6 +322,7 @@ div[data-rank="king"]::after {
 }
 
 .players-player {
+    align-items: center;
     display: flex;
     flex: 1;
     font-weight: bold;
@@ -329,20 +330,6 @@ div[data-rank="king"]::after {
     padding: 0.5em;
     transition: background-color 250ms ease, color 250ms ease;
     overflow: hidden;
-}
-
-.players-player {
-    text-overflow: ellipsis;
-    text-overflow: '… <';
-}
-
-.players-player>* {
-    display: inline-block;
-    max-width: 75%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    vertical-align: text-bottom;
-    white-space: nowrap;
 }
 
 .players-player[data-team='red'] {
@@ -355,6 +342,14 @@ div[data-rank="king"]::after {
 
 .players-player[data-team='blue'] {
     color: #01AAFE88;
+}
+
+.players-player-name {
+    flex-grow: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-overflow: '…';
+    white-space: nowrap;
 }
 
 .players-player[data-current-player='true']>.players-player-name {
