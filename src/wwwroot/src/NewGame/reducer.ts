@@ -40,6 +40,10 @@ export function reducer(state: Readonly<NewGameState>, action: NewGameAction): R
             return Object.freeze({ ...state, opponents: newOpponents });
         }
 
+        case NewGameActionKind.SetRandomFirstPlayer: {
+            return Object.freeze({ ...state, randomFirstPlayer: action.newRandomFirstPlayer });
+        }
+
         case NewGameActionKind.SetWinCondition: {
             return Object.freeze({ ...state, numSequencesToWin: action.newWinCondition });
         }

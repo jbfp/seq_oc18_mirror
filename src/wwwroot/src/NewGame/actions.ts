@@ -9,6 +9,7 @@ export enum NewGameActionKind {
     SetOpponents = 'set-opponents',
     SetOpponentName = 'set-opponent-name',
     SetOpponentType = 'set-opponent-type',
+    SetRandomFirstPlayer = 'set-random-first-player',
     SetWinCondition = 'set-win-condition',
 }
 
@@ -49,6 +50,11 @@ export interface SetOpponentTypeAction {
     newOpponentType: OpponentType;
 }
 
+export interface SetRandomFirstPlayerAction {
+    kind: NewGameActionKind.SetRandomFirstPlayer;
+    newRandomFirstPlayer: boolean;
+}
+
 export interface SetWinConditionAction {
     kind: NewGameActionKind.SetWinCondition;
     newWinCondition: NumSequencesToWin;
@@ -62,6 +68,7 @@ export type NewGameAction =
     | SetOpponentsAction
     | SetOpponentNameAction
     | SetOpponentTypeAction
+    | SetRandomFirstPlayerAction
     | SetWinConditionAction;
 
 export function setOpponents(opponents: Opponent[]): SetOpponentsAction {
@@ -90,6 +97,10 @@ export function setOpponentName(index: number, name: string): SetOpponentNameAct
 
 export function setOpponentType(index: number, type: OpponentType): SetOpponentTypeAction {
     return { kind: NewGameActionKind.SetOpponentType, index, newOpponentType: type };
+}
+
+export function setRandomFirstPlayer(randomFirstPlayer: boolean): SetRandomFirstPlayerAction {
+    return { kind: NewGameActionKind.SetRandomFirstPlayer, newRandomFirstPlayer: randomFirstPlayer };
 }
 
 export function setWinCondition(winCondition: NumSequencesToWin): SetWinConditionAction {
