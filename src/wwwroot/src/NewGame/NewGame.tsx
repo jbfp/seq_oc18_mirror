@@ -1,8 +1,8 @@
 import { History } from "history";
-import React, { useContext, useReducer } from 'react';
+import React, { useCallback, useContext, useReducer } from 'react';
 import { Link } from 'react-router-dom';
 import shuffle from 'lodash.shuffle';
-import { setBoardType, setBusy, setError, setGameSize, setOpponents, setWinCondition, NewGameActionKind } from './actions';
+import { setBoardType, setBusy, setError, setGameSize, setOpponents, setRandomFirstPlayer, setWinCondition } from './actions';
 import { ServerContext } from '../contexts';
 import { reducer } from './reducer';
 import { BoardType } from "../types";
@@ -74,6 +74,10 @@ export default function NewGame(props: NewGameProps) {
         dispatch(action);
     }
 
+    const handleRandomFirstPlayerChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+        dispatch(setRandomFirstPlayer(event.target.checked));
+    }, []);
+
     async function submitAsync(event: React.FormEvent<HTMLFormElement>) {
         if (state.numSequencesToWin === null) {
             return;
@@ -89,6 +93,7 @@ export default function NewGame(props: NewGameProps) {
             gameId = await context.createGameAsync({
                 boardType: state.boardType,
                 numSequencesToWin: state.numSequencesToWin,
+                randomFirstPlayer: state.randomFirstPlayer,
                 opponents: state.opponents
             });
         } catch (e) {
@@ -133,6 +138,14 @@ export default function NewGame(props: NewGameProps) {
                 </div>
 
                 <Opponents opponents={state.opponents} dispatch={dispatch}></Opponents>
+
+                <label>
+                    <input
+                        type="checkbox"
+                        checked={state.randomFirstPlayer}
+                        onChange={handleRandomFirstPlayerChange}
+                    /> Random first player
+                </label>
 
                 <button className="new-game-randomize-order-btn" onClick={randomizeOpponentOrder} type="button">
                     Randomize player order
@@ -216,6 +229,7 @@ const initialState = Object.freeze<NewGameState>({
     boardType: BoardType.Sequence,
     numSequencesToWin: null,
     opponents: [],
+    randomFirstPlayer: true,
     busy: false,
     error: null,
 });

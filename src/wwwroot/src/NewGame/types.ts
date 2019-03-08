@@ -11,6 +11,7 @@ export interface NewGameState {
     boardType: BoardType;
     numSequencesToWin: NumSequencesToWin | null;
     opponents: Opponent[];
+    randomFirstPlayer: boolean;
     busy: boolean;
     error: string | null;
 }
@@ -34,6 +35,7 @@ export type NumSequencesToWin = 1 | 2 | 3 | 4;
 export interface CreateGameForm {
     boardType: BoardType;
     numSequencesToWin: NumSequencesToWin;
+    randomFirstPlayer: boolean;
     opponents: Opponent[];
 }
 

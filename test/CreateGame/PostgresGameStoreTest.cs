@@ -22,8 +22,10 @@ namespace Sequence.Test.CreateGame
             var sut = new PostgresGameStore(db);
             var newGame = new NewGame(
                 players: new PlayerList(
+                    randomFirstPlayer: false,
                     new NewPlayer(Player1, PlayerType.User),
                     new NewPlayer(Player2, PlayerType.User)),
+                firstPlayerIndex: 0,
                 seed: new Seed(42),
                 boardType: BoardType.OneEyedJack,
                 numSequencesToWin: 2);
@@ -44,8 +46,10 @@ namespace Sequence.Test.CreateGame
             var botType = new PlayerHandle("Dalvik");
             var newGame = new NewGame(
                 players: new PlayerList(
+                    randomFirstPlayer: false,
                     new NewPlayer(botType, PlayerType.Bot),
                     new NewPlayer(botType, PlayerType.Bot)),
+                firstPlayerIndex: 0,
                 seed: new Seed(42),
                 boardType: BoardType.Sequence,
                 numSequencesToWin: 2);

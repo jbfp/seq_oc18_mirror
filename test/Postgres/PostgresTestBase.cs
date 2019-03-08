@@ -39,8 +39,10 @@ namespace Sequence.Test.Postgres
 
             var newGame = new NewGame(
                 players: new PlayerList(
+                    randomFirstPlayer: false,
                     player1 ?? new NewPlayer(Player1, PlayerType.User),
                     player2 ?? new NewPlayer(Player2, PlayerType.User)),
+                firstPlayerIndex: 0,
                 seed: new Seed(42),
                 boardType: BoardType.OneEyedJack,
                 numSequencesToWin: 2);

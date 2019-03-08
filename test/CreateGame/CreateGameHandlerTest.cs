@@ -29,6 +29,7 @@ namespace Sequence.Test.CreateGame
         }
 
         private static readonly PlayerList _twoPlayers = new PlayerList(
+            randomFirstPlayer: false,
             TestPlayer.Get,
             TestPlayer.Get);
 

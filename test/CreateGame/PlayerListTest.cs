@@ -10,7 +10,7 @@ namespace Sequence.Test.CreateGame
         [Fact]
         public void Constructor_NullArgs()
         {
-            Assert.Throws<ArgumentNullException>(() => new PlayerList(players: null));
+            Assert.Throws<ArgumentNullException>(() => new PlayerList(randomFirstPlayer: false, players: null));
         }
 
         [Fact]
@@ -19,7 +19,7 @@ namespace Sequence.Test.CreateGame
             var player = TestPlayer.Get;
 
             Assert.Throws<ArgumentException>(() =>
-                new PlayerList(player, player));
+                new PlayerList(randomFirstPlayer: false, player, player));
         }
 
         [Fact]
@@ -29,7 +29,7 @@ namespace Sequence.Test.CreateGame
                 new PlayerHandle("Resistance is futile"),
                 PlayerType.Bot);
 
-            Assert.NotNull(new PlayerList(bot, bot));
+            Assert.NotNull(new PlayerList(randomFirstPlayer: false, bot, bot));
         }
 
         [Theory]
@@ -46,7 +46,9 @@ namespace Sequence.Test.CreateGame
                 .Select(_ => TestPlayer.Get)
                 .ToArray();
 
-            Assert.Throws<ArgumentOutOfRangeException>(() => new PlayerList(players));
+            Assert.Throws<ArgumentOutOfRangeException>(
+                () => new PlayerList(randomFirstPlayer: false, players)
+            );
         }
     }
 }
