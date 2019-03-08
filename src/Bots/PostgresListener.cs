@@ -18,7 +18,8 @@ namespace Sequence.Bots
     public sealed class PostgresListener : BackgroundService, IObservable<BotTask>
     {
         private readonly NpgsqlConnectionFactory _connectionFactory;
-        private readonly IObservable<(GameId, GameEvent)> _observable;
+        private readonly IObservable<GameId> _newGameObservable;
+        private readonly IObservable<(GameId, GameEvent)> _newGameEventObservable;
         private readonly ILogger _logger;
 
         private readonly ReplaySubject<BotTask> _subject = new ReplaySubject<BotTask>(
@@ -26,11 +27,13 @@ namespace Sequence.Bots
 
         public PostgresListener(
             NpgsqlConnectionFactory connectionFactory,
-            IObservable<(GameId, GameEvent)> observable,
+            IObservable<GameId> newGameObservable,
+            IObservable<(GameId, GameEvent)> newGameEventObservable,
             ILogger<PostgresListener> logger)
         {
             _connectionFactory = connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
-            _observable = observable ?? throw new ArgumentNullException(nameof(observable));
+            _newGameObservable = newGameObservable ?? throw new ArgumentNullException(nameof(newGameObservable));
+            _newGameEventObservable = newGameEventObservable ?? throw new ArgumentNullException(nameof(newGameEventObservable));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -43,7 +46,13 @@ namespace Sequence.Bots
         {
             try
             {
-                var notifications = _observable
+                var newGameEvents = _newGameObservable
+                    .SelectMany(GetLatestBotTaskForGame)
+                    .Replay(window: TimeSpan.FromSeconds(30));
+
+                newGameEvents.Connect();
+
+                var notifications = _newGameEventObservable
                     .Select(tuple => tuple.Item1)
                     .SelectMany(GetLatestBotTaskForGame)
                     .Replay(window: TimeSpan.FromSeconds(30));
@@ -55,11 +64,13 @@ namespace Sequence.Bots
                     _subject.OnNext(botTask);
                 }
 
+                newGameEvents.Subscribe(_subject);
                 notifications.Subscribe(_subject);
 
                 try
                 {
-                    await notifications
+                    await Observable
+                        .Concat(newGameEvents, notifications)
                         .Select(_ => Unit.Default)
                         .DefaultIfEmpty(Unit.Default)
                         .RunAsync(stoppingToken);
@@ -85,6 +96,24 @@ namespace Sequence.Bots
                 _logger.LogInformation("Getting initial bot tasks");
 
                 const string sql = @"
+                    SELECT
+                      DISTINCT(g.game_id)
+                    , gp.id
+                    , gp.player_id
+                    FROM public.game_player AS gp
+
+                    INNER JOIN public.game AS g
+                    ON g.id = gp.game_id
+
+                    LEFT JOIN public.game_event AS ge
+                    ON g.id = ge.game_id
+
+                    WHERE ge.game_id IS NULL
+                    AND gp.player_type = 'bot'
+                    AND g.first_player_id = gp.id
+
+                    UNION
+
                     SELECT
                       DISTINCT(g.game_id)
                     , gp.id
@@ -125,6 +154,25 @@ namespace Sequence.Bots
                 _logger.LogInformation("Getting latest bot task for game {GameId}", gameId);
 
                 const string sql = @"
+                    SELECT
+                      DISTINCT(g.game_id)
+                    , gp.id
+                    , gp.player_id
+                    FROM public.game_player AS gp
+
+                    INNER JOIN public.game AS g
+                    ON g.id = gp.game_id
+
+                    LEFT JOIN public.game_event AS ge
+                    ON g.id = ge.game_id
+
+                    WHERE ge.game_id IS NULL
+                    AND gp.player_type = 'bot'
+                    AND g.first_player_id = gp.id
+                    AND g.game_id = @gameId
+
+                    UNION
+
                     SELECT
                       g.game_id
                     , gp.id
