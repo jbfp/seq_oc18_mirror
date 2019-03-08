@@ -97,6 +97,7 @@ export interface GameState {
     deadCards: Card[];
     discards: Card[];
     hand: Card[];
+    hasExchangedDeadCard: boolean;
     index: number;
     moves: Move[];
     numberOfCardsInDeck: number;

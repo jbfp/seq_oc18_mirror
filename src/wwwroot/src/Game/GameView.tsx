@@ -87,6 +87,7 @@ export default function GameView(props: GameViewProps) {
 
             <PlayerView
                 deadCards={game.deadCards}
+                hasExchangedDeadCard={game.hasExchangedDeadCard}
                 hideCards={hideCards}
                 onCardClick={onCardClick}
                 onExchangeDeadCardClick={onExchangeDeadCardClick}

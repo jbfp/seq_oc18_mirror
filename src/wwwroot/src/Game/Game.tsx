@@ -255,12 +255,14 @@ export default class Game extends React.Component<GameProps, GameState> {
         }];
 
         const winner = event.winner;
+        const hasExchangedDeadCard = event.coord.row === -1 && event.coord.column === -1;
 
         const newGame: t.GameState = {
             ...game,
             chips,
             currentPlayerId,
             hand,
+            hasExchangedDeadCard,
             moves,
             numberOfCardsInDeck,
             version,

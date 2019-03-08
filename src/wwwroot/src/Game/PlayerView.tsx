@@ -6,6 +6,7 @@ interface PlayerViewProps {
     deadCards: Card[];
     hand: Card[];
     handle: PlayerHandle;
+    hasExchangedDeadCard: boolean;
     hideCards: boolean;
     isCurrentPlayer: boolean;
     selectedCard: Card | null;
@@ -15,7 +16,7 @@ interface PlayerViewProps {
 }
 
 export default function PlayerView(props: PlayerViewProps) {
-    const { deadCards, hand, hideCards, selectedCard, team } = props;
+    const { deadCards, hand, hasExchangedDeadCard, hideCards, selectedCard, team } = props;
     const { onCardClick, onExchangeDeadCardClick } = props;
     const isDead = selectedCard && deadCards.some(deadCard =>
         deadCard.deckNo === selectedCard.deckNo &&
@@ -37,7 +38,7 @@ export default function PlayerView(props: PlayerViewProps) {
                 selectedCard={selectedCard}
             />
 
-            {isDead ? (
+            {isDead && !hasExchangedDeadCard ? (
                 <a className="exchange-dead-card-btn" href="#" onClick={handleExchangeDeadCardClick}>
                     &gt;&nbsp;Exchange dead card&nbsp;&lt;
                 </a>

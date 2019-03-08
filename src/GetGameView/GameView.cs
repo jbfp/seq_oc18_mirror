@@ -16,6 +16,7 @@ namespace Sequence.GetGameView
             }).ToImmutableList();
             CurrentPlayerId = state.CurrentPlayerId;
             Discards = state.Discards;
+            HasExchangedDeadCard = state.HasExchangedDeadCard;
             Moves = state.GameEvents.Select(gameEvent => new MoveView
             {
                 ByPlayerId = gameEvent.ByPlayerId,
@@ -58,6 +59,7 @@ namespace Sequence.GetGameView
         public IImmutableList<Card> DeadCards { get; }
         public IImmutableList<Card> Discards { get; }
         public IImmutableList<Card> Hand { get; }
+        public bool HasExchangedDeadCard { get; }
         public IImmutableList<MoveView> Moves { get; }
         public int NumberOfCardsInDeck { get; }
         public PlayerHandle PlayerHandle { get; }
