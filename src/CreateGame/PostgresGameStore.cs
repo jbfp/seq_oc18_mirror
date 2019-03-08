@@ -63,7 +63,7 @@ namespace Sequence.CreateGame
                         gameId = result.game_id;
                     }
 
-                    foreach (var player in newGame.PlayerList)
+                    for (int i = 0; i < newGame.PlayerList.Players.Count; i++)
                     {
                         var commandText = @"
                             INSERT INTO
@@ -71,6 +71,8 @@ namespace Sequence.CreateGame
                             VALUES
                                 (@gameId, @playerId, @playerType::player_type)
                             RETURNING id;";
+
+                        var player = newGame.PlayerList.Players[i];
 
                         var parameters = new
                         {
@@ -88,7 +90,7 @@ namespace Sequence.CreateGame
 
                         var result = await connection.QuerySingleAsync<int>(command);
 
-                        if (firstPlayerId == default)
+                        if (newGame.FirstPlayerIndex == i)
                         {
                             firstPlayerId = result;
                         }

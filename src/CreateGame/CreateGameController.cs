@@ -46,7 +46,7 @@ namespace Sequence.CreateGame
 
             try
             {
-                playerList = new PlayerList(players);
+                playerList = new PlayerList(form.RandomFirstPlayer, players);
             }
             catch (ArgumentOutOfRangeException ex)
             {
@@ -97,6 +97,9 @@ namespace Sequence.CreateGame
 
         [Required]
         public Opponent[] Opponents { get; set; }
+
+        [Required]
+        public bool RandomFirstPlayer { get; set; }
     }
 
     public sealed class Opponent : IValidatableObject

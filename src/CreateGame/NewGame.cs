@@ -6,9 +6,15 @@ namespace Sequence.CreateGame
     {
         public const int MaxNumberOfSequencesToWin = 4;
 
-        public NewGame(PlayerList players, Seed seed, BoardType boardType, int numSequencesToWin)
+        public NewGame(
+            PlayerList players,
+            int firstPlayerIndex,
+            Seed seed,
+            BoardType boardType,
+            int numSequencesToWin)
         {
             PlayerList = players ?? throw new ArgumentNullException(nameof(players));
+            FirstPlayerIndex = firstPlayerIndex;
             Seed = seed;
 
             if (Enum.IsDefined(typeof(BoardType), boardType))
@@ -31,6 +37,7 @@ namespace Sequence.CreateGame
         }
 
         public PlayerList PlayerList { get; }
+        public int FirstPlayerIndex { get; }
         public Seed Seed { get; }
         public BoardType BoardType { get; }
         public int NumberOfSequencesToWin { get; }

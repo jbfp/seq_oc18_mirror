@@ -30,7 +30,8 @@ namespace Sequence.CreateGame
 
             var random = _randomFactory.Create();
             var seed = new Seed(random.Next());
-            var newGame = new NewGame(players, seed, boardType, numSequencesToWin);
+            var firstPlayerIdx = players.RandomFirstPlayer ? random.Next(players.Players.Count) : 0;
+            var newGame = new NewGame(players, firstPlayerIdx, seed, boardType, numSequencesToWin);
             return await _gameStore.PersistNewGameAsync(newGame, cancellationToken);
         }
     }

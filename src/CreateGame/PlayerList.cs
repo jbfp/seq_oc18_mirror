@@ -1,8 +1,8 @@
-using System.Collections.Immutable;
 using System;
-using System.Linq;
-using System.Collections.Generic;
 using System.Collections;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 
 namespace Sequence.CreateGame
 {
@@ -12,12 +12,14 @@ namespace Sequence.CreateGame
             2, 3, 4, 6
         );
 
-        public PlayerList(params NewPlayer[] players)
+        public PlayerList(bool randomFirstPlayer, params NewPlayer[] players)
         {
             if (players == null)
             {
                 throw new ArgumentNullException(nameof(players));
             }
+
+            RandomFirstPlayer = randomFirstPlayer;
 
             if (!_allowedGameSizes.Contains(players.Length))
             {
@@ -38,7 +40,7 @@ namespace Sequence.CreateGame
             Players = players.ToImmutableList();
         }
 
-        public NewPlayer FirstPlayer => Players.First();
+        public bool RandomFirstPlayer { get; }
         public IImmutableList<NewPlayer> Players { get; }
 
         public IEnumerator<NewPlayer> GetEnumerator() => Players.GetEnumerator();
