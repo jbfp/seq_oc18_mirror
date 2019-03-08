@@ -62,6 +62,10 @@ namespace Sequence.Bots
                         }
                     }
                 }
+                else if (view.DeadCards.Contains(card))
+                {
+                    moves.Add(new Move(card, new Coord(-1, -1)));
+                }
                 else
                 {
                     var tile = new Tile(card.Suit, card.Rank);

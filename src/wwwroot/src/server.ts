@@ -48,6 +48,28 @@ class Server implements CanCreateGame, CanGetBotTypes {
     }
   }
 
+  async exchangeDeadCardAsync(id: t.GameId, deadCard: t.Card) {
+    const url = this.buildUrl('games', id, 'dead-card');
+
+    const response = await fetch(url, {
+      body: JSON.stringify({ deadCard }),
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': this.userName,
+        'Content-Type': 'application/json'
+      },
+      method: 'POST',
+    });
+
+    const body: t.CardPlayed | ResponseBodyError = await response.json();
+
+    if (response.ok) {
+      return body as t.CardPlayed;
+    } else {
+      throw new Error((<ResponseBodyError>body).error);
+    }
+  }
+
   async getBoardAsync(boardType: t.BoardType): Promise<t.Board> {
     const url = this.buildUrl('boards', boardType.toString());
 

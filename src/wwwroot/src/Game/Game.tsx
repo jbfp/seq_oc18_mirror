@@ -1,10 +1,10 @@
 import React from 'react';
-import { RouteComponentProps } from "react-router";
 import * as SignalR from '@aspnet/signalr';
 import * as t from "../types";
 import { ServerContext } from "../contexts";
 import { GameEvent } from './types';
 import GameView from './GameView';
+import Server from "../server";
 
 // Keys that respond to a card in hand.
 const numberKeys = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
@@ -120,6 +120,32 @@ export default class Game extends React.Component<GameProps, GameState> {
         }
     };
 
+    handleExchangeDeadCardClick = async () => {
+        const { selectedCard } = this.state;
+
+        if (selectedCard) {
+            const ctx: Server = this.context;
+            const gameId = this.props.id;
+            const deadCard = selectedCard;
+
+            this._connection.off('UpdateGame', this.handleGameUpdatedEvent);
+
+            try {
+                const result = await ctx.exchangeDeadCardAsync(gameId, deadCard);
+
+                this.setState({ selectedCard: null });
+
+                if (!this.apply(result)) {
+                    await this.props.onRequestReload();
+                }
+            } catch (err) {
+                alert(err.toString());
+            } finally {
+                this._connection.on('UpdateGame', this.handleGameUpdatedEvent);
+            }
+        }
+    };
+
     handleKeyboardInput = (event: KeyboardEvent) => {
         if (!this.state.game) {
             return;
@@ -143,7 +169,7 @@ export default class Game extends React.Component<GameProps, GameState> {
         }
     };
 
-    apply = (event: GameEvent) => {
+    apply = (event: GameEvent | t.CardPlayed) => {
         const game = this.state.game;
 
         if (event.index === game.version) {
@@ -229,12 +255,14 @@ export default class Game extends React.Component<GameProps, GameState> {
         }];
 
         const winner = event.winner;
+        const hasExchangedDeadCard = event.coord.row === -1 && event.coord.column === -1;
 
         const newGame: t.GameState = {
             ...game,
             chips,
             currentPlayerId,
             hand,
+            hasExchangedDeadCard,
             moves,
             numberOfCardsInDeck,
             version,
@@ -354,9 +382,16 @@ export default class Game extends React.Component<GameProps, GameState> {
         await startAsync(this._connection, () => this.handleConnectionStarted());
     }
 
+    _isUpdating = false;
+
     componentDidUpdate(newProps: GameProps) {
-        if (this.state.game.version < newProps.game.version) {
-            this.setState({ game: { ...newProps.game } });
+        if (this.state.game.version <= newProps.game.version) {
+            if (!this._isUpdating) {
+                this.setState({ game: { ...newProps.game } });
+                this._isUpdating = true;
+            }
+        } else {
+            this._isUpdating = false;
         }
     }
 
@@ -378,6 +413,7 @@ export default class Game extends React.Component<GameProps, GameState> {
                 hideCards={this.state.hideCards}
                 onCardClick={this.handleCardClick}
                 onCoordClick={this.handleCoordClick}
+                onExchangeDeadCardClick={this.handleExchangeDeadCardClick}
                 selectedCard={this.state.selectedCard}
                 userName={this.context.userName}
             />

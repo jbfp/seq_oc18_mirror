@@ -16,6 +16,7 @@ namespace Sequence.GetGameView
             }).ToImmutableList();
             CurrentPlayerId = state.CurrentPlayerId;
             Discards = state.Discards;
+            HasExchangedDeadCard = state.HasExchangedDeadCard;
             Moves = state.GameEvents.Select(gameEvent => new MoveView
             {
                 ByPlayerId = gameEvent.ByPlayerId,
@@ -48,18 +49,17 @@ namespace Sequence.GetGameView
                 Team = state.PlayerTeamByIdx[playerIdx];
 
                 DeadCards = Hand
-                    .Select((card, i) => (card, i))
-                    .Where(t => state.DeadCards.Contains(t.card))
-                    .Select(t => t.i)
+                    .Where(state.DeadCards.Contains)
                     .ToImmutableList();
             }
         }
 
         public IImmutableList<ChipView> Chips { get; }
         public PlayerId CurrentPlayerId { get; }
-        public IImmutableList<int> DeadCards { get; }
+        public IImmutableList<Card> DeadCards { get; }
         public IImmutableList<Card> Discards { get; }
         public IImmutableList<Card> Hand { get; }
+        public bool HasExchangedDeadCard { get; }
         public IImmutableList<MoveView> Moves { get; }
         public int NumberOfCardsInDeck { get; }
         public PlayerHandle PlayerHandle { get; }

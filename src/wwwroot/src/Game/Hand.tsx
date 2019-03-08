@@ -4,7 +4,7 @@ import Card from './Card';
 
 interface HandProps {
     cards: t.Card[];
-    deadCards: number[];
+    deadCards: t.Card[];
     hideCards: boolean;
     selectedCard: t.Card | null;
     onCardClick: (card: t.Card) => void;
@@ -23,11 +23,16 @@ export default function Hand(props: HandProps) {
             {cards.map((card, idx) => {
                 const key = `${card.deckNo}_${card.suit}_${card.rank}`;
 
+                const isDead = deadCards.some(deadCard =>
+                    deadCard.deckNo === card.deckNo &&
+                    deadCard.suit === card.suit &&
+                    deadCard.rank === card.rank);
+
                 return (
                     <div key={key} className="hand-card">
                         <Card
                             card={card}
-                            isDead={false}
+                            isDead={isDead}
                             isSelected={card === selectedCard}
                             onCardClick={onCardClick}
                         />

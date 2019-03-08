@@ -98,18 +98,37 @@ namespace Sequence.Bots
 
                     var (card, coord) = move;
 
-                    try
+                    if (coord.Equals(new Coord(-1, -1)))
                     {
-                        gameEvent = await _playCardHandler.PlayCardAsync(gameId, playerId, card,
-                            coord, cancellationToken);
-                    }
-                    catch (PlayCardFailedException ex)
-                    {
-                        _logger.LogError(ex,
-                            "#{Attempt}: Bot {Bot} produced invalid move ({Card}, {Coord}) in {GameId}",
-                            attempt, botType.Name, card, coord, gameId);
+                        try
+                        {
+                            gameEvent = await _playCardHandler.ExchangeDeadCardAsync(gameId,
+                                playerId, card, cancellationToken);
+                        }
+                        catch (ExchangeDeadCardFailedException ex)
+                        {
+                            _logger.LogError(ex,
+                                "#{Attempt}: Bot {Bot} produced invalid move ({Card}, {Coord}) in {GameId}",
+                                attempt, botType.Name, card, coord, gameId);
 
-                        continue;
+                            continue;
+                        }
+                    }
+                    else
+                    {
+                        try
+                        {
+                            gameEvent = await _playCardHandler.PlayCardAsync(gameId, playerId, card,
+                                coord, cancellationToken);
+                        }
+                        catch (PlayCardFailedException ex)
+                        {
+                            _logger.LogError(ex,
+                                "#{Attempt}: Bot {Bot} produced invalid move ({Card}, {Coord}) in {GameId}",
+                                attempt, botType.Name, card, coord, gameId);
+
+                            continue;
+                        }
                     }
 
                     if (gameEvent != null)

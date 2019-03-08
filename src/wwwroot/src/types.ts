@@ -94,9 +94,10 @@ export interface Rules {
 export interface GameState {
     chips: Chip[];
     currentPlayerId: PlayerId | null;
-    deadCards: number[];
+    deadCards: Card[];
     discards: Card[];
     hand: Card[];
+    hasExchangedDeadCard: boolean;
     index: number;
     moves: Move[];
     numberOfCardsInDeck: number;
@@ -122,7 +123,7 @@ export interface CardPlayed {
     coord: Coord;
     index: number;
     nextPlayerId: PlayerId | null;
-    sequence: Sequence | null;
+    sequences: Sequence[];
     winner: Team | null;
 }
 

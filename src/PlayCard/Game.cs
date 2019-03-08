@@ -144,5 +144,82 @@ namespace Sequence.PlayCard
                 };
             }
         }
+
+        public static GameEvent ExchangeDeadCard(GameState state, PlayerHandle player, Card deadCard)
+        {
+            if (state == null)
+            {
+                throw new ArgumentNullException(nameof(state));
+            }
+
+            if (player == null)
+            {
+                throw new ArgumentNullException(nameof(player));
+            }
+
+            return ExchangeDeadCard(state, state.PlayerHandleByIdx.IndexOf(player), deadCard);
+        }
+
+        public static GameEvent ExchangeDeadCard(GameState state, PlayerId player, Card deadCard)
+        {
+            if (state == null)
+            {
+                throw new ArgumentNullException(nameof(state));
+            }
+
+            if (player == null)
+            {
+                throw new ArgumentNullException(nameof(player));
+            }
+
+            return ExchangeDeadCard(state, state.PlayerIdByIdx.IndexOf(player), deadCard);
+        }
+
+        private static GameEvent ExchangeDeadCard(GameState state, int playerIdx, Card deadCard)
+        {
+            if (deadCard == null)
+            {
+                throw new ArgumentNullException(nameof(deadCard));
+            }
+
+            if (playerIdx == -1)
+            {
+                throw new ExchangeDeadCardFailedException(ExchangeDeadCardError.PlayerIsNotInGame);
+            }
+
+            var playerId = state.PlayerIdByIdx[playerIdx];
+
+            if (!playerId.Equals(state.CurrentPlayerId))
+            {
+                throw new ExchangeDeadCardFailedException(ExchangeDeadCardError.PlayerIsNotCurrentPlayer);
+            }
+
+            if (!state.PlayerHandByIdx[playerIdx].Contains(deadCard))
+            {
+                throw new ExchangeDeadCardFailedException(ExchangeDeadCardError.PlayerDoesNotHaveCard);
+            }
+
+            if (!state.DeadCards.Contains(deadCard))
+            {
+                throw new ExchangeDeadCardFailedException(ExchangeDeadCardError.CardIsNotDead);
+            }
+
+            if (state.HasExchangedDeadCard)
+            {
+                throw new ExchangeDeadCardFailedException(ExchangeDeadCardError.PlayerHasAlreadyExchangedDeadCard);
+            }
+
+            var deck = ImmutableStack.CreateRange(state.Deck);
+
+            return new GameEvent
+            {
+                ByPlayerId = playerId,
+                CardDrawn = deck.Peek(),
+                CardUsed = deadCard,
+                Coord = new Coord(-1, -1),
+                Index = state.Version + 1,
+                NextPlayerId = playerId,
+            };
+        }
     }
 }

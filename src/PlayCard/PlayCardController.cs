@@ -37,6 +37,19 @@ namespace Sequence.PlayCard
             var gameEvent = await _handler.PlayCardAsync(gameId, Player, form.Card, coord, cancellationToken);
             return Ok(gameEvent);
         }
+
+        [HttpPost("/games/{id:guid}/dead-card")]
+        [ExchangeDeadCardFailedExceptionFilter]
+        public async Task<ActionResult<GameEvent>> Post(
+            [FromRoute] Guid id,
+            [FromBody] ExchangeDeadCardForm form,
+            CancellationToken cancellationToken)
+        {
+            var gameId = new GameId(id);
+            var deadCard = form.DeadCard;
+            var gameEvent = await _handler.ExchangeDeadCardAsync(gameId, Player, deadCard, cancellationToken);
+            return Ok(gameEvent);
+        }
     }
 
     public sealed class PlayCardForm
@@ -49,5 +62,11 @@ namespace Sequence.PlayCard
 
         [Required]
         public int? Row { get; set; }
+    }
+
+    public sealed class ExchangeDeadCardForm
+    {
+        [Required]
+        public Card DeadCard { get; set; }
     }
 }
