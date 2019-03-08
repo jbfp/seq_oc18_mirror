@@ -11,4 +11,14 @@ namespace Sequence.PlayCard
 
         public PlayCardError Error { get; }
     }
+
+    public sealed class ExchangeDeadCardFailedException : Exception
+    {
+        public ExchangeDeadCardFailedException(ExchangeDeadCardError error) : base(error.ToString())
+        {
+            Error = error;
+        }
+
+        public ExchangeDeadCardError Error { get; }
+    }
 }

@@ -11,4 +11,13 @@ namespace Sequence.PlayCard
         ChipBelongsToPlayerTeam,
         ChipIsPartOfSequence,
     }
+
+    public enum ExchangeDeadCardError
+    {
+        PlayerIsNotInGame,
+        PlayerIsNotCurrentPlayer,
+        PlayerDoesNotHaveCard,
+        CardIsNotDead,
+        PlayerHasAlreadyExchangedDeadCard,
+    }
 }

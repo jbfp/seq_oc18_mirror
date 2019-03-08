@@ -25,4 +25,15 @@ namespace Sequence.AspNetCore
             }
         }
     }
+
+    internal sealed class ExchangeDeadCardFailedExceptionFilterAttribute : ExceptionFilterAttribute
+    {
+        public override void OnException(ExceptionContext context)
+        {
+            if (context.Exception is ExchangeDeadCardFailedException ex)
+            {
+                context.Result = new OkObjectResult(new { ex.Error });
+            }
+        }
+    }
 }

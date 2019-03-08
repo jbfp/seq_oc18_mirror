@@ -61,6 +61,50 @@ namespace Sequence.PlayCard
             return gameEvent;
         }
 
+        public async Task<GameEvent> ExchangeDeadCardAsync(
+            GameId gameId,
+            PlayerHandle player,
+            Card deadCard,
+            CancellationToken cancellationToken)
+        {
+            if (player == null)
+            {
+                throw new ArgumentNullException(nameof(player));
+            }
+
+            if (deadCard == null)
+            {
+                throw new ArgumentNullException(nameof(deadCard));
+            }
+
+            GameState state = await GetGameByIdAsync(gameId, cancellationToken);
+            GameEvent gameEvent = Game.ExchangeDeadCard(state, player, deadCard);
+            await _store.AddEventAsync(gameId, gameEvent, cancellationToken);
+            return gameEvent;
+        }
+
+        public async Task<GameEvent> ExchangeDeadCardAsync(
+            GameId gameId,
+            PlayerId player,
+            Card deadCard,
+            CancellationToken cancellationToken)
+        {
+            if (player == null)
+            {
+                throw new ArgumentNullException(nameof(player));
+            }
+
+            if (deadCard == null)
+            {
+                throw new ArgumentNullException(nameof(deadCard));
+            }
+
+            GameState state = await GetGameByIdAsync(gameId, cancellationToken);
+            GameEvent gameEvent = Game.ExchangeDeadCard(state, player, deadCard);
+            await _store.AddEventAsync(gameId, gameEvent, cancellationToken);
+            return gameEvent;
+        }
+
         private async Task<GameState> GetGameByIdAsync(GameId gameId, CancellationToken cancellationToken)
         {
             if (gameId == null)

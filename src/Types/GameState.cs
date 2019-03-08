@@ -6,6 +6,8 @@ namespace Sequence
 {
     public sealed class GameState
     {
+        private static readonly Coord _deadCardExchangedCoord = new Coord(-1, -1);
+
         private static readonly ImmutableDictionary<int, ImmutableArray<Team>> _teams =
             ImmutableDictionary<int, ImmutableArray<Team>>
                 .Empty
@@ -67,41 +69,48 @@ namespace Sequence
                 }
 
                 PlayerHandByIdx = PlayerHandByIdx.SetItem(playerIdx, playerHand);
-
-                if (gameEvent.Chip.HasValue)
-                {
-                    Chips = Chips.Add(gameEvent.Coord, gameEvent.Chip.Value);
-                }
-                else
-                {
-                    Chips = Chips.Remove(gameEvent.Coord);
-                }
-
                 CurrentPlayerId = gameEvent.NextPlayerId;
-
-                DeadCards = PlayerHandByIdx
-                    .SelectMany(hand => hand)
-                    .Where(IsCardDead)
-                    .ToImmutableHashSet();
-
                 Discards = Discards.Add(cardUsed);
                 GameEvents = GameEvents.Add(gameEvent);
-
-                Sequences = Sequences.AddRange(gameEvent.Sequences);
-
-                foreach (var coord in gameEvent.Sequences.SelectMany(seq => seq.Coords))
-                {
-                    CoordsInSequence = CoordsInSequence.Add(coord);
-                }
-
                 Version = gameEvent.Index;
-                Winner = gameEvent.Winner;
 
                 if (Deck.Count == 0)
                 {
                     Deck = Sequence.Deck.Shuffle(Discards, init.Seed);
                     Discards = ImmutableList<Card>.Empty;
                 }
+
+                if (gameEvent.Coord.Equals(_deadCardExchangedCoord))
+                {
+                    HasExchangedDeadCard = true;
+                }
+                else
+                {
+                    HasExchangedDeadCard = false;
+
+                    if (gameEvent.Chip.HasValue)
+                    {
+                        Chips = Chips.Add(gameEvent.Coord, gameEvent.Chip.Value);
+                    }
+                    else
+                    {
+                        Chips = Chips.Remove(gameEvent.Coord);
+                    }
+
+                    Sequences = Sequences.AddRange(gameEvent.Sequences);
+
+                    foreach (var coord in gameEvent.Sequences.SelectMany(seq => seq.Coords))
+                    {
+                        CoordsInSequence = CoordsInSequence.Add(coord);
+                    }
+
+                    Winner = gameEvent.Winner;
+                }
+
+                DeadCards = PlayerHandByIdx
+                    .SelectMany(hand => hand)
+                    .Where(IsCardDead)
+                    .ToImmutableHashSet();
             }
         }
 
@@ -114,6 +123,7 @@ namespace Sequence
         public IImmutableList<Card> Deck { get; } = ImmutableList<Card>.Empty;
         public IImmutableList<Card> Discards { get; } = ImmutableList<Card>.Empty;
         public IImmutableList<GameEvent> GameEvents { get; } = ImmutableList<GameEvent>.Empty;
+        public bool HasExchangedDeadCard { get; }
         public int NumberOfPlayers { get; }
         public IImmutableList<IImmutableList<Card>> PlayerHandByIdx { get; } =
             ImmutableList<IImmutableList<Card>>.Empty;
