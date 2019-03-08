@@ -71,11 +71,19 @@ export default function GameView(props: GameViewProps) {
         };
     });
 
+    // Shift players array so that the player is always the top player in the opponent list.
+    const playerIdx = players.findIndex(player => player.handle === userName);
+    const shiftedPlayers = [
+        players[playerIdx],
+        ...players.slice(playerIdx + 1),
+        ...players.slice(0, playerIdx),
+    ];
+
     return (
         <div>
             {reCreateLink}
 
-            <PlayersView currentPlayerId={game.currentPlayerId} players={players} winner={game.winner} />
+            <PlayersView currentPlayerId={game.currentPlayerId} players={shiftedPlayers} winner={game.winner} />
 
             <BoardView
                 board={board}
