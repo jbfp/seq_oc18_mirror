@@ -284,7 +284,8 @@ div[data-rank="king"]::after {
 .card.small {
     font-size: 65%;
     height: 27.5px;
-    margin: 0.25em;
+    margin: 0;
+    margin-left: 0.25em;
     width: 18.5px;
 }
 
@@ -326,6 +327,7 @@ div[data-rank="king"]::after {
     display: flex;
     flex: 1;
     font-weight: bold;
+    min-height: calc(40px + 1em);
     justify-content: space-between;
     padding: 0.5em;
     transition: background-color 250ms ease, color 250ms ease;
@@ -442,6 +444,9 @@ kbd {
     div[data-suit="clubs"] {
         color: #008000;
     }
+    .players-player {
+        min-height: calc(30px + 1em);
+    }
     .card {
         height: 30px;
         margin: 0.25em;
@@ -450,7 +455,8 @@ kbd {
     .card.small {
         font-size: 75%;
         height: 15px;
-        margin: 0.125em;
+        margin: 0;
+        margin-left: 0.125em;
         width: 10px;
     }
     .cell {
