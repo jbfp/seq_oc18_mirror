@@ -1,6 +1,7 @@
 .game {
     font-family: 'Inconsolata', monospace;
     margin: 0 auto;
+    user-select: none;
 }
 
 .re-create-game {
