@@ -328,9 +328,9 @@ div[data-rank="king"]::after {
     display: flex;
     flex: 1;
     font-weight: bold;
-    min-height: calc(40px + 1em);
+    min-height: calc(40px + 0.5em);
     justify-content: space-between;
-    padding: 0.5em;
+    padding: 0.25em;
     transition: background-color 250ms ease, color 250ms ease;
     overflow: hidden;
 }
@@ -446,7 +446,7 @@ kbd {
         color: #008000;
     }
     .players-player {
-        min-height: calc(30px + 1em);
+        min-height: calc(30px + 0.5em);
     }
     .card {
         height: 30px;
