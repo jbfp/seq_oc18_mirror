@@ -16,11 +16,12 @@ interface GameViewProps {
     userName: string;
     onCardClick: (card: t.Card) => void;
     onCoordClick: (coord: t.Coord) => void;
+    onExchangeDeadCardClick: () => void;
 }
 
 export default function GameView(props: GameViewProps) {
     const { board, game, hideCards, selectedCard, userName } = props;
-    const { onCardClick, onCoordClick } = props;
+    const { onCardClick, onCoordClick, onExchangeDeadCardClick } = props;
 
     const playerObj = {
         hand: game.hand,
@@ -88,6 +89,7 @@ export default function GameView(props: GameViewProps) {
                 deadCards={game.deadCards}
                 hideCards={hideCards}
                 onCardClick={onCardClick}
+                onExchangeDeadCardClick={onExchangeDeadCardClick}
                 selectedCard={selectedCard}
                 {...playerObj}
             />
