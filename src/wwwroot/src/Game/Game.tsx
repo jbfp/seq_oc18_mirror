@@ -382,9 +382,16 @@ export default class Game extends React.Component<GameProps, GameState> {
         await startAsync(this._connection, () => this.handleConnectionStarted());
     }
 
+    _isUpdating = false;
+
     componentDidUpdate(newProps: GameProps) {
-        if (this.state.game.version < newProps.game.version) {
-            this.setState({ game: { ...newProps.game } });
+        if (this.state.game.version <= newProps.game.version) {
+            if (!this._isUpdating) {
+                this.setState({ game: { ...newProps.game } });
+                this._isUpdating = true;
+            }
+        } else {
+            this._isUpdating = false;
         }
     }
 
