@@ -90,7 +90,7 @@ export default function GameLoader(props: RouteComponentProps<GameLoaderProps>) 
         elements.push((
             <div key="error">
                 Failed to load newest game state: {error}&nbsp;
-                <a href="#" onClick={loadGameAsync}>Click here to try again</a>.
+                <a href="#" onClick={handleRequestReload}>Click here to try again</a>.
                 <br /><br />
             </div>
         ));
