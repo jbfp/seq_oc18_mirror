@@ -48,16 +48,14 @@ namespace Sequence.GetGameView
                 Team = state.PlayerTeamByIdx[playerIdx];
 
                 DeadCards = Hand
-                    .Select((card, i) => (card, i))
-                    .Where(t => state.DeadCards.Contains(t.card))
-                    .Select(t => t.i)
+                    .Where(state.DeadCards.Contains)
                     .ToImmutableList();
             }
         }
 
         public IImmutableList<ChipView> Chips { get; }
         public PlayerId CurrentPlayerId { get; }
-        public IImmutableList<int> DeadCards { get; }
+        public IImmutableList<Card> DeadCards { get; }
         public IImmutableList<Card> Discards { get; }
         public IImmutableList<Card> Hand { get; }
         public IImmutableList<MoveView> Moves { get; }

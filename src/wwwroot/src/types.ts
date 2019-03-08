@@ -94,7 +94,7 @@ export interface Rules {
 export interface GameState {
     chips: Chip[];
     currentPlayerId: PlayerId | null;
-    deadCards: number[];
+    deadCards: Card[];
     discards: Card[];
     hand: Card[];
     index: number;

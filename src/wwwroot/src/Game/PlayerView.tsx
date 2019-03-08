@@ -3,7 +3,7 @@ import Hand from './Hand';
 import { Card, PlayerHandle, Team } from "../types";
 
 interface PlayerViewProps {
-    deadCards: number[];
+    deadCards: Card[];
     hand: Card[];
     handle: PlayerHandle;
     hideCards: boolean;
