@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Sequence.Bots;
 using Sequence.Postgres;
 using Sequence.Test.Postgres;
+using Serilog;
 using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -34,7 +35,8 @@ namespace Sequence.Test
                 builder.ConfigureTestServices(services =>
                 {
                     services.AddSingleton<NpgsqlConnectionFactory>(db);
-                }).UseSetting("Postgres:ConnectionString", db.ConnectionString);
+                }).UseSetting("Postgres:ConnectionString", db.ConnectionString)
+                .UseSerilog((ctx, conf) => conf.Filter.ByIncludingOnly(_ => false));
             });
         }
 

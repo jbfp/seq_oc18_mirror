@@ -56,13 +56,7 @@ namespace Sequence
             .CreateDefaultBuilder(args)
             .UseStartup<Startup>()
             .SuppressStatusMessages(true)
-            .ConfigureServices((builder, _services) =>
-            {
-                Log.Logger = new LoggerConfiguration()
-                    .ReadFrom.Configuration(builder.Configuration)
-                    .CreateLogger();
-            })
-            .UseSerilog()
+            .UseSerilog((ctx, conf) => conf.ReadFrom.Configuration(ctx.Configuration))
             .UseUrls("http://localhost:5000");
     }
 }
