@@ -20,7 +20,9 @@ namespace Sequence.Test.Postgres
             // Given:
             var db = await CreateDatabaseAsync();
             var gameId = await CreateGameAsync(db);
-            var sut = new PostgresGameStateProvider(db);
+            var sut = new PostgresGameStateProvider(
+                new PostgresGameProvider(db)
+            );
 
             // Then:
             var game = await sut.GetGameByIdAsync(gameId, CancellationToken.None);
@@ -47,7 +49,9 @@ namespace Sequence.Test.Postgres
                 NextPlayerId = new PlayerId(2),
             });
 
-            var sut = new PostgresGameStateProvider(db);
+            var sut = new PostgresGameStateProvider(
+                new PostgresGameProvider(db)
+            );
 
             // Then:
             var game = await sut.GetGameByIdAsync(gameId, CancellationToken.None);
@@ -74,7 +78,9 @@ namespace Sequence.Test.Postgres
                 NextPlayerId = new PlayerId(2),
             });
 
-            var sut = new PostgresGameStateProvider(db);
+            var sut = new PostgresGameStateProvider(
+                new PostgresGameProvider(db)
+            );
 
             // Then:
             var game = await sut.GetGameByIdAsync(gameId, CancellationToken.None);
@@ -110,7 +116,9 @@ namespace Sequence.Test.Postgres
                 },
             });
 
-            var sut = new PostgresGameStateProvider(db);
+            var sut = new PostgresGameStateProvider(
+                new PostgresGameProvider(db)
+            );
 
             // Then:
             var game = await sut.GetGameByIdAsync(gameId, CancellationToken.None);
