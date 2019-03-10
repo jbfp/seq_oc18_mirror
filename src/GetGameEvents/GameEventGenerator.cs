@@ -64,7 +64,9 @@ namespace Sequence.GetGameEvents
 
                 if (gameEvent.CardDrawn != null)
                 {
-                    yield return new CardDrawn(gameEvent.ByPlayerId, gameEvent.CardDrawn, version++);
+                    var byPlayerIdx = state.PlayerIdByIdx.IndexOf(gameEvent.ByPlayerId);
+                    var cardDrawn = byPlayerIdx == playerIdx ? gameEvent.CardDrawn : null;
+                    yield return new CardDrawn(gameEvent.ByPlayerId, cardDrawn, version++);
                 }
 
                 if (previousState.Deck.Count == 0)
