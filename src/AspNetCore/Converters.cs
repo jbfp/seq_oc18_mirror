@@ -1,5 +1,10 @@
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
+using Sequence.GetGameEvents;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 
 namespace Sequence.AspNetCore
 {
@@ -100,6 +105,67 @@ namespace Sequence.AspNetCore
             else
             {
                 throw new JsonSerializationException($"Cannot write value: '{value}'.");
+            }
+        }
+    }
+
+    internal sealed class GameEventConverter : JsonConverter
+    {
+        public override bool CanRead => false;
+        public override bool CanWrite => true;
+
+        public override bool CanConvert(Type objectType)
+        {
+            return typeof(GameEventBase) != objectType
+                && typeof(GameEventBase).IsAssignableFrom(objectType);
+        }
+
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        {
+            var type = value.GetType();
+            var chars = type.Name
+                .SelectMany(NameToChars)
+                .ToArray();
+
+            var name = new string(chars).Trim('-');
+
+            var contractResolver = (DefaultContractResolver)serializer.ContractResolver;
+            var bindingFlags = BindingFlags.Public | BindingFlags.Instance;
+            var properties = type
+                .GetProperties(bindingFlags)
+                .Select(p => (p.Name, Value: p.GetValue(value)))
+                .ToDictionary(
+                    p => contractResolver.GetResolvedPropertyName(p.Name),
+                    p => p.Value);
+
+            writer.WriteStartObject();
+            writer.WritePropertyName("kind");
+            writer.WriteValue(name);
+
+            foreach (var property in properties)
+            {
+                writer.WritePropertyName(property.Key);
+                serializer.Serialize(writer, property.Value);
+            }
+
+            writer.WriteEnd();
+        }
+
+        private static IEnumerable<char> NameToChars(char c)
+        {
+            if (char.IsUpper(c))
+            {
+                yield return '-';
+                yield return char.ToLowerInvariant(c);
+            }
+            else
+            {
+                yield return c;
             }
         }
     }

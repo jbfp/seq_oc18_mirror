@@ -85,6 +85,7 @@ namespace Sequence
 
         private static void ConfigureJsonSerializerSettings(JsonSerializerSettings settings)
         {
+            settings.Converters.Add(new GameEventConverter());
             settings.Converters.Add(new GameIdJsonConverter());
             settings.Converters.Add(new PlayerHandleJsonConverter());
             settings.Converters.Add(new PlayerIdJsonConverter());
