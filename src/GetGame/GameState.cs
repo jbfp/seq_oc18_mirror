@@ -3,45 +3,40 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 
-namespace Sequence.GetGameEvents
+namespace Sequence.GetGame
 {
-    public sealed class GameEventGenerator
+    public sealed class GameState
     {
-        private readonly GameInit _init;
+        private readonly Sequence.GameState _initialState;
         private readonly GameEvent[] _gameEvents;
 
-        public GameEventGenerator(GameInit init, params GameEvent[] gameEvents)
+        public GameState(Sequence.GameState initialState, params GameEvent[] gameEvents)
         {
-            _init = init ?? throw new ArgumentNullException(nameof(init));
+            _initialState = initialState ?? throw new ArgumentNullException(nameof(initialState));
             _gameEvents = gameEvents ?? throw new ArgumentNullException(nameof(gameEvents));
         }
 
-        public IEnumerable<GameEventBase> GenerateForPlayer(PlayerHandle playerHandle)
+        public InitialGameState Init(PlayerHandle playerHandle)
         {
-            var state = new GameState(_init);
-            var playerIdx = playerHandle == null ? -1 : state.PlayerHandleByIdx.IndexOf(playerHandle);
-            return GenerateForPlayer(state, playerIdx);
+            return Init(_initialState.PlayerHandleByIdx.IndexOf(playerHandle));
         }
 
-        public IEnumerable<GameEventBase> GenerateForPlayer(PlayerId playerId)
+        public InitialGameState Init(PlayerId playerId)
         {
-            var state = new GameState(_init);
-            var playerIdx = playerId == null ? -1 : state.PlayerIdByIdx.IndexOf(playerId);
-            return GenerateForPlayer(state, playerIdx);
+            return Init(_initialState.PlayerIdByIdx.IndexOf(playerId));
         }
 
-        private IEnumerable<GameEventBase> GenerateForPlayer(GameState state, int playerIdx)
+        private InitialGameState Init(int playerIdx)
         {
-            var version = 0;
-            var isInGame = playerIdx >= 0;
+            var state = _initialState;
 
-            yield return new GameStarted(
+            return new InitialGameState(
                 boardType: FromIBoardType(state.BoardType),
                 firstPlayerId: state.CurrentPlayerId,
-                hand: isInGame ? state.PlayerHandByIdx[playerIdx] : default,
+                hand: state.PlayerHandByIdx[playerIdx],
                 numCardsInDeck: state.Deck.Count,
-                playerHandle: isInGame ? state.PlayerHandleByIdx[playerIdx] : default,
-                playerId: isInGame ? state.PlayerIdByIdx[playerIdx] : default,
+                playerHandle: state.PlayerHandleByIdx[playerIdx],
+                playerId: state.PlayerIdByIdx[playerIdx],
                 players: Enumerable.Range(0, state.NumberOfPlayers).Select(idx => new Player
                 {
                     Handle = state.PlayerHandleByIdx[idx],
@@ -50,10 +45,25 @@ namespace Sequence.GetGameEvents
                     Team = state.PlayerTeamByIdx[idx],
                     Type = state.PlayerTypeByIdx[idx],
                 }).ToImmutableList(),
-                team: isInGame ? state.PlayerTeamByIdx[playerIdx] : default,
-                winCondition: state.WinCondition,
-                version++
+                team: state.PlayerTeamByIdx[playerIdx],
+                winCondition: state.WinCondition
             );
+        }
+
+        public IEnumerable<GameEventBase> GenerateForPlayer(PlayerHandle playerHandle)
+        {
+            return GenerateForPlayer(_initialState.PlayerHandleByIdx.IndexOf(playerHandle));
+        }
+
+        public IEnumerable<GameEventBase> GenerateForPlayer(PlayerId playerId)
+        {
+            return GenerateForPlayer(_initialState.PlayerIdByIdx.IndexOf(playerId));
+        }
+
+        private IEnumerable<GameEventBase> GenerateForPlayer(int playerIdx)
+        {
+            var version = 1;
+            var state = _initialState;
 
             foreach (var gameEvent in _gameEvents)
             {
@@ -80,13 +90,8 @@ namespace Sequence.GetGameEvents
                 }
                 else
                 {
-                    var previousHand = isInGame
-                        ? previousState.PlayerHandByIdx[playerIdx]
-                        : ImmutableList<Card>.Empty;
-
-                    var currentHand = isInGame
-                        ? currentState.PlayerHandByIdx[playerIdx]
-                        : ImmutableList<Card>.Empty;
+                    var previousHand = previousState.PlayerHandByIdx[playerIdx];
+                    var currentHand = currentState.PlayerHandByIdx[playerIdx];
 
                     if (gameEvent.Chip.HasValue)
                     {

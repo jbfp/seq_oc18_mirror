@@ -6,25 +6,24 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Sequence.GetGameEvents
+namespace Sequence.GetGame
 {
-    public sealed class GetGameEventsController : SequenceControllerBase
+    public sealed class GetGameController : SequenceControllerBase
     {
-        private readonly IGameEventGeneratorProvider _provider;
+        private readonly IGameProvider _provider;
 
-        public GetGameEventsController(IGameEventGeneratorProvider provider)
+        public GetGameController(IGameProvider provider)
         {
             _provider = provider ?? throw new ArgumentNullException(nameof(provider));
         }
 
-        [HttpGet("/games/{id:guid}/game-events")]
+        [HttpGet("/games/{id:guid}/state")]
         public async Task<ActionResult> Get(
             [FromRoute] Guid id,
             CancellationToken cancellationToken)
         {
             var gameId = new GameId(id);
-            var generator = await _provider.GetGameEventGeneratorByIdAsync(
-                gameId, cancellationToken);
+            var generator = await _provider.GetGameStateByIdAsync(gameId, cancellationToken);
 
             if (generator == null)
             {
@@ -33,6 +32,7 @@ namespace Sequence.GetGameEvents
 
             var result = new
             {
+                init = generator.Init(Player),
                 events = generator.GenerateForPlayer(Player)
             };
 

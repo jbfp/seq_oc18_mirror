@@ -1,6 +1,6 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using Sequence.GetGameEvents;
+using Sequence.GetGame;
 using System;
 using System.Collections.Generic;
 using System.Linq;

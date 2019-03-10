@@ -1,7 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using System;
 
-namespace Sequence.GetGameEvents
+namespace Sequence.GetGame
 {
     internal static class ServiceCollectionExtensions
     {
@@ -12,8 +12,7 @@ namespace Sequence.GetGameEvents
                 throw new ArgumentNullException(nameof(services));
             }
 
-            return services
-                .AddSingleton<IGameEventGeneratorProvider, PostgresGameEventGeneratorProvider>();
+            return services.AddSingleton<IGameProvider, PostgresGameProvider>();
         }
     }
 }

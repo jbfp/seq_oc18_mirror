@@ -1,4 +1,4 @@
-namespace Sequence.GetGameEvents
+namespace Sequence.GetGame
 {
     public sealed class Player
     {

@@ -1,11 +1,11 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Sequence.GetGameEvents
+namespace Sequence.GetGame
 {
-    public interface IGameEventGeneratorProvider
+    public interface IGameProvider
     {
-        Task<GameEventGenerator> GetGameEventGeneratorByIdAsync(
+        Task<GameState> GetGameStateByIdAsync(
             GameId gameId,
             CancellationToken cancellationToken);
     }

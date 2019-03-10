@@ -3,18 +3,18 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Sequence.GetGameEvents
+namespace Sequence.GetGame
 {
-    public sealed class PostgresGameEventGeneratorProvider : IGameEventGeneratorProvider
+    public sealed class PostgresGameProvider : IGameProvider
     {
-        private readonly PostgresGameProvider _gameProvider;
+        private readonly Postgres.PostgresGameProvider _gameProvider;
 
-        public PostgresGameEventGeneratorProvider(PostgresGameProvider gameProvider)
+        public PostgresGameProvider(Postgres.PostgresGameProvider gameProvider)
         {
             _gameProvider = gameProvider ?? throw new ArgumentNullException(nameof(gameProvider));
         }
 
-        public async Task<GameEventGenerator> GetGameEventGeneratorByIdAsync(
+        public async Task<GameState> GetGameStateByIdAsync(
             GameId gameId,
             CancellationToken cancellationToken)
         {
@@ -25,7 +25,9 @@ namespace Sequence.GetGameEvents
                 return null;
             }
 
-            return new GameEventGenerator(tuple.Item1, tuple.Item2);
+            var initialState = new Sequence.GameState(tuple.Item1);
+            var gameEvents = tuple.Item2;
+            return new GameState(initialState, gameEvents);
         }
     }
 }
