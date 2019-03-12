@@ -127,7 +127,8 @@ namespace Sequence.AspNetCore
                     type => type,
                     type => new string(type.Name
                         .SelectMany(NameToChars)
-                        .ToArray()));
+                        .ToArray())
+                        .Trim('-'));
 
             var bindingFlags = BindingFlags.Public | BindingFlags.Instance;
 
