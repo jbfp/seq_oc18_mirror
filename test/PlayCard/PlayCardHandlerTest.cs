@@ -1,5 +1,7 @@
+using Microsoft.AspNetCore.SignalR;
 using Moq;
 using Sequence.PlayCard;
+using Sequence.RealTime;
 using System;
 using System.Collections.Immutable;
 using System.Threading;
@@ -15,20 +17,29 @@ namespace Sequence.Test.PlayCard
         {
             var provider = Mock.Of<IGameStateProvider>();
             var store = Mock.Of<IGameEventStore>();
+            var hub = Mock.Of<IHubContext<GameHub, IGameHubClient>>();
 
             Assert.Throws<ArgumentNullException>(
                 paramName: "provider",
-                () => new PlayCardHandler(provider: null, store)
+                () => new PlayCardHandler(provider: null, store, hub)
             );
 
             Assert.Throws<ArgumentNullException>(
                 paramName: "store",
-                () => new PlayCardHandler(provider, store: null)
+                () => new PlayCardHandler(provider, store: null, hub)
             );
+
+            Assert.Throws<ArgumentNullException>(
+               paramName: "hub",
+               () => new PlayCardHandler(provider, store, hub: null)
+           );
         }
 
         private readonly Mock<IGameStateProvider> _provider = new Mock<IGameStateProvider>();
         private readonly Mock<IGameEventStore> _store = new Mock<IGameEventStore>();
+        private readonly Mock<IHubContext<GameHub, IGameHubClient>> _hub =
+            new Mock<IHubContext<GameHub, IGameHubClient>>();
+
         private readonly PlayCardHandler _sut;
 
         private readonly GameId _gameId = GameIdGenerator.Generate();
@@ -50,7 +61,7 @@ namespace Sequence.Test.PlayCard
                 .Returns(Task.CompletedTask)
                 .Verifiable();
 
-            _sut = new PlayCardHandler(_provider.Object, _store.Object);
+            _sut = new PlayCardHandler(_provider.Object, _store.Object, _hub.Object);
 
             _game = new GameState(
                 new GameInit(

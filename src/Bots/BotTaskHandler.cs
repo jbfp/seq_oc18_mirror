@@ -1,7 +1,9 @@
 using Microsoft.Extensions.Logging;
 using Sequence.GetGameView;
 using Sequence.PlayCard;
+using Sequence.RealTime;
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -55,7 +57,7 @@ namespace Sequence.Bots
                 var bot = (IBot)Activator.CreateInstance(botType, nonPublic: true);
                 var moves = Moves.FromGameView(game);
 
-                GameEvent gameEvent = null;
+                IEnumerable<GameUpdated> gameEvents = null;
 
                 // Make it look like the bot is thinking... :)
                 await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken);
@@ -102,7 +104,7 @@ namespace Sequence.Bots
                     {
                         try
                         {
-                            gameEvent = await _playCardHandler.ExchangeDeadCardAsync(gameId,
+                            gameEvents = await _playCardHandler.ExchangeDeadCardAsync(gameId,
                                 playerId, card, cancellationToken);
                         }
                         catch (ExchangeDeadCardFailedException ex)
@@ -118,7 +120,7 @@ namespace Sequence.Bots
                     {
                         try
                         {
-                            gameEvent = await _playCardHandler.PlayCardAsync(gameId, playerId, card,
+                            gameEvents = await _playCardHandler.PlayCardAsync(gameId, playerId, card,
                                 coord, cancellationToken);
                         }
                         catch (PlayCardFailedException ex)
@@ -131,7 +133,7 @@ namespace Sequence.Bots
                         }
                     }
 
-                    if (gameEvent != null)
+                    if (gameEvents != null)
                     {
                         _logger.LogInformation(
                             "#{Attempt}: Bot {Bot} produced a valid move for {GameId}",
@@ -141,7 +143,7 @@ namespace Sequence.Bots
                     }
                 }
 
-                if (gameEvent == null)
+                if (gameEvents == null)
                 {
                     _logger.LogWarning("Bot {Bot} failed to produce valid move", bot);
                 }
