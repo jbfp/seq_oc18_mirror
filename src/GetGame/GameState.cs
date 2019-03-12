@@ -50,95 +50,115 @@ namespace Sequence.GetGame
             );
         }
 
-        public IEnumerable<GameEventBase> GenerateForPlayer(PlayerHandle playerHandle)
+        public IEnumerable<GameUpdated> GenerateForPlayer(PlayerHandle playerHandle)
         {
             return GenerateForPlayer(_initialState.PlayerHandleByIdx.IndexOf(playerHandle));
         }
 
-        public IEnumerable<GameEventBase> GenerateForPlayer(PlayerId playerId)
+        public IEnumerable<GameUpdated> GenerateForPlayer(PlayerId playerId)
         {
             return GenerateForPlayer(_initialState.PlayerIdByIdx.IndexOf(playerId));
         }
 
-        private IEnumerable<GameEventBase> GenerateForPlayer(int playerIdx)
+        private IEnumerable<GameUpdated> GenerateForPlayer(int playerIdx)
         {
-            var version = 1;
             var state = _initialState;
 
             foreach (var gameEvent in _gameEvents)
             {
                 var previousState = state;
                 var currentState = previousState.Apply(gameEvent);
+                var events = GetEvents(playerIdx, gameEvent, previousState, currentState);
 
-                yield return new CardDiscarded(gameEvent.ByPlayerId, gameEvent.CardUsed, version++);
-
-                if (gameEvent.CardDrawn != null)
+                yield return new GameUpdated
                 {
-                    var byPlayerIdx = state.PlayerIdByIdx.IndexOf(gameEvent.ByPlayerId);
-                    var cardDrawn = byPlayerIdx == playerIdx ? gameEvent.CardDrawn : null;
-                    yield return new CardDrawn(gameEvent.ByPlayerId, cardDrawn, version++);
-                }
+                    GameEvents = events.ToArray(),
+                    Version = gameEvent.Index,
+                };
 
-                if (previousState.Deck.Count == 0)
-                {
-                    yield return new DeckShuffled(currentState.Deck.Count, version++);
-                }
+                state = currentState;
+            }
+        }
 
-                if (gameEvent.Coord.Equals(new Coord(-1, -1)))
+        private IEnumerable<IGameEvent> GetEvents(
+            int playerIdx,
+            GameEvent gameEvent,
+            Sequence.GameState previousState,
+            Sequence.GameState currentState)
+        {
+            var isInGame = playerIdx != -1;
+
+            yield return new CardDiscarded(gameEvent.ByPlayerId, gameEvent.CardUsed);
+
+            if (gameEvent.CardDrawn != null)
+            {
+                var byPlayerIdx = _initialState.PlayerIdByIdx.IndexOf(gameEvent.ByPlayerId);
+                var cardDrawn = byPlayerIdx == playerIdx ? gameEvent.CardDrawn : null;
+                yield return new CardDrawn(gameEvent.ByPlayerId, cardDrawn);
+            }
+
+            if (previousState.Deck.Count == 0)
+            {
+                yield return new DeckShuffled(currentState.Deck.Count);
+            }
+
+            if (gameEvent.Coord.Equals(new Coord(-1, -1)))
+            {
+                // Dead card exchanged = card discarded + card drawn.
+            }
+            else
+            {
+                var previousHand = isInGame
+                    ? previousState.PlayerHandByIdx[playerIdx]
+                    : ImmutableList<Card>.Empty;
+
+                var currentHand = isInGame
+                    ? currentState.PlayerHandByIdx[playerIdx]
+                    : ImmutableList<Card>.Empty;
+
+                if (gameEvent.Chip.HasValue)
                 {
-                    // Dead card exchanged = card discarded + card drawn.
+                    yield return new ChipAdded(gameEvent.Coord, gameEvent.Chip.Value);
+
+                    foreach (var sequence in gameEvent.Sequences)
+                    {
+                        yield return new SequenceCreated(sequence);
+                    }
+
+                    var newDeadCards = currentState.DeadCards
+                        .Intersect(currentHand)
+                        .Except(previousState.DeadCards
+                            .Intersect(previousHand));
+
+                    foreach (var card in newDeadCards)
+                    {
+                        yield return new CardDied(card);
+                    }
                 }
                 else
                 {
-                    var previousHand = previousState.PlayerHandByIdx[playerIdx];
-                    var currentHand = currentState.PlayerHandByIdx[playerIdx];
+                    yield return new ChipRemoved(gameEvent.Coord);
 
-                    if (gameEvent.Chip.HasValue)
+                    var revivedCards = previousState.DeadCards
+                        .Intersect(previousHand)
+                        .Except(currentState.DeadCards
+                            .Intersect(currentHand));
+
+                    foreach (var card in revivedCards)
                     {
-                        yield return new ChipAdded(gameEvent.Coord, gameEvent.Chip.Value, version++);
-
-                        foreach (var sequence in gameEvent.Sequences)
-                        {
-                            yield return new SequenceCreated(sequence, version++);
-                        }
-
-                        var newDeadCards = currentState.DeadCards
-                            .Intersect(currentHand)
-                            .Except(previousState.DeadCards
-                                .Intersect(previousHand));
-
-                        foreach (var card in newDeadCards)
-                        {
-                            yield return new CardDied(card, version++);
-                        }
-                    }
-                    else
-                    {
-                        yield return new ChipRemoved(gameEvent.Coord, version++);
-
-                        var revivedCards = previousState.DeadCards
-                            .Intersect(previousHand)
-                            .Except(currentState.DeadCards
-                                .Intersect(currentHand));
-
-                        foreach (var card in revivedCards)
-                        {
-                            yield return new CardRevived(card, version++);
-                        }
+                        yield return new CardRevived(card);
                     }
                 }
+            }
 
-                if (gameEvent.NextPlayerId != null)
-                {
-                    yield return new TurnEnded(gameEvent.NextPlayerId, version++);
-                }
+            if (gameEvent.NextPlayerId != null)
+            {
+                yield return new TurnEnded(gameEvent.NextPlayerId);
+            }
 
-                if (gameEvent.Winner.HasValue)
-                {
-                    yield return new GameEnded(gameEvent.Winner.Value, version++);
-                }
-
-                state = currentState;
+            if (gameEvent.Winner.HasValue)
+            {
+                yield return new GameEnded(gameEvent.Winner.Value);
             }
         }
 

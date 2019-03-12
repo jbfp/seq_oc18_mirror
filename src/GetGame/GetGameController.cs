@@ -33,7 +33,7 @@ namespace Sequence.GetGame
             var result = new
             {
                 init = generator.Init(Player),
-                events = generator.GenerateForPlayer(Player)
+                updates = generator.GenerateForPlayer(Player)
             };
 
             return Ok(result);

@@ -1,20 +1,14 @@
 using System;
 
-namespace Sequence.GetGame
+namespace Sequence
 {
-    public abstract class GameEventBase
+    public interface IGameEvent
     {
-        protected GameEventBase(int version)
-        {
-            Version = version;
-        }
-
-        public int Version { get; }
     }
 
-    public sealed class CardDiscarded : GameEventBase
+    public sealed class CardDiscarded : IGameEvent
     {
-        public CardDiscarded(PlayerId byPlayerId, Card card, int version) : base(version)
+        public CardDiscarded(PlayerId byPlayerId, Card card)
         {
             ByPlayerId = byPlayerId ?? throw new ArgumentNullException(nameof(byPlayerId));
             Card = card ?? throw new ArgumentNullException(nameof(card));
@@ -24,9 +18,9 @@ namespace Sequence.GetGame
         public Card Card { get; }
     }
 
-    public sealed class ChipAdded : GameEventBase
+    public sealed class ChipAdded : IGameEvent
     {
-        public ChipAdded(Coord coord, Team team, int version) : base(version)
+        public ChipAdded(Coord coord, Team team)
         {
             Coord = coord;
             Team = team;
@@ -36,9 +30,9 @@ namespace Sequence.GetGame
         public Team Team { get; }
     }
 
-    public sealed class ChipRemoved : GameEventBase
+    public sealed class ChipRemoved : IGameEvent
     {
-        public ChipRemoved(Coord coord, int version) : base(version)
+        public ChipRemoved(Coord coord)
         {
             Coord = coord;
         }
@@ -46,9 +40,9 @@ namespace Sequence.GetGame
         public Coord Coord { get; }
     }
 
-    public sealed class CardDrawn : GameEventBase
+    public sealed class CardDrawn : IGameEvent
     {
-        public CardDrawn(PlayerId byPlayerId, Card card, int version) : base(version)
+        public CardDrawn(PlayerId byPlayerId, Card card)
         {
             ByPlayerId = byPlayerId ?? throw new ArgumentNullException(nameof(byPlayerId));
             Card = card;
@@ -58,9 +52,9 @@ namespace Sequence.GetGame
         public Card Card { get; }
     }
 
-    public sealed class DeckShuffled : GameEventBase
+    public sealed class DeckShuffled : IGameEvent
     {
-        public DeckShuffled(int numCardsInDeck, int version) : base(version)
+        public DeckShuffled(int numCardsInDeck)
         {
             NumCardsInDeck = numCardsInDeck;
         }
@@ -68,9 +62,9 @@ namespace Sequence.GetGame
         public int NumCardsInDeck { get; }
     }
 
-    public sealed class CardDied : GameEventBase
+    public sealed class CardDied : IGameEvent
     {
-        public CardDied(Card card, int version) : base(version)
+        public CardDied(Card card)
         {
             Card = card ?? throw new ArgumentNullException(nameof(card));
         }
@@ -78,9 +72,9 @@ namespace Sequence.GetGame
         public Card Card { get; }
     }
 
-    public sealed class CardRevived : GameEventBase
+    public sealed class CardRevived : IGameEvent
     {
-        public CardRevived(Card card, int version) : base(version)
+        public CardRevived(Card card)
         {
             Card = card ?? throw new ArgumentNullException(nameof(card));
         }
@@ -88,9 +82,9 @@ namespace Sequence.GetGame
         public Card Card { get; }
     }
 
-    public sealed class SequenceCreated : GameEventBase
+    public sealed class SequenceCreated : IGameEvent
     {
-        public SequenceCreated(Seq sequence, int version) : base(version)
+        public SequenceCreated(Seq sequence)
         {
             Sequence = sequence ?? throw new ArgumentNullException(nameof(sequence));
         }
@@ -98,9 +92,9 @@ namespace Sequence.GetGame
         public Seq Sequence { get; set; }
     }
 
-    public sealed class TurnEnded : GameEventBase
+    public sealed class TurnEnded : IGameEvent
     {
-        public TurnEnded(PlayerId nextPlayerId, int version) : base(version)
+        public TurnEnded(PlayerId nextPlayerId)
         {
             NextPlayerId = nextPlayerId ?? throw new ArgumentNullException(nameof(nextPlayerId));
         }
@@ -108,9 +102,9 @@ namespace Sequence.GetGame
         public PlayerId NextPlayerId { get; }
     }
 
-    public sealed class GameEnded : GameEventBase
+    public sealed class GameEnded : IGameEvent
     {
-        public GameEnded(Team winnerTeam, int version) : base(version)
+        public GameEnded(Team winnerTeam)
         {
             WinnerTeam = winnerTeam;
         }
