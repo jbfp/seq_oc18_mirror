@@ -69,10 +69,10 @@ class Server implements CanCreateGame, CanGetBotTypes {
 
     const body: t.CardPlayed | ResponseBodyError = await response.json();
 
-    if (response.ok) {
-      return body as t.CardPlayed;
+    if ((body as ResponseBodyError).error) {
+      throw new Error((body as ResponseBodyError).error);
     } else {
-      throw new Error((<ResponseBodyError>body).error);
+      return body as t.CardPlayed;
     }
   }
 
@@ -165,10 +165,10 @@ class Server implements CanCreateGame, CanGetBotTypes {
 
     const body: t.CardPlayed | ResponseBodyError = await response.json();
 
-    if (response.ok) {
-      return body as t.CardPlayed;
+    if ((body as ResponseBodyError).error) {
+      throw new Error((body as ResponseBodyError).error);
     } else {
-      throw new Error((<ResponseBodyError>body).error);
+      return body as t.CardPlayed;
     }
   }
 
