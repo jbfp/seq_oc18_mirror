@@ -36,7 +36,6 @@ export default function GameLoader(props: RouteComponentProps<GameLoaderProps>) 
 
             setState(currentState => {
                 if (currentState && currentState.version === finalState.version) {
-                    console.log('same state');
                     return currentState;
                 } else {
                     return finalState;
