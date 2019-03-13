@@ -63,13 +63,6 @@ export interface Chip {
     team: Team;
 }
 
-export interface Move {
-    byPlayerId: PlayerId;
-    cardUsed: Card;
-    coord: Coord;
-    index: number;
-}
-
 export type PlayerId = number;
 export type PlayerHandle = string;
 
@@ -86,59 +79,28 @@ export interface Player {
     type: PlayerType;
 }
 
-export interface Rules {
-    boardType: BoardType;
-    winCondition: number;
-}
-
-export interface GameState {
-    chips: Chip[];
-    currentPlayerId: PlayerId | null;
-    deadCards: Card[];
-    discards: Card[];
-    hand: Card[];
-    hasExchangedDeadCard: boolean;
-    index: number;
-    moves: Move[];
-    numberOfCardsInDeck: number;
-    numberOfSequencesToWin: number;
-    playerId: PlayerId;
-    players: Player[];
-    rules: Rules;
-    team: Team;
-    version: number;
-    winner: Team | null;
-}
-
 export interface Sequence {
     coords: Coord[];
     team: Team;
 }
 
 export interface CardPlayed {
-    byPlayerId: number;
-    cardDrawn: Card | boolean;
-    cardUsed: Card;
-    chip: Chip;
-    coord: Coord;
-    index: number;
-    nextPlayerId: PlayerId | null;
-    sequences: Sequence[];
-    winner: Team | null;
+    updates: GameUpdated[];
+}
+
+export interface CardPlayedError {
+    error: string;
 }
 
 export enum LoadGameResponseKind {
-    Ok, NotChanged, NotFound, Error
+    Ok, NotFound, Error
 }
 
 export interface OkLoadGameResponse {
     kind: LoadGameResponseKind.Ok;
-    game: GameState;
+    init: GameStarted;
     board: Board;
-}
-
-export interface NotChangedLoadGameResponse {
-    kind: LoadGameResponseKind.NotChanged;
+    updates: GameUpdated[];
 }
 
 export interface NotFoundLoadGameResponse {
@@ -152,6 +114,100 @@ export interface ErrorLoadGameResponse {
 
 export type LoadGameResponse =
     | OkLoadGameResponse
-    | NotChangedLoadGameResponse
     | NotFoundLoadGameResponse
     | ErrorLoadGameResponse;
+
+export interface GameStarted {
+    boardType: BoardType;
+    firstPlayerId: PlayerId;
+    hand: Card[];
+    numCardsInDeck: number;
+    playerHandle: PlayerHandle;
+    playerId: PlayerId;
+    players: Player[];
+    team: Team;
+    winCondition: number;
+}
+
+export enum GameEventKind {
+    CardDiscarded = 'card-discarded',
+    ChipAdded = 'chip-added',
+    ChipRemoved = 'chip-removed',
+    CardDrawn = 'card-drawn',
+    DeckShuffled = 'deck-shuffled',
+    CardDied = 'card-died',
+    CardRevived = 'card-revived',
+    SequenceCreated = 'sequence-created',
+    TurnEnded = 'turn-ended',
+    GameEnded = 'game-ended',
+}
+
+export interface CardDiscarded {
+    kind: GameEventKind.CardDiscarded;
+    byPlayerId: PlayerId;
+    card: Card;
+}
+
+export interface ChipAdded {
+    kind: GameEventKind.ChipAdded;
+    coord: Coord;
+    team: Team;
+}
+
+export interface ChipRemoved {
+    kind: GameEventKind.ChipRemoved;
+    coord: Coord;
+}
+
+export interface CardDrawn {
+    kind: GameEventKind.CardDrawn;
+    byPlayerId: PlayerId;
+    card: Card | null;
+}
+
+export interface DeckShuffled {
+    kind: GameEventKind.DeckShuffled;
+    numCardsInDeck: number;
+}
+
+export interface CardDied {
+    kind: GameEventKind.CardDied;
+    card: Card;
+}
+
+export interface CardRevived {
+    kind: GameEventKind.CardRevived;
+    card: Card;
+}
+
+export interface SequenceCreated {
+    kind: GameEventKind.SequenceCreated;
+    sequence: Sequence;
+}
+
+export interface TurnEnded {
+    kind: GameEventKind.TurnEnded;
+    nextPlayerId: PlayerId | null;
+}
+
+export interface GameEnded {
+    kind: GameEventKind.GameEnded;
+    winnerTeam: Team;
+}
+
+export type GameEvents =
+    | CardDiscarded
+    | ChipAdded
+    | ChipRemoved
+    | CardDrawn
+    | DeckShuffled
+    | CardDied
+    | CardRevived
+    | SequenceCreated
+    | TurnEnded
+    | GameEnded;
+
+export interface GameUpdated {
+    gameEvents: GameEvents[];
+    version: number;
+}

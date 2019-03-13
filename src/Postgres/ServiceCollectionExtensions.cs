@@ -18,6 +18,7 @@ namespace Sequence.Postgres
                 .Configure<PostgresOptions>(configSection)
                 .AddSingleton<NpgsqlConnectionFactory>()
                 .AddSingleton<PostgresMigrations>()
+                .AddSingleton<PostgresGameProvider>()
                 .AddSingleton<PostgresGameInsertedListener>()
                 .AddSingleton<IHostedService>(
                     sp => sp.GetRequiredService<PostgresGameInsertedListener>())

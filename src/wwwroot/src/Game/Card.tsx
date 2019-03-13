@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
 import * as t from "../types";
 
 interface CardProps {
@@ -10,17 +10,20 @@ interface CardProps {
 }
 
 export default function Card(props: CardProps) {
-    const { card, isDead, isSelected, onCardClick } = props;
-    const classes = ['card', props.className];
+    const { card, className, isDead, isSelected, onCardClick } = props;
+    const classes = useMemo(() => ['card', className].join(' '), [className]);
+    const handleCardClick = useCallback(
+        () => onCardClick(card),
+        [card, onCardClick]);
 
     return (
         <div
-            className={classes.join(' ')}
+            className={classes}
             data-suit={card.suit}
             data-rank={card.rank}
             data-dead={isDead}
             data-selected={isSelected}
-            onClick={() => onCardClick(card)}
+            onClick={handleCardClick}
         ></div>
     );
 }

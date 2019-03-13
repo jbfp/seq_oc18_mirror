@@ -2,25 +2,52 @@ import React, { useCallback, useContext, useEffect, useRef, useState } from 'rea
 import { RouteComponentProps } from "react-router";
 import { Link } from 'react-router-dom';
 import { ServerContext } from '../contexts';
-import { Board, GameId, GameState, LoadGameResponseKind } from "../types";
+import { GameState, init, reducer } from './reducer';
+import * as t from "../types";
 import PageVisibility from './page-visibility';
 import Game from './Game';
 
 interface GameLoaderProps {
-    id: GameId;
-}
-
-interface GameLoaderState {
-    board: Board;
-    game: GameState;
+    id: t.GameId;
 }
 
 export default function GameLoader(props: RouteComponentProps<GameLoaderProps>) {
+    const gameId = props.match.params.id;
     const context = useContext(ServerContext);
-    const [state, setState] = useState<GameLoaderState | null>(null);
+    const [game, setState] = useState<GameState | null>(null);
     const [error, setError] = useState<string | null>(null);
     const timerHandle = useRef<number | undefined>(undefined);
     const timeouts = useRef<number>(0);
+
+    const loadGameAsync = useCallback(async () => {
+        const result = await context.getGameByIdAsync(gameId);
+
+        if (result.kind === t.LoadGameResponseKind.Error) {
+            timeouts.current++;
+        } else {
+            timeouts.current = 0;
+        }
+
+        setError(null);
+
+        if (result.kind === t.LoadGameResponseKind.Ok) {
+            const initialState = init(result.init, result.board);
+            const finalState = result.updates.reduce(reducer, initialState);
+
+            setState(currentState => {
+                if (currentState && currentState.version === finalState.version) {
+                    console.log('same state');
+                    return currentState;
+                } else {
+                    return finalState;
+                }
+            });
+        } else if (result.kind === t.LoadGameResponseKind.NotFound) {
+            setState(null);
+        } else if (result.kind === t.LoadGameResponseKind.Error) {
+            setError(result.error.message);
+        }
+    }, [gameId]);
 
     useEffect(() => {
         const timerHandler = async () => {
@@ -34,7 +61,7 @@ export default function GameLoader(props: RouteComponentProps<GameLoaderProps>) 
         return () => {
             window.clearTimeout(timerHandle.current);
         };
-    }, []);
+    }, [loadGameAsync]);
 
     useEffect(() => {
         if (PageVisibility) {
@@ -54,35 +81,7 @@ export default function GameLoader(props: RouteComponentProps<GameLoaderProps>) 
                 document.removeEventListener(visibilityChange, eventHandler, false);
             };
         }
-    }, []);
-
-    async function loadGameAsync() {
-        const gameId = props.match.params.id;
-        const version = state ? state.game.index : null;
-        const result = await context.getGameByIdAsync(gameId, version);
-
-        if (result.kind === LoadGameResponseKind.Error) {
-            timeouts.current++;
-        } else {
-            timeouts.current = 0;
-        }
-
-        setError(null);
-
-        if (result.kind === LoadGameResponseKind.Ok) {
-            setState({ game: result.game, board: result.board });
-        } else if (result.kind === LoadGameResponseKind.NotChanged) {
-            // no-op.
-        } else if (result.kind === LoadGameResponseKind.NotFound) {
-            setState(null);
-        } else if (result.kind === LoadGameResponseKind.Error) {
-            setError(result.error.message);
-        }
-    }
-
-    const handleRequestReload = useCallback(async () => {
-        await loadGameAsync();
-    }, []);
+    }, [loadGameAsync]);
 
     const elements = [];
 
@@ -90,20 +89,19 @@ export default function GameLoader(props: RouteComponentProps<GameLoaderProps>) 
         elements.push((
             <div key="error">
                 Failed to load newest game state: {error}&nbsp;
-                <a href="#" onClick={handleRequestReload}>Click here to try again</a>.
+                <a href="#" onClick={loadGameAsync}>Click here to try again</a>.
                 <br /><br />
             </div>
         ));
     }
 
-    if (state) {
+    if (game) {
         elements.push((
             <Game
                 key="game"
-                id={props.match.params.id}
-                game={state.game}
-                board={state.board}
-                onRequestReload={handleRequestReload}
+                id={gameId}
+                init={game}
+                onRequestReload={loadGameAsync}
             />
         ));
     }

@@ -12,7 +12,10 @@ namespace Sequence.Test.PlayCard
         [Fact]
         public void Constructor_ThrowsIfArgsAreNull()
         {
-            var handler = new PlayCardHandler(Mock.Of<IGameStateProvider>(), Mock.Of<IGameEventStore>());
+            var handler = new PlayCardHandler(
+                Mock.Of<IGameStateProvider>(),
+                Mock.Of<IGameEventStore>(),
+                Mock.Of<IRealTimeContext>());
             var cache = Mock.Of<IMemoryCache>();
             var logger = Mock.Of<ILogger<PlayCardController>>();
 

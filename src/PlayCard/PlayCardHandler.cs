@@ -1,4 +1,7 @@
 using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -8,14 +11,34 @@ namespace Sequence.PlayCard
     {
         private readonly IGameStateProvider _provider;
         private readonly IGameEventStore _store;
+        private readonly IRealTimeContext _realTime;
 
-        public PlayCardHandler(IGameStateProvider provider, IGameEventStore store)
+        public PlayCardHandler(
+            IGameStateProvider provider,
+            IGameEventStore store,
+            IRealTimeContext realTime)
         {
             _provider = provider ?? throw new ArgumentNullException(nameof(provider));
             _store = store ?? throw new ArgumentNullException(nameof(store));
+            _realTime = realTime ?? throw new ArgumentNullException(nameof(realTime));
         }
 
-        public async Task<GameEvent> PlayCardAsync(
+        public async Task<IImmutableList<Move>> GetMovesForPlayerAsync(
+            GameId gameId,
+            PlayerId playerId,
+            CancellationToken cancellationToken)
+        {
+            var state = await _provider.GetGameByIdAsync(gameId, cancellationToken);
+
+            if (state == null)
+            {
+                throw new GameNotFoundException();
+            }
+
+            return Moves.GenerateMoves(state, playerId);
+        }
+
+        public Task<IEnumerable<GameUpdated>> PlayCardAsync(
             GameId gameId,
             PlayerHandle player,
             Card card,
@@ -32,13 +55,13 @@ namespace Sequence.PlayCard
                 throw new ArgumentNullException(nameof(card));
             }
 
-            GameState state = await GetGameByIdAsync(gameId, cancellationToken);
-            GameEvent gameEvent = Game.PlayCard(state, player, card, coord);
-            await _store.AddEventAsync(gameId, gameEvent, cancellationToken);
-            return gameEvent;
+            return DoThing(
+                gameId,
+                state => Game.PlayCard(state, player, card, coord),
+                cancellationToken);
         }
 
-        public async Task<GameEvent> PlayCardAsync(
+        public Task<IEnumerable<GameUpdated>> PlayCardAsync(
             GameId gameId,
             PlayerId player,
             Card card,
@@ -55,13 +78,13 @@ namespace Sequence.PlayCard
                 throw new ArgumentNullException(nameof(card));
             }
 
-            GameState state = await GetGameByIdAsync(gameId, cancellationToken);
-            GameEvent gameEvent = Game.PlayCard(state, player, card, coord);
-            await _store.AddEventAsync(gameId, gameEvent, cancellationToken);
-            return gameEvent;
+            return DoThing(
+                gameId,
+                state => Game.PlayCard(state, player, card, coord),
+                cancellationToken);
         }
 
-        public async Task<GameEvent> ExchangeDeadCardAsync(
+        public Task<IEnumerable<GameUpdated>> ExchangeDeadCardAsync(
             GameId gameId,
             PlayerHandle player,
             Card deadCard,
@@ -77,13 +100,13 @@ namespace Sequence.PlayCard
                 throw new ArgumentNullException(nameof(deadCard));
             }
 
-            GameState state = await GetGameByIdAsync(gameId, cancellationToken);
-            GameEvent gameEvent = Game.ExchangeDeadCard(state, player, deadCard);
-            await _store.AddEventAsync(gameId, gameEvent, cancellationToken);
-            return gameEvent;
+            return DoThing(
+                gameId,
+                state => Game.ExchangeDeadCard(state, player, deadCard),
+                cancellationToken);
         }
 
-        public async Task<GameEvent> ExchangeDeadCardAsync(
+        public Task<IEnumerable<GameUpdated>> ExchangeDeadCardAsync(
             GameId gameId,
             PlayerId player,
             Card deadCard,
@@ -99,13 +122,16 @@ namespace Sequence.PlayCard
                 throw new ArgumentNullException(nameof(deadCard));
             }
 
-            GameState state = await GetGameByIdAsync(gameId, cancellationToken);
-            GameEvent gameEvent = Game.ExchangeDeadCard(state, player, deadCard);
-            await _store.AddEventAsync(gameId, gameEvent, cancellationToken);
-            return gameEvent;
+            return DoThing(
+                gameId,
+                state => Game.ExchangeDeadCard(state, player, deadCard),
+                cancellationToken);
         }
 
-        private async Task<GameState> GetGameByIdAsync(GameId gameId, CancellationToken cancellationToken)
+        private async Task<IEnumerable<GameUpdated>> DoThing(
+            GameId gameId,
+            Func<GameState, GameEvent> doThing,
+            CancellationToken cancellationToken)
         {
             if (gameId == null)
             {
@@ -114,14 +140,30 @@ namespace Sequence.PlayCard
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            GameState state = await _provider.GetGameByIdAsync(gameId, cancellationToken);
+            var state = await _provider.GetGameByIdAsync(gameId, cancellationToken);
 
             if (state == null)
             {
                 throw new GameNotFoundException();
             }
 
-            return state;
+            var gameEvent = doThing(state);
+            await _store.AddEventAsync(gameId, gameEvent, cancellationToken);
+            var newState = new GetGame.Game(state, gameEvent);
+
+            var _ = Task.Run(() =>
+            {
+                var tasks = state
+                    .PlayerIdByIdx
+                    .AsParallel()
+                    .Where(playerId => playerId != gameEvent.ByPlayerId)
+                    .Select(playerId => (playerId, updates: newState.GenerateForPlayer(playerId)))
+                    .Select(t => _realTime.SendGameUpdatesAsync(t.playerId, t.updates));
+
+                return Task.WhenAll(tasks);
+            });
+
+            return newState.GenerateForPlayer(gameEvent.ByPlayerId);
         }
     }
 }

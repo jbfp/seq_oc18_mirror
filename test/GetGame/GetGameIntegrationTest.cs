@@ -6,18 +6,16 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Sequence.Test.GetGameView
+namespace Sequence.Test.GetGame
 {
-    [Trait("Category", "Integration")]
-    public sealed class GetGameViewIntegrationTest : IntegrationTestBase
+    public sealed class GetGameIntegrationTest : IntegrationTestBase
     {
-        private const string BoardBasePath = "/boards";
         private const string GameBasePath = "/games";
+        private const string BoardBasePath = "/boards";
 
-        public GetGameViewIntegrationTest(
+        public GetGameIntegrationTest(
             PostgresDockerContainerFixture fixture,
-            WebApplicationFactory<Startup> factory)
-            : base(fixture, factory)
+            WebApplicationFactory<Startup> factory) : base(fixture, factory)
         {
         }
 

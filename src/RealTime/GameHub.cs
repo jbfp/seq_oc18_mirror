@@ -5,24 +5,6 @@ using System.Threading.Tasks;
 
 namespace Sequence.RealTime
 {
-    public sealed class GameEventDto
-    {
-        public PlayerId ByPlayerId { get; set; }
-        public bool CardDrawn { get; set; }
-        public Card CardUsed { get; set; }
-        public Team? Chip { get; set; }
-        public Coord Coord { get; set; }
-        public int Index { get; set; }
-        public PlayerId NextPlayerId { get; set; }
-        public Seq[] Sequences { get; set; }
-        public Team? Winner { get; set; }
-    }
-
-    public interface IGameHubClient
-    {
-        Task UpdateGame(GameEventDto gameEvent);
-    }
-
     public sealed class GameHub : Hub<IGameHubClient>
     {
         private readonly ILogger _logger;
@@ -32,30 +14,16 @@ namespace Sequence.RealTime
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task Subscribe(string gameId)
+        public async Task Identify(int playerId)
         {
-            if (gameId == null)
-            {
-                throw new ArgumentNullException(nameof(gameId));
-            }
+            _logger.LogInformation(
+                "Player with ID {PlayerId} has connected",
+                playerId);
 
             var connectionId = Context.ConnectionId;
+            var groupName = playerId.ToString();
             var cancellationToken = Context.ConnectionAborted;
-            _logger.LogInformation("User subscribing to {GameId}", gameId);
-            await Groups.AddToGroupAsync(connectionId, gameId, cancellationToken);
-        }
-
-        public async Task Unsubscribe(string gameId)
-        {
-            if (gameId == null)
-            {
-                throw new ArgumentNullException(nameof(gameId));
-            }
-
-            var connectionId = Context.ConnectionId;
-            var cancellationToken = Context.ConnectionAborted;
-            _logger.LogInformation("User unsubscribing from {GameId}", gameId);
-            await Groups.RemoveFromGroupAsync(connectionId, gameId, cancellationToken);
+            await Groups.AddToGroupAsync(connectionId, groupName, cancellationToken);
         }
     }
 }

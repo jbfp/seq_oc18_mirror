@@ -1,32 +1,41 @@
-using Sequence.GetGameView;
 using System;
 using System.Collections.Immutable;
 using System.Linq;
 
-namespace Sequence.Bots
+namespace Sequence.PlayCard
 {
     public static class Moves
     {
-        public static IImmutableList<Move> FromGameView(GameView view)
+        public static IImmutableList<Move> GenerateMoves(
+            GameState state,
+            PlayerId playerId)
         {
-            if (view == null)
+            if (state == null)
             {
-                throw new ArgumentNullException(nameof(view));
+                throw new ArgumentNullException(nameof(state));
+            }
+
+            if (playerId == null)
+            {
+                throw new ArgumentNullException(nameof(playerId));
+            }
+
+            var playerIdx = state.PlayerIdByIdx.IndexOf(playerId);
+
+            if (playerIdx == -1)
+            {
+                throw new ArgumentException("Playerw is not in game.");
             }
 
             var moves = ImmutableList.CreateBuilder<Move>();
-            var boardType = view.Rules.BoardType.Create();
-            var chips = view.Chips;
-            var hand = view.Hand;
-            var team = view.Team;
+            var boardType = state.BoardType;
+            var chips = state.Chips;
+            var hand = state.PlayerHandByIdx[playerIdx];
+            var team = state.PlayerTeamByIdx[playerIdx];
 
-            var occupiedCoords = chips
-                .Select(chip => chip.Coord)
-                .ToImmutableHashSet();
-
-            var coordsInSequence = view.Chips
-                .Where(chip => chip.IsLocked)
-                .Select(chip => chip.Coord)
+            var occupiedCoords = chips.Keys.ToImmutableHashSet();
+            var coordsInSequence = state.Sequences
+                .SelectMany(seq => seq.Coords)
                 .ToImmutableHashSet();
 
             foreach (var card in hand)
@@ -35,8 +44,8 @@ namespace Sequence.Bots
                 {
                     foreach (var chip in chips)
                     {
-                        var coord = chip.Coord;
-                        var isNotOwnTeam = chip.Team != team;
+                        var coord = chip.Key;
+                        var isNotOwnTeam = chip.Value != team;
                         var isNotPartOfSequence = !coordsInSequence.Contains(coord);
 
                         if (isNotOwnTeam && isNotPartOfSequence)
@@ -62,7 +71,7 @@ namespace Sequence.Bots
                         }
                     }
                 }
-                else if (view.DeadCards.Contains(card))
+                else if (state.DeadCards.Contains(card))
                 {
                     moves.Add(new Move(card, new Coord(-1, -1)));
                 }

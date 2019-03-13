@@ -1,5 +1,7 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Link } from "react-router-dom";
+import { GameState } from './reducer';
+import { cardKey } from "./helpers";
 import * as t from '../types';
 import BoardView from './BoardView';
 import DeckView from './DeckView';
@@ -9,41 +11,27 @@ import RulesView from './RulesView';
 import './Game.css';
 
 interface GameViewProps {
-    board: t.Board;
-    game: t.GameState;
-    hideCards: boolean;
+    game: GameState;
     selectedCard: t.Card | null;
-    userName: string;
     onCardClick: (card: t.Card) => void;
     onCoordClick: (coord: t.Coord) => void;
     onExchangeDeadCardClick: () => void;
 }
 
 export default function GameView(props: GameViewProps) {
-    const { board, game, hideCards, selectedCard, userName } = props;
+    const { game, selectedCard } = props;
     const { onCardClick, onCoordClick, onExchangeDeadCardClick } = props;
-
-    const playerObj = {
-        hand: game.hand,
-        handle: userName,
-        isCurrentPlayer: game.currentPlayerId === game.playerId,
-        team: game.team,
-    };
-
-    const latestMoveAt = game.moves.length > 0
-        ? game.moves[game.moves.length - 1].coord
-        : null;
 
     let reCreateLink = null;
 
-    if (game.winner) {
+    if (game.winnerTeam) {
         const players = game.players;
         const numPlayers = game.players.length;
         const startIndex = players.findIndex(player => player.id === game.playerId);
 
         const query = new URLSearchParams();
-        query.append('board-type', game.rules.boardType);
-        query.append('win-condition', game.rules.winCondition.toString());
+        query.append('board-type', game.boardType);
+        query.append('win-condition', game.winCondition.toString());
         query.append('num-players', numPlayers.toString());
 
         for (let i = 0; i < numPlayers - 1; i++) {
@@ -64,52 +52,68 @@ export default function GameView(props: GameViewProps) {
     const players = game.players.map(player => {
         return {
             ...player,
-            lastMove: game.moves
-                .filter(move => move.byPlayerId === player.id)
-                .reverse()
-                .shift() || null,
+            latestCardPlayed: game.latestCardPlayed.get(player.id) || null,
         };
     });
 
     // Shift players array so that the player is always the top player in the opponent list.
-    const playerIdx = players.findIndex(player => player.handle === userName);
+    const playerIdx = players.findIndex(player => player.id === game.playerId);
     const shiftedPlayers = [
         players[playerIdx],
         ...players.slice(playerIdx + 1),
         ...players.slice(0, playerIdx),
     ];
 
+    const hand = useMemo(() => {
+        return Array.from(game.hand.values());
+    }, [game.hand]);
+
+    const selectedCardKey = useMemo(() => {
+        if (selectedCard) {
+            return cardKey(selectedCard);
+        }
+
+        return null;
+    }, [selectedCard]);
+
     return (
         <div>
             {reCreateLink}
 
-            <PlayersView currentPlayerId={game.currentPlayerId} players={shiftedPlayers} winner={game.winner} />
+            <PlayersView
+                currentPlayerId={game.currentPlayerId}
+                players={shiftedPlayers}
+                winner={game.winnerTeam} />
 
             <BoardView
-                board={board}
+                board={game.board}
                 chips={game.chips}
                 highlightedCellValue={selectedCard}
-                latestMoveAt={latestMoveAt}
+                latestMoveAt={game.latestMoveAt}
                 onCoordClick={onCoordClick}
             />
 
             <PlayerView
                 deadCards={game.deadCards}
                 hasExchangedDeadCard={game.hasExchangedDeadCard}
-                hideCards={hideCards}
+                hand={hand}
+                isCurrentPlayer={game.currentPlayerId === game.playerId}
                 onCardClick={onCardClick}
                 onExchangeDeadCardClick={onExchangeDeadCardClick}
-                selectedCard={selectedCard}
-                {...playerObj}
+                selectedCardKey={selectedCardKey}
+                team={game.playerTeam}
             />
 
             <div className="game-metadata">
                 <div>
-                    <DeckView numberOfCardsInDeck={game.numberOfCardsInDeck} />
+                    <DeckView numberOfCardsInDeck={game.numCardsInDeck} />
                 </div>
 
                 <div>
-                    <RulesView {...game.rules} />
+                    <RulesView
+                        boardType={t.BoardType.OneEyedJack}
+                        winCondition={game.winCondition}
+                    />
                 </div>
             </div>
         </div>

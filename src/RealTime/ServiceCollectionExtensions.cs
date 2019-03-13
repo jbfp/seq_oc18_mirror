@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using Sequence.PlayCard;
 using System;
 
 namespace Sequence.RealTime
@@ -12,7 +13,7 @@ namespace Sequence.RealTime
                 throw new ArgumentNullException(nameof(services));
             }
 
-            return services.AddHostedService<SignalRNotifier>();
+            return services.AddTransient<IRealTimeContext, GameHubRealTimeContext>();
         }
     }
 }

@@ -1,7 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using System;
 
-namespace Sequence.GetGameView
+namespace Sequence.GetGame
 {
     internal static class ServiceCollectionExtensions
     {
@@ -12,7 +12,7 @@ namespace Sequence.GetGameView
                 throw new ArgumentNullException(nameof(services));
             }
 
-            return services.AddScoped<GetGameViewHandler>();
+            return services.AddSingleton<IGameProvider, PostgresGameProvider>();
         }
     }
 }

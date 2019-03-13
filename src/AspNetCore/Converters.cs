@@ -1,5 +1,11 @@
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
+using Sequence.GetGame;
 using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
+using System.Reflection;
 
 namespace Sequence.AspNetCore
 {
@@ -101,6 +107,86 @@ namespace Sequence.AspNetCore
             {
                 throw new JsonSerializationException($"Cannot write value: '{value}'.");
             }
+        }
+    }
+
+    internal sealed class GameEventConverter : JsonConverter
+    {
+        private static readonly ImmutableDictionary<Type, string> _keyByType;
+        private static readonly ImmutableDictionary<Type, PropertyInfo[]> _propertiesByType;
+
+        static GameEventConverter()
+        {
+            var gameEventTypes = typeof(IGameEvent).Assembly
+                .ExportedTypes
+                .Where(typeof(IGameEvent).IsAssignableFrom)
+                .ToList();
+
+            _keyByType = gameEventTypes
+                .ToImmutableDictionary(
+                    type => type,
+                    type => new string(type.Name
+                        .SelectMany(NameToChars)
+                        .ToArray())
+                        .Trim('-'));
+
+            var bindingFlags = BindingFlags.Public | BindingFlags.Instance;
+
+            _propertiesByType = gameEventTypes
+                .ToImmutableDictionary(
+                    type => type,
+                    type => type.GetProperties(bindingFlags));
+        }
+
+        private static IEnumerable<char> NameToChars(char c)
+        {
+            if (char.IsUpper(c))
+            {
+                yield return '-';
+                yield return char.ToLowerInvariant(c);
+            }
+            else
+            {
+                yield return c;
+            }
+        }
+
+        public override bool CanRead => false;
+        public override bool CanWrite => true;
+
+        public override bool CanConvert(Type objectType)
+        {
+            return typeof(IGameEvent) != objectType
+                && typeof(IGameEvent).IsAssignableFrom(objectType);
+        }
+
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        {
+            var type = value.GetType();
+            var name = _keyByType[type];
+            var contractResolver = (DefaultContractResolver)serializer.ContractResolver;
+            var properties = _propertiesByType[type]
+                .Select(p => (p.Name, Value: p.GetValue(value)))
+                .ToDictionary(
+                    p => contractResolver.GetResolvedPropertyName(p.Name),
+                    p => p.Value);
+
+            writer.WriteStartObject();
+            writer.WritePropertyName("kind");
+            writer.WriteValue(name);
+
+            foreach (var property in properties)
+            {
+                writer.WritePropertyName(property.Key);
+                serializer.Serialize(writer, property.Value);
+            }
+
+            writer.WriteEnd();
         }
     }
 }

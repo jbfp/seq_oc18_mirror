@@ -1,10 +1,11 @@
 import React, { useMemo } from 'react';
 import * as t from '../types';
-import CellView from './CellView';
+import { coordKey } from './helpers';
+import { CellView, JokerView } from './CellView';
 
 interface BoardViewProps {
     board: t.Board;
-    chips: t.Chip[];
+    chips: Map<string, t.Chip>;
     highlightedCellValue: t.Tile | null;
     latestMoveAt: t.Coord | null;
     onCoordClick: (coord: t.Coord) => void;
@@ -13,6 +14,14 @@ interface BoardViewProps {
 export default function BoardView(props: BoardViewProps) {
     const { board, chips, highlightedCellValue, latestMoveAt } = props;
     const { onCoordClick } = props;
+
+    const latestMoveAtKey = useMemo(() => {
+        if (latestMoveAt) {
+            return coordKey(latestMoveAt);
+        }
+
+        return null;
+    }, [latestMoveAt]);
 
     const style = useMemo(() => {
         const numRows = board.length;
@@ -28,54 +37,51 @@ export default function BoardView(props: BoardViewProps) {
         return board.map((cells, row) => {
             return cells.map((cell, column) => {
                 const coord: t.Coord = { column, row };
-                const key = `${column}_${row}`;
+                const key = coordKey(coord);
                 return { cell, coord, key };
             });
         }).flat();
     }, [board]);
 
     const cells = flat.map(({ cell, coord, key }) => {
-        const chip = chips.find(chip =>
-            chip.coord.column === coord.column &&
-            chip.coord.row === coord.row
-        ) || null;
+        if (cell) {
+            const chip = chips.get(key) || null;
+            const isLatest = key === latestMoveAtKey;
 
-        const isLatest =
-            latestMoveAt !== null &&
-            latestMoveAt.column == coord.column &&
-            latestMoveAt.row === coord.row;
+            let isHighlighted = null;
 
-        let isHighlighted = null;
+            if (highlightedCellValue) {
+                const matchesCellValue =
+                    cell.suit === highlightedCellValue.suit &&
+                    cell.rank === highlightedCellValue.rank;
 
-        if (cell && highlightedCellValue) {
-            const matchesCellValue =
-                cell.suit === highlightedCellValue.suit &&
-                cell.rank === highlightedCellValue.rank;
+                const isTwoEyedJack =
+                    highlightedCellValue.rank === 'jack' &&
+                    (highlightedCellValue.suit === 'diamonds' || highlightedCellValue.suit === 'clubs') &&
+                    (chip === null || chip.team === null);
 
-            const isTwoEyedJack =
-                highlightedCellValue.rank === 'jack' &&
-                (highlightedCellValue.suit === 'diamonds' || highlightedCellValue.suit === 'clubs') &&
-                (chip === null || chip.team === null);
+                // TODO: Make sure we don't show the player's own teams' chips.
+                const isOneEyedJack =
+                    highlightedCellValue.rank === 'jack' &&
+                    (highlightedCellValue.suit === 'hearts' || highlightedCellValue.suit === 'spades') &&
+                    chip !== null && chip.team !== null;
 
-            // TODO: Make sure we don't show the player's own teams' chips.
-            const isOneEyedJack =
-                highlightedCellValue.rank === 'jack' &&
-                (highlightedCellValue.suit === 'hearts' || highlightedCellValue.suit === 'spades') &&
-                chip !== null && chip.team !== null;
+                isHighlighted = matchesCellValue || isTwoEyedJack || isOneEyedJack;
+            }
 
-            isHighlighted = matchesCellValue || isTwoEyedJack || isOneEyedJack;
+            return (
+                <CellView
+                    key={key}
+                    chip={chip}
+                    coord={coord}
+                    isHighlighted={isHighlighted}
+                    isLatest={isLatest}
+                    tile={cell}
+                    onCoordClick={onCoordClick} />
+            );
+        } else {
+            return <JokerView key={key} />
         }
-
-        return (
-            <CellView
-                key={key}
-                chip={chip}
-                coord={coord}
-                isHighlighted={isHighlighted}
-                isLatest={isLatest}
-                tile={cell}
-                onCoordClick={onCoordClick} />
-        );
     });
 
     return (

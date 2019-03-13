@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Sequence.AspNetCore;
+using Sequence.RealTime;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Threading;
@@ -27,28 +28,28 @@ namespace Sequence.PlayCard
 
         [HttpPost("/games/{id:guid}")]
         [PlayCardFailedExceptionFilter]
-        public async Task<ActionResult<GameEvent>> Post(
+        public async Task<ActionResult> Post(
             [FromRoute] Guid id,
             [FromBody] PlayCardForm form,
             CancellationToken cancellationToken)
         {
             var gameId = new GameId(id);
             var coord = new Coord(form.Column.Value, form.Row.Value);
-            var gameEvent = await _handler.PlayCardAsync(gameId, Player, form.Card, coord, cancellationToken);
-            return Ok(gameEvent);
+            var updates = await _handler.PlayCardAsync(gameId, Player, form.Card, coord, cancellationToken);
+            return Ok(new { updates });
         }
 
         [HttpPost("/games/{id:guid}/dead-card")]
         [ExchangeDeadCardFailedExceptionFilter]
-        public async Task<ActionResult<GameEvent>> Post(
+        public async Task<ActionResult> Post(
             [FromRoute] Guid id,
             [FromBody] ExchangeDeadCardForm form,
             CancellationToken cancellationToken)
         {
             var gameId = new GameId(id);
             var deadCard = form.DeadCard;
-            var gameEvent = await _handler.ExchangeDeadCardAsync(gameId, Player, deadCard, cancellationToken);
-            return Ok(gameEvent);
+            var updates = await _handler.ExchangeDeadCardAsync(gameId, Player, deadCard, cancellationToken);
+            return Ok(new { updates });
         }
     }
 
