@@ -1,15 +1,13 @@
-import React, { useCallback, useContext, useRef, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useMemo, useRef, useEffect, useState } from 'react';
 import * as SignalR from '@aspnet/signalr';
 import { ServerContext } from "../contexts";
-import { GameState, init, reducer } from "./reducer";
+import { GameState, reducer } from './reducer';
 import * as t from "../types";
 import GameView from './GameView';
 
 interface GameProps {
     id: t.GameId;
-    init: t.GameStarted;
-    board: t.Board;
-    updates: t.GameUpdated[];
+    init: GameState;
     onRequestReload: () => Promise<void>;
 }
 
@@ -39,15 +37,10 @@ async function startAsync(connection: SignalR.HubConnection, callback: () => Pro
 }
 
 export default function Game(props: GameProps) {
-    function createState() {
-        const initialState = init(props.init, props.board);
-        const finalState = props.updates.reduce(reducer, initialState);
-        return finalState;
-    }
-
+    const { init } = props;
     const gameId = props.id;
-    const playerId = props.init.playerId;
-    const [state, setState] = useState<GameState>(createState);
+    const playerId = init.playerId;
+    const [state, setState] = useState<GameState>(init);
     const [selectedCard, setSelectedCard] = useState<t.Card | null>(null);
     const connection = useRef<SignalR.HubConnection>();
     const showNotifications = useRef<boolean | null>(null);

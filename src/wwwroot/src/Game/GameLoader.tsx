@@ -2,6 +2,7 @@ import React, { useCallback, useContext, useEffect, useRef, useState } from 'rea
 import { RouteComponentProps } from "react-router";
 import { Link } from 'react-router-dom';
 import { ServerContext } from '../contexts';
+import { GameState, init, reducer } from './reducer';
 import * as t from "../types";
 import PageVisibility from './page-visibility';
 import Game from './Game';
@@ -10,16 +11,10 @@ interface GameLoaderProps {
     id: t.GameId;
 }
 
-interface GameLoaderState {
-    init: t.GameStarted;
-    board: t.Board;
-    updates: t.GameUpdated[];
-}
-
 export default function GameLoader(props: RouteComponentProps<GameLoaderProps>) {
     const gameId = props.match.params.id;
     const context = useContext(ServerContext);
-    const [state, setState] = useState<GameLoaderState | null>(null);
+    const [game, setState] = useState<GameState | null>(null);
     const [error, setError] = useState<string | null>(null);
     const timerHandle = useRef<number | undefined>(undefined);
     const timeouts = useRef<number>(0);
@@ -36,13 +31,16 @@ export default function GameLoader(props: RouteComponentProps<GameLoaderProps>) 
         setError(null);
 
         if (result.kind === t.LoadGameResponseKind.Ok) {
-            setState(s => {
-                return {
-                    ...s,
-                    init: result.init,
-                    board: result.board,
-                    updates: result.updates,
-                };
+            const initialState = init(result.init, result.board);
+            const finalState = result.updates.reduce(reducer, initialState);
+
+            setState(currentState => {
+                if (currentState && currentState.version === finalState.version) {
+                    console.log('same state');
+                    return currentState;
+                } else {
+                    return finalState;
+                }
             });
         } else if (result.kind === t.LoadGameResponseKind.NotFound) {
             setState(null);
@@ -97,12 +95,12 @@ export default function GameLoader(props: RouteComponentProps<GameLoaderProps>) 
         ));
     }
 
-    if (state) {
+    if (game) {
         elements.push((
             <Game
                 key="game"
                 id={gameId}
-                {...state}
+                init={game}
                 onRequestReload={loadGameAsync}
             />
         ));
