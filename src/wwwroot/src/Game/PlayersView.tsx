@@ -3,7 +3,7 @@ import * as t from '../types';
 import Card from './Card';
 
 interface Player extends t.Player {
-    lastMove: t.Move | null;
+    latestCardPlayed: t.Card | null;
 }
 
 interface PlayersViewProps {
@@ -33,13 +33,13 @@ interface PlayerViewProps {
     handle: t.PlayerHandle;
     isCurrentPlayer: boolean;
     isWinner: boolean;
-    lastMove: t.Move | null;
+    latestCardPlayed: t.Card | null;
     team: t.Team;
     type: t.PlayerType;
 }
 
 function PlayerView(props: PlayerViewProps) {
-    const { handle, isCurrentPlayer, isWinner, lastMove, team } = props;
+    const { handle, isCurrentPlayer, isWinner, latestCardPlayed, team } = props;
     const name = isWinner ? `👑 ${handle}` : handle;
     const handleCardClick = useCallback(() => { }, []);
 
@@ -56,8 +56,8 @@ function PlayerView(props: PlayerViewProps) {
             </div>
 
             <div>
-                {lastMove === null ? null : (<Card
-                    card={lastMove.cardUsed}
+                {latestCardPlayed === null ? null : (<Card
+                    card={latestCardPlayed}
                     className="small"
                     isDead={false}
                     isSelected={false}

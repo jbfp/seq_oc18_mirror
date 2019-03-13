@@ -16,7 +16,13 @@ interface GetGamesResponseBody {
 }
 
 interface GetGameByIdResponseBody {
-  game: t.GameState;
+  init: t.GameStarted;
+  updates: t.GameUpdated[];
+}
+
+interface PlayResponseBody {
+  updates: t.GameUpdated[];
+  version: number;
 }
 
 interface ResponseBodyError {
@@ -116,8 +122,8 @@ class Server implements CanCreateGame, CanGetBotTypes {
     return body.games;
   }
 
-  async getGameByIdAsync(id: t.GameId, version: number | null): Promise<t.LoadGameResponse> {
-    const url = `${this.buildUrl('games', id)}?version=${version || ''}`;
+  async getGameByIdAsync(id: t.GameId): Promise<t.LoadGameResponse> {
+    const url = `${this.buildUrl('games', id)}`;
 
     try {
       const response = await fetch(url, {
@@ -128,23 +134,15 @@ class Server implements CanCreateGame, CanGetBotTypes {
         method: 'GET',
       });
 
-      if (response.status === 304) {
-        return { kind: t.LoadGameResponseKind.NotChanged };
-      }
-
       if (response.status === 404) {
         return { kind: t.LoadGameResponseKind.NotFound };
       }
 
       const body: GetGameByIdResponseBody = await response.json();
-      const game = body.game;
-
-      if (game.version === version) {
-        return { kind: t.LoadGameResponseKind.NotChanged };
-      }
-
-      const board = await this.getBoardAsync(game.rules.boardType);
-      return { kind: t.LoadGameResponseKind.Ok, game, board };
+      const init = body.init;
+      const board = await this.getBoardAsync(init.boardType);
+      const updates = body.updates;
+      return { kind: t.LoadGameResponseKind.Ok, init, board, updates };
     } catch (error) {
       return { kind: t.LoadGameResponseKind.Error, error };
     }

@@ -1,41 +1,35 @@
 import React, { useCallback } from 'react';
+import { Card, Team } from "../types";
 import Hand from './Hand';
-import { Card, PlayerHandle, Team } from "../types";
 
 interface PlayerViewProps {
-    deadCards: Card[];
+    deadCards: Map<string, Card>;
     hand: Card[];
-    handle: PlayerHandle;
     hasExchangedDeadCard: boolean;
-    hideCards: boolean;
     isCurrentPlayer: boolean;
-    selectedCard: Card | null;
+    selectedCardKey: string | null;
     team: Team;
     onCardClick: (card: Card) => void;
     onExchangeDeadCardClick: () => void;
 }
 
 export default function PlayerView(props: PlayerViewProps) {
-    const { deadCards, hand, hasExchangedDeadCard, hideCards, selectedCard, team } = props;
+    const { deadCards, hand, hasExchangedDeadCard, selectedCardKey, team } = props;
     const { onCardClick, onExchangeDeadCardClick } = props;
-    const isDead = selectedCard && deadCards.some(deadCard =>
-        deadCard.deckNo === selectedCard.deckNo &&
-        deadCard.suit === selectedCard.suit &&
-        deadCard.rank === selectedCard.rank);;
+    const isDead = selectedCardKey && deadCards.has(selectedCardKey);
 
     const handleExchangeDeadCardClick = useCallback((event: React.MouseEvent) => {
         event.preventDefault();
         onExchangeDeadCardClick();
-    }, []);
+    }, [onExchangeDeadCardClick]);
 
     return (
         <div className="player" data-team={team}>
             <Hand
                 cards={hand}
                 deadCards={deadCards}
-                hideCards={hideCards}
                 onCardClick={onCardClick}
-                selectedCard={selectedCard}
+                selectedCardKey={selectedCardKey}
             />
 
             {isDead && !hasExchangedDeadCard ? (
