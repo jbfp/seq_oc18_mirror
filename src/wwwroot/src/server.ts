@@ -20,12 +20,7 @@ interface GetGameByIdResponseBody {
   updates: t.GameUpdated[];
 }
 
-interface PlayResponseBody {
-  updates: t.GameUpdated[];
-  version: number;
-}
-
-interface ResponseBodyError {
+interface CreateGameResponseError {
   error: string;
 }
 
@@ -45,16 +40,18 @@ class Server implements CanCreateGame, CanGetBotTypes {
       method: 'POST',
     });
 
-    const responseBody: CreateGameResponseBody | ResponseBodyError = await response.json();
+    const responseBody: CreateGameResponseBody | CreateGameResponseError = await response.json();
 
     if (response.ok) {
       return (<CreateGameResponseBody>responseBody).gameId;
     } else {
-      throw new Error((<ResponseBodyError>responseBody).error);
+      throw new Error((<CreateGameResponseError>responseBody).error);
     }
   }
 
-  async exchangeDeadCardAsync(id: t.GameId, deadCard: t.Card) {
+  async exchangeDeadCardAsync(
+    id: t.GameId, deadCard: t.Card
+  ): Promise<t.CardPlayed | t.CardPlayedError> {
     const url = this.buildUrl('games', id, 'dead-card');
 
     const response = await fetch(url, {
@@ -67,13 +64,7 @@ class Server implements CanCreateGame, CanGetBotTypes {
       method: 'POST',
     });
 
-    const body: t.CardPlayed | ResponseBodyError = await response.json();
-
-    if ((body as ResponseBodyError).error) {
-      throw new Error((body as ResponseBodyError).error);
-    } else {
-      return body as t.CardPlayed;
-    }
+    return await response.json();
   }
 
   async getBoardAsync(boardType: t.BoardType): Promise<t.Board> {
@@ -148,7 +139,9 @@ class Server implements CanCreateGame, CanGetBotTypes {
     }
   }
 
-  async playCardAsync(id: t.GameId, card: t.Card, coord: t.Coord) {
+  async playCardAsync(
+    id: t.GameId, card: t.Card, coord: t.Coord
+  ): Promise<t.CardPlayed | t.CardPlayedError> {
     const url = this.buildUrl('games', id);
 
     const response = await fetch(url, {
@@ -163,13 +156,7 @@ class Server implements CanCreateGame, CanGetBotTypes {
       method: 'POST',
     });
 
-    const body: t.CardPlayed | ResponseBodyError = await response.json();
-
-    if ((body as ResponseBodyError).error) {
-      throw new Error((body as ResponseBodyError).error);
-    } else {
-      return body as t.CardPlayed;
-    }
+    return await response.json();
   }
 
   private buildUrl(...components: string[]): string {

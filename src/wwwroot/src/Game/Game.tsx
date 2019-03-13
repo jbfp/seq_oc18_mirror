@@ -118,9 +118,15 @@ export default function Game(props: GameProps) {
         if (selectedCard) {
             try {
                 const result = await server.playCardAsync(gameId, selectedCard, coord);
-                console.assert(result.updates.length === 1);
-                setSelectedCard(null);
-                await handleUpdatesAsync(result.updates[0]);
+
+                if ((result as t.CardPlayedError).error) {
+                    console.warn((result as t.CardPlayedError).error);
+                } else {
+                    const updates = (result as t.CardPlayed).updates;
+                    console.assert(updates.length === 1);
+                    setSelectedCard(null);
+                    await handleUpdatesAsync(updates[0]);
+                }
             } catch (err) {
                 alert(err.toString());
             }
@@ -131,9 +137,15 @@ export default function Game(props: GameProps) {
         if (selectedCard) {
             try {
                 const result = await server.exchangeDeadCardAsync(gameId, selectedCard);
-                console.assert(result.updates.length === 1);
-                setSelectedCard(null);
-                await handleUpdatesAsync(result.updates[0]);
+
+                if ((result as t.CardPlayedError).error) {
+                    console.warn((result as t.CardPlayedError).error);
+                } else {
+                    const updates = (result as t.CardPlayed).updates;
+                    console.assert(updates.length === 1);
+                    setSelectedCard(null);
+                    await handleUpdatesAsync(updates[0]);
+                }
             } catch (err) {
                 alert(err.toString());
             }

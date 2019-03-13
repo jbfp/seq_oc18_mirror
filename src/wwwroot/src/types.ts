@@ -86,7 +86,10 @@ export interface Sequence {
 
 export interface CardPlayed {
     updates: GameUpdated[];
-    version: number;
+}
+
+export interface CardPlayedError {
+    error: string;
 }
 
 export enum LoadGameResponseKind {
