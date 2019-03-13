@@ -1,8 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Sequence.AspNetCore;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -17,7 +15,7 @@ namespace Sequence.GetGame
             _provider = provider ?? throw new ArgumentNullException(nameof(provider));
         }
 
-        [HttpGet("/games/{id:guid}/state")]
+        [HttpGet("/games/{id:guid}")]
         public async Task<ActionResult> Get(
             [FromRoute] Guid id,
             CancellationToken cancellationToken)
