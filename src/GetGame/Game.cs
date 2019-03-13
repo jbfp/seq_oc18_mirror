@@ -42,10 +42,11 @@ namespace Sequence.GetGame
                     Handle = state.PlayerHandleByIdx[idx],
                     Id = state.PlayerIdByIdx[idx],
                     NumberOfCards = state.PlayerHandByIdx[idx].Count,
-                    Team = state.PlayerTeamByIdx[idx],
+                    // Shift teams so that the calling player always appears as red.
+                    Team = GetTeam(playerIdx, idx),
                     Type = state.PlayerTypeByIdx[idx],
                 }).ToImmutableList(),
-                team: state.PlayerTeamByIdx[playerIdx],
+                team: Team.Red,
                 winCondition: state.WinCondition
             );
         }
@@ -118,11 +119,17 @@ namespace Sequence.GetGame
 
                 if (gameEvent.Chip.HasValue)
                 {
-                    yield return new ChipAdded(gameEvent.Coord, gameEvent.Chip.Value);
+                    var byPlayerId = gameEvent.ByPlayerId;
+                    var idx = _initialState.PlayerIdByIdx.IndexOf(byPlayerId);
+                    var team = GetTeam(playerIdx, idx);
+
+                    yield return new ChipAdded(gameEvent.Coord, team);
 
                     foreach (var sequence in gameEvent.Sequences)
                     {
-                        yield return new SequenceCreated(sequence);
+                        yield return new SequenceCreated(
+                            new Seq(team, sequence.Coords)
+                        );
                     }
 
                     var newDeadCards = currentState.DeadCards
@@ -160,6 +167,14 @@ namespace Sequence.GetGame
             {
                 yield return new GameEnded(gameEvent.Winner.Value);
             }
+        }
+
+        private Team GetTeam(int basePlayerIdx, int playerIdx)
+        {
+            var numPlayers = _initialState.NumberOfPlayers;
+            var index = (basePlayerIdx + playerIdx) % numPlayers;
+            var teamsByIndex = _initialState.PlayerTeamByIdx;
+            return teamsByIndex[index];
         }
 
         private static BoardType FromIBoardType(IBoardType boardType)
