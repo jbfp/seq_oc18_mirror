@@ -164,9 +164,13 @@ namespace Sequence.Test.PlayCard
         public async Task UpdatesRealTimeComms()
         {
             // Given:
+            _provider
+                .Setup(p => p.GetGameByIdAsync(_gameId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(_game);
 
             // When:
             await _sut.PlayCardAsync(_gameId, _player, _card, _coord, CancellationToken.None);
+            await Task.Delay(1000); // Updating comms happens on threadpool.
 
             // Then:
             _realTime.Verify();
