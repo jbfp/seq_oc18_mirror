@@ -10,7 +10,7 @@ rm -rf ./build
 yarn run build
 git rev-parse HEAD > ./build/hash.txt
 sed -i 's/assets.jbfp.dk\/index.html/www.jbfp.dk\/index.html/g' ./build/service-worker.js
-rsync -ru --progress --exclude="node_modules" ./* jbfp@jbfp.dk:/home/jbfp/sequence/wwwroot
+rsync -ru --progress --exclude="node_modules" ./* jbfp@jbfp.dk:/opt/sequence/wwwroot
 
 echo Done!
 

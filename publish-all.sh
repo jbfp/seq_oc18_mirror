@@ -23,7 +23,7 @@ dotnet publish -c Release -v q
 cd ./bin/Release/netcoreapp2.2/publish/
 
 echo Copying files...
-rsync -ru --progress --exclude="wwwroot" --exclude="logs" ./* jbfp@jbfp.dk:/home/jbfp/sequence
+rsync -ru --progress --exclude="wwwroot" --exclude="logs" ./* jbfp@jbfp.dk:/opt/sequence
 
 cd $script_path
 
