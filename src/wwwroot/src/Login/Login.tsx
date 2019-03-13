@@ -38,6 +38,8 @@ export default function Login(props: RouteChildrenProps) {
                         value={userName}
                         onChange={event => setUserName(event.target.value)}
                         placeholder="Pick a user name"
+                        autoCapitalize="none"
+                        autoCorrect="off"
                         autoFocus={true}
                     />
                 </div>
