@@ -51,7 +51,7 @@ export default function GameLoader(props: RouteComponentProps<GameLoaderProps>) 
     useEffect(() => {
         const timerHandler = async () => {
             await loadGameAsync();
-            const delay = getNextDelay(timeouts.current);
+            const delay = getNextDelay(0);
             timerHandle.current = window.setTimeout(timerHandler, delay);
         };
 
