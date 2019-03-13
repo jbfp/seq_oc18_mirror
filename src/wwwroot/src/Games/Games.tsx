@@ -6,22 +6,25 @@ import GamesView from './GamesView';
 export default function Games() {
     const context = useContext(ServerContext);
     const [games, setGames] = useState<GameCollections | null>(null);
-    const intervalId = useRef<number | undefined>(undefined);
-
-    async function loadGamesAsync() {
-        const allGames = await context.getGamesAsync();
-        const value = mapAllGamesToCollection(allGames, context.userName);
-        setGames(value);
-    }
-
-    useEffect(() => { loadGamesAsync(); }, [context]);
+    const timerHandle = useRef<number | undefined>(undefined);
+    const userName = context.userName;
 
     useEffect(() => {
-        intervalId.current = window.setInterval(() => loadGamesAsync(), 10000);
-        return () => window.clearInterval(intervalId.current);
-    }, [context]);
+        const timerHandler = async () => {
+            const allGames = await context.getGamesAsync();
+            const value = mapAllGamesToCollection(allGames, userName);
+            setGames(value);
+            timerHandle.current = window.setTimeout(timerHandler, 10000);
+        };
 
-    if (context && games) {
+        timerHandler();
+
+        return () => {
+            window.clearTimeout(timerHandle.current);
+        };
+    }, [context, userName]);
+
+    if (games) {
         return <GamesView games={games} userName={context.userName} />
     }
 
