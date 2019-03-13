@@ -1,11 +1,17 @@
-import React, { useState } from 'react';
-import { RouteChildrenProps, Redirect } from "react-router";
+import React, { useCallback, useState } from 'react';
+import { RouteChildrenProps, Redirect } from 'react-router';
 import { Auth } from '../auth';
 import './Login.css';
 
 export default function Login(props: RouteChildrenProps) {
     const [redirectToReferrer, setRedirectToReferrer] = useState(false);
     const [userName, setUserName] = useState('');
+
+    const submit = useCallback(() => {
+        return Auth
+            .signInAsync(userName)
+            .then(() => setRedirectToReferrer(true));
+    }, [userName]);
 
     if (redirectToReferrer) {
         const { from } = props.location.state || { from: { pathname: '/' } };
@@ -19,10 +25,6 @@ export default function Login(props: RouteChildrenProps) {
 
     if (Auth.isAuthenticated) {
         setRedirectToReferrer(true);
-    }
-
-    async function submit() {
-        await Auth.signInAsync(userName).then(() => setRedirectToReferrer(true));
     }
 
     return (
@@ -45,7 +47,10 @@ export default function Login(props: RouteChildrenProps) {
                 </div>
 
                 <div>
-                    <button className="login-submit" type="submit" disabled={userName.length === 0}>
+                    <button
+                        className="login-submit"
+                        type="submit"
+                        disabled={userName.length === 0}>
                         Sign in
                     </button>
                 </div>
