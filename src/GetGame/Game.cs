@@ -5,12 +5,12 @@ using System.Linq;
 
 namespace Sequence.GetGame
 {
-    public sealed class GameState
+    public sealed class Game
     {
-        private readonly Sequence.GameState _initialState;
+        private readonly GameState _initialState;
         private readonly GameEvent[] _gameEvents;
 
-        public GameState(Sequence.GameState initialState, params GameEvent[] gameEvents)
+        public Game(GameState initialState, params GameEvent[] gameEvents)
         {
             _initialState = initialState ?? throw new ArgumentNullException(nameof(initialState));
             _gameEvents = gameEvents ?? throw new ArgumentNullException(nameof(gameEvents));

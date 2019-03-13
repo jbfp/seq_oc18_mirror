@@ -21,17 +21,17 @@ namespace Sequence.GetGame
             CancellationToken cancellationToken)
         {
             var gameId = new GameId(id);
-            var generator = await _provider.GetGameStateByIdAsync(gameId, cancellationToken);
+            var game = await _provider.GetGameByIdAsync(gameId, cancellationToken);
 
-            if (generator == null)
+            if (game == null)
             {
                 return NotFound();
             }
 
             var result = new
             {
-                init = generator.Init(Player),
-                updates = generator.GenerateForPlayer(Player)
+                init = game.Init(Player),
+                updates = game.GenerateForPlayer(Player)
             };
 
             return Ok(result);

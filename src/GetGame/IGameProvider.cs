@@ -5,7 +5,7 @@ namespace Sequence.GetGame
 {
     public interface IGameProvider
     {
-        Task<GameState> GetGameStateByIdAsync(
+        Task<Game> GetGameByIdAsync(
             GameId gameId,
             CancellationToken cancellationToken);
     }

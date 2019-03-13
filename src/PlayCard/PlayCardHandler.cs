@@ -149,7 +149,7 @@ namespace Sequence.PlayCard
 
             var gameEvent = doThing(state);
             await _store.AddEventAsync(gameId, gameEvent, cancellationToken);
-            var newState = new GetGame.GameState(state, gameEvent);
+            var newState = new GetGame.Game(state, gameEvent);
 
             var _ = Task.Run(() =>
             {
