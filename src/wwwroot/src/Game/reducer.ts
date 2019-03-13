@@ -84,16 +84,18 @@ function reducerInternal(
 
         case t.GameEventKind.ChipAdded: {
             const { coord, team } = event;
+            const latestMoveAt = event.coord;
             const chips = new Map<string, t.Chip>(state.chips);
             const chip = { coord, team, isLocked: false };
             chips.set(h.coordKey(event.coord), chip);
-            return { ...state, chips };
+            return { ...state, chips, latestMoveAt };
         }
 
         case t.GameEventKind.ChipRemoved: {
+            const latestMoveAt = event.coord;
             const chips = new Map<string, t.Chip>(state.chips);
             chips.delete(h.coordKey(event.coord));
-            return { ...state, chips };
+            return { ...state, chips, latestMoveAt };
         }
 
         case t.GameEventKind.CardDrawn: {
