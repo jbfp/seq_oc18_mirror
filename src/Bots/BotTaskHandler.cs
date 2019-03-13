@@ -1,9 +1,9 @@
 using Microsoft.Extensions.Logging;
-using Sequence.GetGameView;
 using Sequence.PlayCard;
 using Sequence.RealTime;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -11,17 +11,14 @@ namespace Sequence.Bots
 {
     public sealed class BotTaskHandler
     {
-        private readonly GetGameViewHandler _getGameViewHandler;
         private readonly PlayCardHandler _playCardHandler;
         private readonly ILogger _logger;
 
         public BotTaskHandler(
-            GetGameViewHandler getGameViewHandler,
             PlayCardHandler playCardHandler,
             ILogger<BotTaskHandler> logger)
         {
-            _getGameViewHandler = getGameViewHandler;
-            _playCardHandler = playCardHandler;
+            _playCardHandler = playCardHandler ?? throw new ArgumentNullException(nameof(playCardHandler));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -36,26 +33,24 @@ namespace Sequence.Bots
 
             var gameId = botTask.GameId;
             var playerId = botTask.Player.Id;
-            var playerHandle = botTask.Player.Handle;
-
-            GameView game;
+            IImmutableList<Move> moves;
 
             try
             {
-                game = await _getGameViewHandler.GetGameViewForPlayerAsync(gameId, playerId,
-                    cancellationToken);
+                moves = await _playCardHandler.GetMovesForPlayerAsync(
+                    gameId, playerId, cancellationToken);
             }
             catch (GameNotFoundException)
             {
                 return;
             }
 
+            var playerHandle = botTask.Player.Handle;
             var botTypeKey = playerHandle.ToString();
 
             if (BotProvider.BotTypes.TryGetValue(botTypeKey, out var botType))
             {
                 var bot = (IBot)Activator.CreateInstance(botType, nonPublic: true);
-                var moves = Moves.FromGameView(game);
 
                 IEnumerable<GameUpdated> gameEvents = null;
 

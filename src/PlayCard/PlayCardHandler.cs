@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.SignalR;
 using Sequence.RealTime;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -22,6 +23,21 @@ namespace Sequence.PlayCard
             _provider = provider ?? throw new ArgumentNullException(nameof(provider));
             _store = store ?? throw new ArgumentNullException(nameof(store));
             _hub = hub ?? throw new ArgumentNullException(nameof(hub));
+        }
+
+        public async Task<IImmutableList<Move>> GetMovesForPlayerAsync(
+            GameId gameId,
+            PlayerId playerId,
+            CancellationToken cancellationToken)
+        {
+            var state = await _provider.GetGameByIdAsync(gameId, cancellationToken);
+
+            if (state == null)
+            {
+                throw new GameNotFoundException();
+            }
+
+            return Moves.GenerateMoves(state, playerId);
         }
 
         public Task<IEnumerable<GameUpdated>> PlayCardAsync(
