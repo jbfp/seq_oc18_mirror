@@ -1,18 +1,19 @@
 import React, { useMemo } from 'react';
-import { BoardType } from "../types";
+import * as t from "../types";
 
 interface RulesViewProps {
-    boardType: BoardType;
+    boardType: t.BoardType;
+    firstPlayer: t.PlayerHandle;
     winCondition: number;
 }
 
 export default function RulesView(props: RulesViewProps) {
-    const { boardType, winCondition } = props;
+    const { boardType, firstPlayer, winCondition } = props;
 
     const boardTypeName = useMemo(() => {
-        const boardTypeNames = new Map<BoardType, string>([
-            [BoardType.OneEyedJack, 'One-Eyed Jack'],
-            [BoardType.Sequence, 'Sequence®'],
+        const boardTypeNames = new Map<t.BoardType, string>([
+            [t.BoardType.OneEyedJack, 'One-Eyed Jack'],
+            [t.BoardType.Sequence, 'Sequence®'],
         ]);
 
         return boardTypeNames.get(boardType);
@@ -27,6 +28,9 @@ export default function RulesView(props: RulesViewProps) {
             <dl>
                 <dt>Board type:</dt>
                 <dd>{boardTypeName}</dd>
+
+                <dt>First player:</dt>
+                <dd>{firstPlayer}</dd>
 
                 <dt>Win condition:</dt>
                 <dd>{winCondition} {winConditionSuffix}</dd>

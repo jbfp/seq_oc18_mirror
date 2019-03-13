@@ -8,6 +8,7 @@ export interface GameState {
     currentPlayerId: t.PlayerId | null;
     deadCards: Map<string, t.Card>;
     discards: t.Card[];
+    firstPlayer: t.PlayerHandle;
     hand: Map<string, t.Card>;
     hasExchangedDeadCard: boolean;
     latestCardPlayed: Map<t.PlayerId, t.Card>;
@@ -26,6 +27,10 @@ export function init(
     initialState: t.GameStarted,
     board: t.Board
 ): Readonly<GameState> {
+    const firstPlayer = initialState.players
+        .filter(player => player.id === initialState.firstPlayerId)
+        .map(player => player.handle)[0];
+
     return Object.freeze({
         board,
         boardType: initialState.boardType,
@@ -33,6 +38,7 @@ export function init(
         currentPlayerId: initialState.firstPlayerId,
         deadCards: new Map<string, t.Card>(),
         discards: [],
+        firstPlayer,
         hand: new Map<string, t.Card>(h.keyedArray(initialState.hand, h.cardKey)),
         hasExchangedDeadCard: false,
         latestCardPlayed: new Map<t.PlayerId, t.Card>(),

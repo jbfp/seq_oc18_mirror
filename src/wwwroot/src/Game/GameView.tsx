@@ -112,6 +112,7 @@ export default function GameView(props: GameViewProps) {
                 <div>
                     <RulesView
                         boardType={t.BoardType.OneEyedJack}
+                        firstPlayer={game.firstPlayer}
                         winCondition={game.winCondition}
                     />
                 </div>
