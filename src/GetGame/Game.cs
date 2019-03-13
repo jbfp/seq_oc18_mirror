@@ -88,6 +88,9 @@ namespace Sequence.GetGame
             Sequence.GameState currentState)
         {
             var isInGame = playerIdx != -1;
+            var byPlayerId = gameEvent.ByPlayerId;
+            var idx = _initialState.PlayerIdByIdx.IndexOf(byPlayerId);
+            var team = GetTeam(playerIdx, idx);
 
             yield return new CardDiscarded(gameEvent.ByPlayerId, gameEvent.CardUsed);
 
@@ -119,10 +122,6 @@ namespace Sequence.GetGame
 
                 if (gameEvent.Chip.HasValue)
                 {
-                    var byPlayerId = gameEvent.ByPlayerId;
-                    var idx = _initialState.PlayerIdByIdx.IndexOf(byPlayerId);
-                    var team = GetTeam(playerIdx, idx);
-
                     yield return new ChipAdded(gameEvent.Coord, team);
 
                     foreach (var sequence in gameEvent.Sequences)
@@ -165,7 +164,7 @@ namespace Sequence.GetGame
 
             if (gameEvent.Winner.HasValue)
             {
-                yield return new GameEnded(gameEvent.Winner.Value);
+                yield return new GameEnded(team);
             }
         }
 
