@@ -1,9 +1,7 @@
-using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Sequence.PlayCard;
-using Sequence.RealTime;
 using System;
 using Xunit;
 
@@ -17,7 +15,7 @@ namespace Sequence.Test.PlayCard
             var handler = new PlayCardHandler(
                 Mock.Of<IGameStateProvider>(),
                 Mock.Of<IGameEventStore>(),
-                Mock.Of<IHubContext<GameHub, IGameHubClient>>());
+                Mock.Of<IRealTimeContext>());
             var cache = Mock.Of<IMemoryCache>();
             var logger = Mock.Of<ILogger<PlayCardController>>();
 

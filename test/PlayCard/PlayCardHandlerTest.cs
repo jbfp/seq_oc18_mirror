@@ -1,8 +1,8 @@
-using Microsoft.AspNetCore.SignalR;
 using Moq;
 using Sequence.PlayCard;
-using Sequence.RealTime;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,28 +17,27 @@ namespace Sequence.Test.PlayCard
         {
             var provider = Mock.Of<IGameStateProvider>();
             var store = Mock.Of<IGameEventStore>();
-            var hub = Mock.Of<IHubContext<GameHub, IGameHubClient>>();
+            var realTime = Mock.Of<IRealTimeContext>();
 
             Assert.Throws<ArgumentNullException>(
                 paramName: "provider",
-                () => new PlayCardHandler(provider: null, store, hub)
+                () => new PlayCardHandler(provider: null, store, realTime)
             );
 
             Assert.Throws<ArgumentNullException>(
                 paramName: "store",
-                () => new PlayCardHandler(provider, store: null, hub)
+                () => new PlayCardHandler(provider, store: null, realTime)
             );
 
             Assert.Throws<ArgumentNullException>(
-               paramName: "hub",
-               () => new PlayCardHandler(provider, store, hub: null)
+               paramName: "realTime",
+               () => new PlayCardHandler(provider, store, realTime: null)
            );
         }
 
         private readonly Mock<IGameStateProvider> _provider = new Mock<IGameStateProvider>();
         private readonly Mock<IGameEventStore> _store = new Mock<IGameEventStore>();
-        private readonly Mock<IHubContext<GameHub, IGameHubClient>> _hub =
-            new Mock<IHubContext<GameHub, IGameHubClient>>();
+        private readonly Mock<IRealTimeContext> _realTime = new Mock<IRealTimeContext>();
 
         private readonly PlayCardHandler _sut;
 
@@ -61,7 +60,12 @@ namespace Sequence.Test.PlayCard
                 .Returns(Task.CompletedTask)
                 .Verifiable();
 
-            _sut = new PlayCardHandler(_provider.Object, _store.Object, _hub.Object);
+            _realTime
+                .Setup(r => r.SendGameUpdatesAsync(It.IsAny<PlayerId>(), It.IsAny<IEnumerable<GameUpdated>>()))
+                .Returns(Task.CompletedTask)
+                .Verifiable();
+
+            _sut = new PlayCardHandler(_provider.Object, _store.Object, _realTime.Object);
 
             _game = new GameState(
                 new GameInit(
@@ -154,6 +158,18 @@ namespace Sequence.Test.PlayCard
 
             // Then:
             _store.Verify();
+        }
+
+        [Fact]
+        public async Task UpdatesRealTimeComms()
+        {
+            // Given:
+
+            // When:
+            await _sut.PlayCardAsync(_gameId, _player, _card, _coord, CancellationToken.None);
+
+            // Then:
+            _realTime.Verify();
         }
     }
 }

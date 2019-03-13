@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.SignalR;
-using Sequence.RealTime;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -13,16 +11,16 @@ namespace Sequence.PlayCard
     {
         private readonly IGameStateProvider _provider;
         private readonly IGameEventStore _store;
-        private readonly IHubContext<GameHub, IGameHubClient> _hub;
+        private readonly IRealTimeContext _realTime;
 
         public PlayCardHandler(
             IGameStateProvider provider,
             IGameEventStore store,
-            IHubContext<GameHub, IGameHubClient> hub)
+            IRealTimeContext realTime)
         {
             _provider = provider ?? throw new ArgumentNullException(nameof(provider));
             _store = store ?? throw new ArgumentNullException(nameof(store));
-            _hub = hub ?? throw new ArgumentNullException(nameof(hub));
+            _realTime = realTime ?? throw new ArgumentNullException(nameof(realTime));
         }
 
         public async Task<IImmutableList<Move>> GetMovesForPlayerAsync(
@@ -155,23 +153,12 @@ namespace Sequence.PlayCard
 
             var _ = Task.Run(() =>
             {
-                async Task SendUpdates(PlayerId playerId)
-                {
-                    var updates = newState.GenerateForPlayer(playerId);
-                    var groupName = playerId.ToString();
-                    var client = _hub.Clients.Group(groupName);
-
-                    foreach (var update in updates)
-                    {
-                        await client.UpdateGame(update);
-                    }
-                }
-
                 var tasks = state
                     .PlayerIdByIdx
                     .AsParallel()
                     .Where(playerId => playerId != gameEvent.ByPlayerId)
-                    .Select(SendUpdates);
+                    .Select(playerId => (playerId, updates: newState.GenerateForPlayer(playerId)))
+                    .Select(t => _realTime.SendGameUpdatesAsync(t.playerId, t.updates));
 
                 return Task.WhenAll(tasks);
             });

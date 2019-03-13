@@ -1,8 +1,7 @@
-using Microsoft.AspNetCore.SignalR;
 using Moq;
 using Sequence.PlayCard;
-using Sequence.RealTime;
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,8 +23,7 @@ namespace Sequence.Test.PlayCard
 
         private readonly Mock<IGameStateProvider> _provider = new Mock<IGameStateProvider>();
         private readonly Mock<IGameEventStore> _store = new Mock<IGameEventStore>();
-        private readonly Mock<IHubContext<GameHub, IGameHubClient>> _hub =
-            new Mock<IHubContext<GameHub, IGameHubClient>>();
+        private readonly Mock<IRealTimeContext> _realTime = new Mock<IRealTimeContext>();
 
         private readonly PlayCardHandler _sut;
 
@@ -46,7 +44,12 @@ namespace Sequence.Test.PlayCard
                 .Returns(Task.CompletedTask)
                 .Verifiable();
 
-            _sut = new PlayCardHandler(_provider.Object, _store.Object, _hub.Object);
+            _realTime
+                .Setup(r => r.SendGameUpdatesAsync(It.IsAny<PlayerId>(), It.IsAny<IEnumerable<GameUpdated>>()))
+                .Returns(Task.CompletedTask)
+                .Verifiable();
+
+            _sut = new PlayCardHandler(_provider.Object, _store.Object, _realTime.Object);
 
             _game = new GameState(
                 new GameInit(
