@@ -40,6 +40,7 @@ export default function Game(props: GameProps) {
     const { init } = props;
     const gameId = props.id;
     const playerId = init.playerId;
+    const [updates, setUpdates] = useState<t.GameUpdated[]>([]);
     const [state, setState] = useState<GameState>(init);
     const [selectedCard, setSelectedCard] = useState<t.Card | null>(null);
     const connection = useRef<SignalR.HubConnection>();
@@ -47,16 +48,14 @@ export default function Game(props: GameProps) {
     const server = useContext(ServerContext);
 
     const handleUpdatesAsync = useCallback((update: t.GameUpdated) => {
-        setState(state => {
-            if (state.version + 1 === update.version) {
-                return reducer(state, update);
-            } else {
-                console.log(update, state.version);
-                props.onRequestReload();
-                return state;
-            }
-        });
+        setUpdates((currentUpdates) => [...currentUpdates, update]);
     }, [props.onRequestReload]);
+
+    useEffect(() => {
+        const newUpdates = updates.filter((update) => update.version >= init.version);
+        const finalState = newUpdates.reduce(reducer, init);
+        setState(finalState);
+    }, [init, updates]);
 
     useEffect(() => {
         const conn = new SignalR.HubConnectionBuilder()
@@ -68,8 +67,8 @@ export default function Game(props: GameProps) {
 
         async function handleConnectionStarted() {
             if (conn.state === SignalR.HubConnectionState.Connected) {
-            await conn.invoke('Identify', playerId);
-        }
+                await conn.invoke('Identify', playerId);
+            }
 
             setTimeout(handleConnectionStarted, 5000);
         }
