@@ -28,6 +28,12 @@ namespace Sequence.PlayCard
             }
 
             var moves = ImmutableList.CreateBuilder<Move>();
+
+            if (state.Winner.HasValue)
+            {
+                return moves.ToImmutable();
+            }
+
             var boardType = state.BoardType;
             var chips = state.Chips;
             var hand = state.PlayerHandByIdx[playerIdx];
