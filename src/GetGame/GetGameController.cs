@@ -45,7 +45,7 @@ namespace Sequence.GetGame
 
 
         [HttpGet("/games/{id:guid}")]
-        public async Task<ActionResult> Get(
+        public async Task<ActionResult<object>> Get(
             [FromRoute] Guid id,
             CancellationToken cancellationToken)
         {
@@ -57,13 +57,14 @@ namespace Sequence.GetGame
                 return NotFound();
             }
 
-            var result = new
-            {
-                init = game.Init(Player),
-                updates = game.GenerateForPlayer(Player)
-            };
+            var init = game.Init(Player);
 
-            return Ok(result);
+            if (init == null)
+            {
+                return NotFound();
+            }
+
+            return new { init, updates = game.GenerateForPlayer(Player) };
         }
     }
 }

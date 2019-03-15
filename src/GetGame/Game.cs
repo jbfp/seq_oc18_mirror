@@ -28,6 +28,11 @@ namespace Sequence.GetGame
 
         private InitialGameState Init(int playerIdx)
         {
+            if (playerIdx == -1)
+            {
+                return null;
+            }
+
             var state = _initialState;
 
             return new InitialGameState(
@@ -87,7 +92,11 @@ namespace Sequence.GetGame
             Sequence.GameState previousState,
             Sequence.GameState currentState)
         {
-            var isInGame = playerIdx != -1;
+            if (playerIdx == -1)
+            {
+                throw new ArgumentException("Player is not in game");
+            }
+
             var byPlayerId = gameEvent.ByPlayerId;
             var idx = _initialState.PlayerIdByIdx.IndexOf(byPlayerId);
             var team = GetTeam(playerIdx, idx);
@@ -112,13 +121,8 @@ namespace Sequence.GetGame
             }
             else
             {
-                var previousHand = isInGame
-                    ? previousState.PlayerHandByIdx[playerIdx]
-                    : ImmutableList<Card>.Empty;
-
-                var currentHand = isInGame
-                    ? currentState.PlayerHandByIdx[playerIdx]
-                    : ImmutableList<Card>.Empty;
+                var previousHand = previousState.PlayerHandByIdx[playerIdx];
+                var currentHand = currentState.PlayerHandByIdx[playerIdx];
 
                 if (gameEvent.Chip.HasValue)
                 {
