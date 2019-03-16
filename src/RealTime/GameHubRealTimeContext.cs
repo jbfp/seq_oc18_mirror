@@ -15,9 +15,20 @@ namespace Sequence.RealTime
             _hub = hub ?? throw new ArgumentNullException(nameof(hub));
         }
 
-        public async Task SendGameUpdatesAsync(PlayerId playerId, IEnumerable<GameUpdated> updates)
+        public Task SendGameUpdatesAsync(GameId gameId, IEnumerable<GameUpdated> updates)
         {
-            var groupName = playerId.ToString();
+            return SendUpdatesToGroupAsync(gameId.ToString(), updates);
+        }
+
+        public Task SendGameUpdatesAsync(PlayerId playerId, IEnumerable<GameUpdated> updates)
+        {
+            return SendUpdatesToGroupAsync(playerId.ToString(), updates);
+        }
+
+        private async Task SendUpdatesToGroupAsync(
+            string groupName,
+            IEnumerable<GameUpdated> updates)
+        {
             var clients = _hub.Clients.Group(groupName);
 
             foreach (var update in updates)

@@ -168,12 +168,16 @@ namespace Sequence.PlayCard
 
             var _ = Task.Run(() =>
             {
+                var broadcast = _realTime.SendGameUpdatesAsync(
+                    gameId, newState.GenerateForPlayer((PlayerId)null));
+
                 var tasks = state
                     .PlayerIdByIdx
                     .AsParallel()
                     .Where(playerId => playerId != gameEvent.ByPlayerId)
                     .Select(playerId => (playerId, updates: newState.GenerateForPlayer(playerId)))
-                    .Select(t => _realTime.SendGameUpdatesAsync(t.playerId, t.updates));
+                    .Select(t => _realTime.SendGameUpdatesAsync(t.playerId, t.updates))
+                    .Prepend(broadcast);
 
                 return Task.WhenAll(tasks);
             });

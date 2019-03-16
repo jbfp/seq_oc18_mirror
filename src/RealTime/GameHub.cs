@@ -14,6 +14,16 @@ namespace Sequence.RealTime
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
+        public async Task Subscribe(string gameId)
+        {
+            _logger.LogInformation("User subscribing to {GameId}", gameId);
+            var connectionId = Context.ConnectionId;
+            var groupName = gameId.ToString();
+            var cancellationToken = Context.ConnectionAborted;
+            cancellationToken.Register(() => { });
+            await Groups.AddToGroupAsync(connectionId, groupName, cancellationToken);
+        }
+
         public async Task Identify(int playerId)
         {
             _logger.LogInformation(
