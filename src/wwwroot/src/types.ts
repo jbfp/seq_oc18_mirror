@@ -120,12 +120,12 @@ export type LoadGameResponse =
 export interface GameStarted {
     boardType: BoardType;
     firstPlayerId: PlayerId;
-    hand: Card[];
+    hand: Card[] | null;
     numCardsInDeck: number;
-    playerHandle: PlayerHandle;
-    playerId: PlayerId;
+    playerHandle: PlayerHandle | null;
+    playerId: PlayerId | null;
     players: Player[];
-    team: Team;
+    team: Team | null;
     winCondition: number;
 }
 

@@ -9,6 +9,7 @@ import { Games } from './Games';
 import { Heartbeat } from './Heartbeat';
 import { Login } from './Login';
 import { NewGame } from './NewGame';
+import { NewSimulation } from './NewSimulation';
 import './App.css';
 
 function ProtectedRoute(props: RouteProps) {
@@ -54,6 +55,7 @@ function App(props: RouteProps) {
                             <Route path="/login" render={() => 'sign in'} />
                             <Route path="/" exact render={() => 'games'} />
                             <Route path="/new-game" exact render={() => 'new game'} />
+                            <Route path="/new-simulation" exact render={() => 'new simulation'} />
                             <Route path="/games/:id" render={() => 'play'} />
                             <Route render={() => 'not found'} />
                         </Switch>
@@ -83,6 +85,7 @@ function App(props: RouteProps) {
                         <ProtectedRoute path="/" exact component={Games} />
                         <ProtectedRoute path="/games" exact component={Games} />
                         <ProtectedRoute path="/new-game" exact component={NewGame} />
+                        <ProtectedRoute path="/new-simulation" exact component={NewSimulation} />
                         <ProtectedRoute path="/games/:id" component={Game} />
                     </ServerContext.Provider>
                 </Switch>

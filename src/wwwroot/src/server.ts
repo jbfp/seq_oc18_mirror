@@ -49,6 +49,28 @@ class Server implements CanCreateGame, CanGetBotTypes {
     }
   }
 
+  public async createSimulationAsync(form: any): Promise<t.GameId> {
+    const url = this.buildUrl('simulations');
+
+    const response = await fetch(url, {
+      body: JSON.stringify(form),
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': this.userName,
+        'Content-Type': 'application/json',
+      },
+      method: 'POST',
+    });
+
+    const responseBody: CreateGameResponseBody | CreateGameResponseError = await response.json();
+
+    if (response.ok) {
+      return (<CreateGameResponseBody>responseBody).gameId;
+    } else {
+      throw new Error((<CreateGameResponseError>responseBody).error);
+    }
+  }
+
   async exchangeDeadCardAsync(
     id: t.GameId, deadCard: t.Card
   ): Promise<t.CardPlayed | t.CardPlayedError> {
@@ -137,6 +159,22 @@ class Server implements CanCreateGame, CanGetBotTypes {
     } catch (error) {
       return { kind: t.LoadGameResponseKind.Error, error };
     }
+  }
+
+  public async getSimulationsAsync() {
+    const url = this.buildUrl('simulations');
+
+    const response = await fetch(url, {
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': this.userName,
+      },
+      method: 'GET',
+    });
+
+    const body = await response.json();
+    const gameIds = body as t.GameId[];
+    return gameIds;
   }
 
   async playCardAsync(

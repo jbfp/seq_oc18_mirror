@@ -2,18 +2,29 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 import { ServerContext } from '../contexts';
 import { Game, GameCollections } from './types';
 import GamesView from './GamesView';
+import * as t from "../types";
+import { Link } from "react-router-dom";
 
 export default function Games() {
     const context = useContext(ServerContext);
     const [games, setGames] = useState<GameCollections | null>(null);
+    const [simulations, setSimulations] = useState<t.GameId[] | null>(null);
     const timerHandle = useRef<number | undefined>(undefined);
     const userName = context.userName;
 
     useEffect(() => {
         const timerHandler = async () => {
-            const allGames = await context.getGamesAsync();
-            const value = mapAllGamesToCollection(allGames, userName);
-            setGames(value);
+            const promise0 = context
+                .getGamesAsync()
+                .then(allGames => mapAllGamesToCollection(allGames, userName))
+                .then(setGames);
+
+            const promise1 = context
+                .getSimulationsAsync()
+                .then(setSimulations);
+
+            await Promise.all([promise0, promise1]);
+
             timerHandle.current = window.setTimeout(timerHandler, 10000);
         };
 
@@ -24,15 +35,53 @@ export default function Games() {
         };
     }, [context, userName]);
 
+    const $elements = [];
+
     if (games) {
-        return <GamesView games={games} userName={context.userName} />
+        $elements.push((
+            <GamesView
+                key="games"
+                games={games}
+                userName={context.userName}
+            />
+        ));
     }
 
-    return (
-        <div>
-            <p>Loading games...</p>
-        </div>
-    );
+    if (simulations) {
+        $elements.push((
+            <div key="simulations">
+                <h2>Simulations</h2>
+
+                {simulations.length > 0 ?
+                    (
+                        <ul>
+                            {simulations.map(sim => (
+                                <li key={sim}>
+                                    <Link to={`/games/${sim}`}>
+                                        {sim}
+                                    </Link>
+                                </li>
+                            ))}
+                        </ul>
+                    ) :
+                    (
+                        <div key="simulations" className="game-list-empty">
+                            No simulations found
+                        </div>
+                    )}
+            </div>
+        ));
+    }
+
+    if ($elements.length > 0) {
+        return (<>{$elements}</>);
+    } else {
+        return (
+            <div>
+                <p>Loading games...</p>
+            </div>
+        );
+    }
 }
 
 function mapAllGamesToCollection(allGames: Game[], userName: string): GameCollections {

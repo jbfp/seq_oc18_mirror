@@ -23,7 +23,9 @@ export default function GamesView(props: GamesViewProps) {
     return (
         <div className="games">
             <p>
-                Pick a game to play from the list, or <Link to="/new-game">click here</Link> to start a new one.
+                <Link to="/new-game">New Game</Link>
+                &nbsp;&nbsp;
+                <Link to="/new-simulation">New Simulation</Link>
             </p>
 
             <div>
