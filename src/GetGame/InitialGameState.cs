@@ -13,7 +13,7 @@ namespace Sequence.GetGame
             PlayerHandle playerHandle,
             PlayerId playerId,
             IImmutableList<Player> players,
-            Team team,
+            Team? team,
             int winCondition)
         {
             BoardType = boardType;
@@ -34,7 +34,7 @@ namespace Sequence.GetGame
         public PlayerHandle PlayerHandle { get; }
         public PlayerId PlayerId { get; }
         public IImmutableList<Player> Players { get; }
-        public Team Team { get; }
+        public Team? Team { get; }
         public int WinCondition { get; }
     }
 }

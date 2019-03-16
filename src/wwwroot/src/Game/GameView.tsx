@@ -58,14 +58,18 @@ export default function GameView(props: GameViewProps) {
 
     // Shift players array so that the player is always the top player in the opponent list.
     const playerIdx = players.findIndex(player => player.id === game.playerId);
-    const shiftedPlayers = [
+    const shiftedPlayers = playerIdx !== -1 ? [
         players[playerIdx],
         ...players.slice(playerIdx + 1),
         ...players.slice(0, playerIdx),
-    ];
+    ] : players;
 
     const hand = useMemo(() => {
-        return Array.from(game.hand.values());
+        if (game.hand) {
+            return Array.from(game.hand.values());
+        }
+
+        return null;
     }, [game.hand]);
 
     const selectedCardKey = useMemo(() => {
@@ -93,16 +97,18 @@ export default function GameView(props: GameViewProps) {
                 onCoordClick={onCoordClick}
             />
 
-            <PlayerView
-                deadCards={game.deadCards}
-                hasExchangedDeadCard={game.hasExchangedDeadCard}
-                hand={hand}
-                isCurrentPlayer={game.currentPlayerId === game.playerId}
-                onCardClick={onCardClick}
-                onExchangeDeadCardClick={onExchangeDeadCardClick}
-                selectedCardKey={selectedCardKey}
-                team={game.playerTeam}
-            />
+            {game.playerId ? (
+                <PlayerView
+                    deadCards={game.deadCards}
+                    hasExchangedDeadCard={game.hasExchangedDeadCard}
+                    hand={hand!}
+                    isCurrentPlayer={game.currentPlayerId === game.playerId}
+                    onCardClick={onCardClick}
+                    onExchangeDeadCardClick={onExchangeDeadCardClick}
+                    selectedCardKey={selectedCardKey}
+                    team={game.playerTeam!}
+                />
+            ) : null}
 
             <div className="game-metadata">
                 <div>

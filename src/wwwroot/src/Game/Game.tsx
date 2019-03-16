@@ -67,7 +67,7 @@ export default function Game(props: GameProps) {
 
         async function handleConnectionStarted() {
             if (conn.state === SignalR.HubConnectionState.Connected) {
-                await conn.invoke('Identify', playerId);
+                await conn.invoke('Identify', playerId || state.players[0].id);
             }
 
             setTimeout(handleConnectionStarted, 5000);

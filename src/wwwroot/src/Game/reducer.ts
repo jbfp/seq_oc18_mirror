@@ -9,15 +9,15 @@ export interface GameState {
     deadCards: Map<string, t.Card>;
     discards: t.Card[];
     firstPlayer: t.PlayerHandle;
-    hand: Map<string, t.Card>;
+    hand: Map<string, t.Card> | null;
     hasExchangedDeadCard: boolean;
     latestCardPlayed: Map<t.PlayerId, t.Card>;
     latestMoveAt: t.Coord | null;
     numCardsInDeck: number;
-    playerHandle: t.PlayerHandle;
-    playerId: t.PlayerId;
+    playerHandle: t.PlayerHandle | null;
+    playerId: t.PlayerId | null;
     players: t.Player[];
-    playerTeam: t.Team;
+    playerTeam: t.Team | null;
     version: number;
     winCondition: number;
     winnerTeam: t.Team | null;
@@ -31,6 +31,8 @@ export function init(
         .filter(player => player.id === initialState.firstPlayerId)
         .map(player => player.handle)[0];
 
+    const isInGame = initialState.playerId !== null;
+
     return Object.freeze({
         board,
         boardType: initialState.boardType,
@@ -39,7 +41,7 @@ export function init(
         deadCards: new Map<string, t.Card>(),
         discards: [],
         firstPlayer,
-        hand: new Map<string, t.Card>(h.keyedArray(initialState.hand, h.cardKey)),
+        hand: isInGame ? new Map<string, t.Card>(h.keyedArray(initialState.hand!, h.cardKey)) : null,
         hasExchangedDeadCard: false,
         latestCardPlayed: new Map<t.PlayerId, t.Card>(),
         latestMoveAt: null,
@@ -78,7 +80,7 @@ function reducerInternal(
 
             if (event.byPlayerId === state.playerId) {
                 // Player discarded the card.
-                const hand = new Map<string, t.Card>(state.hand);
+                const hand = new Map<string, t.Card>(state.hand!);
                 hand.delete(h.cardKey(card));
                 return { ...newState, hand };
             } else {
@@ -110,7 +112,7 @@ function reducerInternal(
 
             if (event.card) {
                 // Player drew the card.
-                const hand = new Map<string, t.Card>(newState.hand);
+                const hand = new Map<string, t.Card>(newState.hand!);
                 const card = event.card;
                 hand.set(h.cardKey(card), card);
                 return { ...newState, hand };
