@@ -8,20 +8,42 @@ namespace Sequence.PlayCard
     {
         public static IImmutableList<Move> GenerateMoves(
             GameState state,
-            PlayerId playerId)
+            PlayerHandle player)
         {
             if (state == null)
             {
                 throw new ArgumentNullException(nameof(state));
             }
 
-            if (playerId == null)
+            if (player == null)
             {
-                throw new ArgumentNullException(nameof(playerId));
+                throw new ArgumentNullException(nameof(player));
             }
 
-            var playerIdx = state.PlayerIdByIdx.IndexOf(playerId);
+            return GenerateMoves(state, state.PlayerHandleByIdx.IndexOf(player));
+        }
 
+        public static IImmutableList<Move> GenerateMoves(
+            GameState state,
+            PlayerId player)
+        {
+            if (state == null)
+            {
+                throw new ArgumentNullException(nameof(state));
+            }
+
+            if (player == null)
+            {
+                throw new ArgumentNullException(nameof(player));
+            }
+
+            return GenerateMoves(state, state.PlayerIdByIdx.IndexOf(player));
+        }
+
+        private static IImmutableList<Move> GenerateMoves(
+            GameState state,
+            int playerIdx)
+        {
             if (playerIdx == -1)
             {
                 throw new ArgumentException("Playerw is not in game.");

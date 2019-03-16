@@ -26,6 +26,16 @@ namespace Sequence.PlayCard
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
+        [HttpGet("/games/{id:guid}/moves")]
+        public async Task<ActionResult> Get(
+            [FromRoute] Guid id,
+            CancellationToken cancellationToken)
+        {
+            var gameId = new GameId(id);
+            var moves = await _handler.GetMovesForPlayerAsync(gameId, Player, cancellationToken);
+            return Ok(moves);
+        }
+
         [HttpPost("/games/{id:guid}")]
         [PlayCardFailedExceptionFilter]
         public async Task<ActionResult> Post(

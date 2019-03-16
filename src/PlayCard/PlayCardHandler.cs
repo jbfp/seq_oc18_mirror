@@ -25,7 +25,7 @@ namespace Sequence.PlayCard
 
         public async Task<IImmutableList<Move>> GetMovesForPlayerAsync(
             GameId gameId,
-            PlayerId playerId,
+            PlayerHandle player,
             CancellationToken cancellationToken)
         {
             var state = await _provider.GetGameByIdAsync(gameId, cancellationToken);
@@ -35,7 +35,22 @@ namespace Sequence.PlayCard
                 throw new GameNotFoundException();
             }
 
-            return Moves.GenerateMoves(state, playerId);
+            return Moves.GenerateMoves(state, player);
+        }
+
+        public async Task<IImmutableList<Move>> GetMovesForPlayerAsync(
+            GameId gameId,
+            PlayerId player,
+            CancellationToken cancellationToken)
+        {
+            var state = await _provider.GetGameByIdAsync(gameId, cancellationToken);
+
+            if (state == null)
+            {
+                throw new GameNotFoundException();
+            }
+
+            return Moves.GenerateMoves(state, player);
         }
 
         public Task<IEnumerable<GameUpdated>> PlayCardAsync(
