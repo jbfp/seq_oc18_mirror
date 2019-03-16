@@ -21,9 +21,10 @@ namespace Sequence.Simulation
         }
 
         [HttpGet]
-        public async Task<ActionResult> Get(CancellationToken cancellationToken)
+        public async Task<ActionResult> Get(
+            CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            return Ok(await _handler.GetSimulationsAsync(Player, cancellationToken));
         }
 
         [HttpPost]

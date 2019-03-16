@@ -161,6 +161,22 @@ class Server implements CanCreateGame, CanGetBotTypes {
     }
   }
 
+  public async getSimulationsAsync() {
+    const url = this.buildUrl('simulations');
+
+    const response = await fetch(url, {
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': this.userName,
+      },
+      method: 'GET',
+    });
+
+    const body = await response.json();
+    const gameIds = body as t.GameId[];
+    return gameIds;
+  }
+
   async playCardAsync(
     id: t.GameId, card: t.Card, coord: t.Coord
   ): Promise<t.CardPlayed | t.CardPlayedError> {

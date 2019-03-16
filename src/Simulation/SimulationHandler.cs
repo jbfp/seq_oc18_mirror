@@ -41,5 +41,19 @@ namespace Sequence.Simulation
 
             return await _store.SaveNewSimulationAsync(newSimulation, cancellationToken);
         }
+
+        public Task<IImmutableList<GameId>> GetSimulationsAsync(
+            PlayerHandle player,
+            CancellationToken cancellationToken)
+        {
+            if (player == null)
+            {
+                throw new ArgumentNullException(nameof(player));
+            }
+
+            cancellationToken.ThrowIfCancellationRequested();
+
+            return _store.GetSimulationsAsync(player, cancellationToken);
+        }
     }
 }

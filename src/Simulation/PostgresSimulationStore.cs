@@ -2,6 +2,8 @@ using Dapper;
 using Sequence.CreateGame;
 using Sequence.Postgres;
 using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -14,6 +16,41 @@ namespace Sequence.Simulation
         public PostgresSimulationStore(NpgsqlConnectionFactory connectionFactory)
         {
             _connectionFactory = connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
+        }
+
+        public async Task<IImmutableList<GameId>> GetSimulationsAsync(
+            PlayerHandle player,
+            CancellationToken cancellationToken)
+        {
+            if (player == null)
+            {
+                throw new ArgumentNullException(nameof(player));
+            }
+
+            cancellationToken.ThrowIfCancellationRequested();
+
+            IEnumerable<GameId> gameIds;
+
+            using (var connection = await _connectionFactory.CreateAndOpenAsync(cancellationToken))
+            {
+                var commandText = @"
+                    SELECT g.game_id
+                    FROM public.simulation AS s
+                    INNER JOIN public.game AS g
+                    ON g.id = s.game_id
+                    WHERE s.created_by = @player;";
+
+                var parameters = new { player };
+
+                var command = new CommandDefinition(
+                    commandText,
+                    parameters,
+                    cancellationToken: cancellationToken);
+
+                gameIds = await connection.QueryAsync<GameId>(command);
+            }
+
+            return gameIds.ToImmutableList();
         }
 
         public async Task<GameId> SaveNewSimulationAsync(
