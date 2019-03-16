@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Immutable;
+using System.Threading;
 
 namespace Sequence
 {
@@ -15,6 +16,8 @@ namespace Sequence
 
         public Move Decide(IImmutableList<Move> moves)
         {
+            Thread.Sleep(2500);
+
             var numMoves = moves.Count;
 
             if (numMoves == 0)
