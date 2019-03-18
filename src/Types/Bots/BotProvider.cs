@@ -13,6 +13,7 @@ namespace Sequence
 
             var botTypes = assembly
                 .DefinedTypes
+                .Where(type => !type.IsAbstract)
                 .Where(type => type.ImplementedInterfaces.Contains(typeof(IBot)));
 
             BotTypes = botTypes
