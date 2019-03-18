@@ -56,6 +56,11 @@ namespace Sequence.PlayCard
                 return moves.ToImmutable();
             }
 
+            if (state.PlayerIdByIdx.IndexOf(state.CurrentPlayerId) != playerIdx)
+            {
+                return moves.ToImmutable();
+            }
+
             var boardType = state.BoardType;
             var chips = state.Chips;
             var hand = state.PlayerHandByIdx[playerIdx];
@@ -99,7 +104,7 @@ namespace Sequence.PlayCard
                         }
                     }
                 }
-                else if (state.DeadCards.Contains(card))
+                else if (state.DeadCards.Contains(card) && !state.HasExchangedDeadCard)
                 {
                     moves.Add(new Move(card, new Coord(-1, -1)));
                 }
