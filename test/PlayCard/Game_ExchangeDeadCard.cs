@@ -142,7 +142,7 @@ namespace Sequence.Test.PlayCard
                 byPlayerId: _player1.Id,
                 cardDrawn: new Card(DeckNo.Two, Suit.Clubs, Rank.Ten),
                 cardUsed: _cardDummy,
-                chip: Team.Red,
+                chip: null,
                 coord: _expectedCoord,
                 index: 3,
                 nextPlayerId: _player1.Id,
