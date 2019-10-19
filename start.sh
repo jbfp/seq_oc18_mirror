@@ -6,5 +6,3 @@ cd $script_path
 cd ./src/wwwroot/
 yarn start
 
-
-
