@@ -16,7 +16,7 @@ namespace Sequence.AspNetCore
 
         public override bool CanConvert(Type objectType) => typeof(GameId) == objectType;
 
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        public override object? ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
             if (reader.ValueType == typeof(string) && reader.Value is string str)
             {
@@ -39,7 +39,7 @@ namespace Sequence.AspNetCore
 
         public override bool CanConvert(Type objectType) => typeof(PlayerHandle) == objectType;
 
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        public override object? ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
             if (reader.ValueType == typeof(string) && reader.Value is string str)
             {
@@ -62,7 +62,7 @@ namespace Sequence.AspNetCore
 
         public override bool CanConvert(Type objectType) => typeof(PlayerId) == objectType;
 
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        public override object? ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
             if (reader.ValueType == typeof(long) && reader.Value is long x)
             {
@@ -112,31 +112,24 @@ namespace Sequence.AspNetCore
 
     internal sealed class GameEventConverter : JsonConverter
     {
-        private static readonly ImmutableDictionary<Type, string> _keyByType;
-        private static readonly ImmutableDictionary<Type, PropertyInfo[]> _propertiesByType;
+        private static readonly ImmutableArray<Type> _gameEventTypes = typeof(IGameEvent)
+            .Assembly
+            .ExportedTypes
+            .Where(typeof(IGameEvent).IsAssignableFrom)
+            .ToImmutableArray();
 
-        static GameEventConverter()
-        {
-            var gameEventTypes = typeof(IGameEvent).Assembly
-                .ExportedTypes
-                .Where(typeof(IGameEvent).IsAssignableFrom)
-                .ToList();
+        private static readonly ImmutableDictionary<Type, string> _keyByType = _gameEventTypes
+            .ToImmutableDictionary(
+                type => type,
+                type => new string(type.Name
+                    .SelectMany(NameToChars)
+                    .ToArray())
+                    .Trim('-'));
 
-            _keyByType = gameEventTypes
-                .ToImmutableDictionary(
-                    type => type,
-                    type => new string(type.Name
-                        .SelectMany(NameToChars)
-                        .ToArray())
-                        .Trim('-'));
-
-            var bindingFlags = BindingFlags.Public | BindingFlags.Instance;
-
-            _propertiesByType = gameEventTypes
-                .ToImmutableDictionary(
-                    type => type,
-                    type => type.GetProperties(bindingFlags));
-        }
+        private static readonly ImmutableDictionary<Type, PropertyInfo[]> _propertiesByType = _gameEventTypes
+            .ToImmutableDictionary(
+                type => type,
+                type => type.GetProperties(BindingFlags.Public | BindingFlags.Instance));
 
         private static IEnumerable<char> NameToChars(char c)
         {

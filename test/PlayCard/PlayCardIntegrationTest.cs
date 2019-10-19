@@ -28,10 +28,9 @@ namespace Sequence.Test.PlayCard
             var requestUri = $"{BasePath}/{gameId}";
             var body = new { card = new { deckNo = 0, suit = 0, rank = 0 }, column = 0, row = 0 };
 
-            using (var response = await UnauthorizedClient.PostAsJsonAsync(requestUri, body))
-            {
-                Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
-            }
+            using var response = await UnauthorizedClient.PostAsJsonAsync(requestUri, body);
+
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
         }
 
         [Fact]
@@ -40,10 +39,9 @@ namespace Sequence.Test.PlayCard
             var requestUri = $"{BasePath}/idontexistforsure";
             var body = new { card = new { deckNo = 0, suit = 0, rank = 0 }, column = 0, row = 0 };
 
-            using (var response = await AuthorizedClient.PostAsJsonAsync(requestUri, body))
-            {
-                Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
-            }
+            using var response = await AuthorizedClient.PostAsJsonAsync(requestUri, body);
+
+            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
         }
     }
 }

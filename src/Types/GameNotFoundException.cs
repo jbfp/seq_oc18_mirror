@@ -17,5 +17,9 @@ namespace Sequence
         public GameNotFoundException(string message, Exception innerException) : base(message, innerException)
         {
         }
+
+        private GameNotFoundException(SerializationInfo serializationInfo, StreamingContext streamingContext)
+        {
+        }
     }
 }

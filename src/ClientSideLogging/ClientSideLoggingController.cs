@@ -11,7 +11,7 @@ namespace Sequence.ClientSideLogging
 
         public ClientSideLoggingController(ILogger<ClientSideLoggingController> logger)
         {
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _logger = logger;
         }
 
         [HttpPost("/logs")]
@@ -23,10 +23,10 @@ namespace Sequence.ClientSideLogging
 
     public sealed class LogModel
     {
-        public int LineNumber { get; set; }
-        public string FileName { get; set; }
-        public int ColumnNumber { get; set; }
-        public string Stack { get; set; }
-        public string Message { get; set; }
+        public int? LineNumber { get; set; }
+        public string? FileName { get; set; }
+        public int? ColumnNumber { get; set; }
+        public string? Stack { get; set; }
+        public string? Message { get; set; }
     }
 }

@@ -30,7 +30,7 @@ namespace Sequence
         public Suit Suit { get; }
         public Rank Rank { get; }
 
-        public bool Equals(Card other)
+        public bool Equals(Card? other)
         {
             return other != null
                 && DeckNo.Equals(other.DeckNo)
@@ -38,7 +38,7 @@ namespace Sequence
                 && Rank.Equals(other.Rank);
         }
 
-        public override bool Equals(object obj) => Equals(obj as Card);
+        public override bool Equals(object? obj) => Equals(obj as Card);
 
         public override int GetHashCode() => HashCode.Combine(DeckNo, Suit, Rank);
 

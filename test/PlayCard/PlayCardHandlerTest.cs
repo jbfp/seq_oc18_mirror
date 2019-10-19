@@ -1,7 +1,6 @@
 using Moq;
 using Sequence.PlayCard;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading;
@@ -12,29 +11,6 @@ namespace Sequence.Test.PlayCard
 {
     public sealed class PlayCardHandlerTest
     {
-        [Fact]
-        public void Constructor_NullArgs()
-        {
-            var provider = Mock.Of<IGameStateProvider>();
-            var store = Mock.Of<IGameEventStore>();
-            var realTime = Mock.Of<IRealTimeContext>();
-
-            Assert.Throws<ArgumentNullException>(
-                paramName: "provider",
-                () => new PlayCardHandler(provider: null, store, realTime)
-            );
-
-            Assert.Throws<ArgumentNullException>(
-                paramName: "store",
-                () => new PlayCardHandler(provider, store: null, realTime)
-            );
-
-            Assert.Throws<ArgumentNullException>(
-               paramName: "realTime",
-               () => new PlayCardHandler(provider, store, realTime: null)
-           );
-        }
-
         private readonly Mock<IGameStateProvider> _provider = new Mock<IGameStateProvider>();
         private readonly Mock<IGameEventStore> _store = new Mock<IGameEventStore>();
         private readonly Mock<IRealTimeContext> _realTime = new Mock<IRealTimeContext>();
@@ -52,7 +28,7 @@ namespace Sequence.Test.PlayCard
         {
             _provider
                 .Setup(p => p.GetGameByIdAsync(_gameId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((GameState)null)
+                .ReturnsAsync((GameState?)null)
                 .Verifiable();
 
             _store
@@ -72,42 +48,15 @@ namespace Sequence.Test.PlayCard
                     players: ImmutableArray.Create(
                         new Player(
                             new PlayerId(1),
-                            _player
-                        ),
+                            _player),
                         new Player(
                             new PlayerId(2),
-                            new PlayerHandle("dummy 2")
-                        )
-                    ),
+                            new PlayerHandle("dummy 2"))),
                     firstPlayerId: new PlayerId(1),
                     seed: new Seed(42),
                     boardType: BoardType.OneEyedJack,
                     numSequencesToWin: 2
                 )
-            );
-        }
-
-        [Fact]
-        public async Task ThrowsWhenArgsAreNull()
-        {
-            await Assert.ThrowsAsync<ArgumentNullException>(
-                paramName: "gameId",
-                testCode: () => _sut.PlayCardAsync(gameId: null, _player, _card, _coord, CancellationToken.None)
-            );
-
-            await Assert.ThrowsAsync<ArgumentNullException>(
-                paramName: "player",
-                testCode: () => _sut.PlayCardAsync(_gameId, player: (PlayerHandle)null, _card, _coord, CancellationToken.None)
-            );
-
-            await Assert.ThrowsAsync<ArgumentNullException>(
-                paramName: "player",
-                testCode: () => _sut.PlayCardAsync(_gameId, player: (PlayerId)null, _card, _coord, CancellationToken.None)
-            );
-
-            await Assert.ThrowsAsync<ArgumentNullException>(
-                paramName: "card",
-                testCode: () => _sut.PlayCardAsync(_gameId, _player, card: null, _coord, CancellationToken.None)
             );
         }
 

@@ -8,41 +8,16 @@ namespace Sequence.PlayCard
     {
         public static GameEvent PlayCard(GameState state, PlayerHandle player, Card card, Coord coord)
         {
-            if (state == null)
-            {
-                throw new ArgumentNullException(nameof(state));
-            }
-
-            if (player == null)
-            {
-                throw new ArgumentNullException(nameof(player));
-            }
-
             return PlayCard(state, state.PlayerHandleByIdx.IndexOf(player), card, coord);
         }
 
         public static GameEvent PlayCard(GameState state, PlayerId player, Card card, Coord coord)
         {
-            if (state == null)
-            {
-                throw new ArgumentNullException(nameof(state));
-            }
-
-            if (player == null)
-            {
-                throw new ArgumentNullException(nameof(player));
-            }
-
             return PlayCard(state, state.PlayerIdByIdx.IndexOf(player), card, coord);
         }
 
         private static GameEvent PlayCard(GameState state, int playerIdx, Card card, Coord coord)
         {
-            if (card == null)
-            {
-                throw new ArgumentNullException(nameof(card));
-            }
-
             if (playerIdx == -1)
             {
                 throw new PlayCardFailedException(PlayCardError.PlayerIsNotInGame);
@@ -81,16 +56,16 @@ namespace Sequence.PlayCard
                     throw new PlayCardFailedException(PlayCardError.ChipIsPartOfSequence);
                 }
 
-                return new GameEvent
-                {
-                    ByPlayerId = playerId,
-                    CardDrawn = deck.Peek(),
-                    CardUsed = card,
-                    Chip = null,
-                    Coord = coord,
-                    Index = state.Version + 1,
-                    NextPlayerId = state.PlayerIdByIdx[(playerIdx + 1) % state.NumberOfPlayers],
-                };
+                return new GameEvent(
+                    byPlayerId: playerId,
+                    cardDrawn: deck.Peek(),
+                    cardUsed: card,
+                    chip: null,
+                    coord: coord,
+                    index: state.Version + 1,
+                    nextPlayerId: state.PlayerIdByIdx[(playerIdx + 1) % state.NumberOfPlayers],
+                    sequences: ImmutableList<Seq>.Empty,
+                    winner: null);
             }
             else
             {
@@ -130,58 +105,31 @@ namespace Sequence.PlayCard
                     ? state.PlayerIdByIdx[(playerIdx + 1) % state.NumberOfPlayers]
                     : null;
 
-                return new GameEvent
-                {
-                    ByPlayerId = playerId,
-                    CardDrawn = deck.Peek(),
-                    CardUsed = card,
-                    Chip = team,
-                    Coord = coord,
-                    Index = state.Version + 1,
-                    NextPlayerId = nextPlayerId,
-                    Sequences = sequences.ToArray(),
-                    Winner = winnerTeam,
-                };
+                return new GameEvent(
+                    byPlayerId: playerId,
+                    cardDrawn: deck.Peek(),
+                    cardUsed: card,
+                    chip: team,
+                    coord: coord,
+                    index: state.Version + 1,
+                    nextPlayerId: nextPlayerId,
+                    sequences: sequences,
+                    winner: winnerTeam);
             }
         }
 
         public static GameEvent ExchangeDeadCard(GameState state, PlayerHandle player, Card deadCard)
         {
-            if (state == null)
-            {
-                throw new ArgumentNullException(nameof(state));
-            }
-
-            if (player == null)
-            {
-                throw new ArgumentNullException(nameof(player));
-            }
-
             return ExchangeDeadCard(state, state.PlayerHandleByIdx.IndexOf(player), deadCard);
         }
 
         public static GameEvent ExchangeDeadCard(GameState state, PlayerId player, Card deadCard)
         {
-            if (state == null)
-            {
-                throw new ArgumentNullException(nameof(state));
-            }
-
-            if (player == null)
-            {
-                throw new ArgumentNullException(nameof(player));
-            }
-
             return ExchangeDeadCard(state, state.PlayerIdByIdx.IndexOf(player), deadCard);
         }
 
         private static GameEvent ExchangeDeadCard(GameState state, int playerIdx, Card deadCard)
         {
-            if (deadCard == null)
-            {
-                throw new ArgumentNullException(nameof(deadCard));
-            }
-
             if (playerIdx == -1)
             {
                 throw new ExchangeDeadCardFailedException(ExchangeDeadCardError.PlayerIsNotInGame);
@@ -211,15 +159,16 @@ namespace Sequence.PlayCard
 
             var deck = ImmutableStack.CreateRange(state.Deck);
 
-            return new GameEvent
-            {
-                ByPlayerId = playerId,
-                CardDrawn = deck.Peek(),
-                CardUsed = deadCard,
-                Coord = new Coord(-1, -1),
-                Index = state.Version + 1,
-                NextPlayerId = playerId,
-            };
+            return new GameEvent(
+                byPlayerId: playerId,
+                cardDrawn: deck.Peek(),
+                cardUsed: deadCard,
+                chip: null,
+                coord: new Coord(-1, -1),
+                index: state.Version + 1,
+                nextPlayerId: playerId,
+                sequences: ImmutableList<Seq>.Empty,
+                winner: null);
         }
     }
 }

@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Immutable;
 
 namespace Sequence.GetGameList
@@ -7,7 +6,7 @@ namespace Sequence.GetGameList
     {
         public GameList(IImmutableList<GameListItem> games)
         {
-            Games = games ?? throw new ArgumentNullException(nameof(games));
+            Games = games;
         }
 
         public IImmutableList<GameListItem> Games { get; }

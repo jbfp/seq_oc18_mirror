@@ -1,5 +1,4 @@
 using Dapper;
-using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -24,8 +23,8 @@ namespace Sequence.Postgres
             NpgsqlConnectionFactory connectionFactory,
             ILogger<PostgresGameEventListener> logger)
         {
-            _connectionFactory = connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _connectionFactory = connectionFactory;
+            _logger = logger;
         }
 
         public IDisposable Subscribe(IObserver<(GameId, GameEvent)> observer)
@@ -37,46 +36,45 @@ namespace Sequence.Postgres
         {
             try
             {
-                using (var connection = await _connectionFactory.CreateAndOpenAsync(stoppingToken))
+                using var connection = await _connectionFactory.CreateAndOpenAsync(stoppingToken);
+
+                var notifications = Observable
+                    .FromEvent<NotificationEventHandler, NpgsqlNotificationEventArgs>(
+                        action => new NotificationEventHandler((_, args) => action(args)),
+                        handler => connection.Notification += handler,
+                        handler => connection.Notification -= handler)
+                    .Select(args => args.AdditionalInformation)
+                    .Select(JsonConvert.DeserializeObject<GameEventRow>)
+                    .Select(MapToReturnType);
+
+                notifications.Subscribe(_subject);
+
+                var command = new CommandDefinition(
+                    commandText: "LISTEN game_event_inserted;",
+                    cancellationToken: stoppingToken);
+
+                _logger.LogInformation("Starting game_event_inserted listener");
+
+                await connection.ExecuteAsync(command);
+
+                _logger.LogInformation("Started game_event_inserted listener");
+
+                try
                 {
-                    var notifications = Observable
-                        .FromEvent<NotificationEventHandler, NpgsqlNotificationEventArgs>(
-                            action => new NotificationEventHandler((_, args) => action(args)),
-                            handler => connection.Notification += handler,
-                            handler => connection.Notification -= handler)
-                        .Select(args => args.AdditionalInformation)
-                        .Select(JsonConvert.DeserializeObject<GameEventRow>)
-                        .Select(MapToReturnType);
-
-                    notifications.Subscribe(_subject);
-
-                    var command = new CommandDefinition(
-                        commandText: "LISTEN game_event_inserted;",
-                        cancellationToken: stoppingToken);
-
-                    _logger.LogInformation("Starting game_event_inserted listener");
-
-                    await connection.ExecuteAsync(command);
-
-                    _logger.LogInformation("Started game_event_inserted listener");
-
-                    try
+                    while (!stoppingToken.IsCancellationRequested)
                     {
-                        while (!stoppingToken.IsCancellationRequested)
-                        {
-                            await connection.WaitAsync(stoppingToken);
-                        }
+                        await connection.WaitAsync(stoppingToken);
                     }
-                    catch (OperationCanceledException)
-                    {
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, "Unhandled exception occurred whilst listening for game events");
-                    }
-
-                    _subject.OnCompleted();
                 }
+                catch (OperationCanceledException)
+                {
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Unhandled exception occurred whilst listening for game events");
+                }
+
+                _subject.OnCompleted();
             }
             catch (Exception ex)
             {
@@ -90,18 +88,16 @@ namespace Sequence.Postgres
         {
             var gameId = row.surrogate_game_id;
 
-            var gameEvent = new GameEvent
-            {
-                ByPlayerId = row.by_player_id,
-                CardDrawn = row.card_drawn?.ToCard(),
-                CardUsed = row.card_used.ToCard(),
-                Chip = row.chip,
-                Coord = row.coord.ToCoord(),
-                Index = row.idx,
-                NextPlayerId = row.next_player_id,
-                Sequences = row.sequences.Select(SequenceComposite.ToSequence).ToArray(),
-                Winner = row.winner,
-            };
+            var gameEvent = new GameEvent(
+                byPlayerId: row.by_player_id,
+                cardDrawn: row.card_drawn?.ToCard(),
+                cardUsed: row.card_used.ToCard(),
+                chip: row.chip,
+                coord: row.coord.ToCoord(),
+                index: row.idx,
+                nextPlayerId: row.next_player_id,
+                sequences: row.sequences.Select(SequenceComposite.ToSequence).ToImmutableArray(),
+                winner: row.winner);
 
             return (gameId, gameEvent);
         }

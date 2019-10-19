@@ -20,13 +20,11 @@ namespace Sequence.Test
     {
         protected const string DefaultUserName = "test_player";
 
-        private readonly BotTaskObservableStub _botTaskObservable = new BotTaskObservableStub();
-
         protected IntegrationTestBase(
             PostgresDockerContainerFixture fixture,
             WebApplicationFactory<Startup> factory)
         {
-            Factory = factory ?? throw new ArgumentNullException(nameof(factory));
+            Factory = factory;
 
             Factory = Factory.WithWebHostBuilder(builder =>
             {
@@ -34,7 +32,7 @@ namespace Sequence.Test
 
                 builder.ConfigureTestServices(services =>
                 {
-                    services.AddSingleton<NpgsqlConnectionFactory>(db);
+                    services.AddSingleton(db);
                 }).UseSetting("Postgres:ConnectionString", db.ConnectionString)
                 .UseSerilog((ctx, conf) => conf.Filter.ByIncludingOnly(_ => false));
             });
@@ -68,14 +66,6 @@ namespace Sequence.Test
             var response = await AuthorizedClient.PostAsJsonAsync("/games", form);
 
             return response.Headers.Location;
-        }
-
-        private sealed class BotTaskObservableStub : IObservable<BotTask>
-        {
-            public IDisposable Subscribe(IObserver<BotTask> observer)
-            {
-                return Observable.Empty<BotTask>().Subscribe(observer);
-            }
         }
     }
 }

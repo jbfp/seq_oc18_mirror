@@ -25,23 +25,21 @@ namespace Sequence.Test.GetGame
         [InlineData("b460f19a-7261-4bf8-8b0b-1097df0bf611")]
         public async Task RoutesAreProtected(string gameId)
         {
-            var requestUri = $"{GameBasePath}/{gameId}";
+            var requestUri = new Uri($"{GameBasePath}/{gameId}", UriKind.Relative);
 
-            using (var response = await UnauthorizedClient.GetAsync(requestUri))
-            {
-                Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
-            }
+            using var response = await UnauthorizedClient.GetAsync(requestUri);
+
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
         }
 
         [Fact]
         public async Task GetGameReturnsNotFound()
         {
-            var requestUri = $"{GameBasePath}/idontexistforsure";
+            var requestUri = new Uri($"{GameBasePath}/idontexistforsure", UriKind.Relative);
 
-            using (var response = await AuthorizedClient.GetAsync(requestUri))
-            {
-                Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
-            }
+            using var response = await AuthorizedClient.GetAsync(requestUri);
+
+            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
         }
 
         [Fact]
@@ -49,10 +47,9 @@ namespace Sequence.Test.GetGame
         {
             var gamePath = await CreateGameAsync();
 
-            using (var response = await AuthorizedClient.GetAsync(gamePath))
-            {
-                Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            }
+            using var response = await AuthorizedClient.GetAsync(gamePath);
+
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
 
         [Theory]
@@ -60,10 +57,11 @@ namespace Sequence.Test.GetGame
         [InlineData(BoardBasePath + "/sequence")]
         public async Task BoardRoutesAreProtected(string route)
         {
-            using (var response = await UnauthorizedClient.GetAsync(route))
-            {
-                Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
-            }
+            var requestUri = new Uri(route, UriKind.Relative);
+
+            using var response = await UnauthorizedClient.GetAsync(requestUri);
+
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
         }
 
         [Theory]
@@ -73,10 +71,9 @@ namespace Sequence.Test.GetGame
         [InlineData("oneeyedjack")]
         public async Task BoardTypeFromKey(string key)
         {
-            using (var response = await GetAsync(BoardBasePath, key))
-            {
-                Assert.True(response.IsSuccessStatusCode);
-            }
+            using var response = await GetAsync(BoardBasePath, key);
+
+            Assert.True(response.IsSuccessStatusCode);
         }
 
         [Theory]
@@ -85,32 +82,31 @@ namespace Sequence.Test.GetGame
         [InlineData("390r23r9#####@")]
         public async Task InvalidBoardTypeBadRequest(string key)
         {
-            using (var response = await GetAsync(BoardBasePath, key))
-            {
-                Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-            }
+            using var response = await GetAsync(BoardBasePath, key);
+
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         }
 
         [Fact]
         public async Task BoardTypeCaching()
         {
-            using (var response = await GetAsync(BoardBasePath, "sequence"))
-            {
-                Assert.NotNull(response.Headers.CacheControl);
-                Assert.True(response.Headers.CacheControl.Public);
-                Assert.NotNull(response.Headers.CacheControl.MaxAge);
-                Assert.Equal(response.Headers.CacheControl.MaxAge.Value, TimeSpan.FromDays(4 * 30.4375));
-            }
+            using var response = await GetAsync(BoardBasePath, "sequence");
+
+            Assert.NotNull(response.Headers.CacheControl);
+            Assert.True(response.Headers.CacheControl.Public);
+            Assert.NotNull(response.Headers.CacheControl.MaxAge);
+            Assert.Equal(response.Headers.CacheControl.MaxAge.GetValueOrDefault(), TimeSpan.FromDays(4 * 30.4375));
         }
 
-        private async Task<HttpResponseMessage> GetAsync(string basePath, string path = null)
+        private async Task<HttpResponseMessage> GetAsync(string basePath, string? path = null)
         {
             if (path != null)
             {
                 path = $"/{Uri.EscapeDataString(path)}";
             }
 
-            return await AuthorizedClient.GetAsync($"{basePath}{path}");
+            var requestUri = new Uri($"{basePath}{path}", UriKind.Relative);
+            return await AuthorizedClient.GetAsync(requestUri);
         }
     }
 }

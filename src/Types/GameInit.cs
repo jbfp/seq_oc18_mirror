@@ -12,8 +12,8 @@ namespace Sequence
             BoardType boardType,
             int numSequencesToWin)
         {
-            Players = players ?? throw new ArgumentNullException(nameof(players));
-            FirstPlayerId = firstPlayerId ?? throw new ArgumentNullException(nameof(firstPlayerId));
+            Players = players;
+            FirstPlayerId = firstPlayerId;
             Seed = seed;
             BoardType = boardType;
             NumberOfSequencesToWin = numSequencesToWin;

@@ -1,6 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
 using Sequence.PlayCard;
-using System;
 
 namespace Sequence.RealTime
 {
@@ -8,11 +7,6 @@ namespace Sequence.RealTime
     {
         public static IServiceCollection AddRealTimeFeature(this IServiceCollection services)
         {
-            if (services == null)
-            {
-                throw new ArgumentNullException(nameof(services));
-            }
-
             return services.AddTransient<IRealTimeContext, GameHubRealTimeContext>();
         }
     }

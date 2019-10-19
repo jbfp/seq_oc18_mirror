@@ -4,11 +4,27 @@ namespace Sequence.Simulation
 {
     public sealed class SimulationParams
     {
-        public IImmutableList<Bot> Players { get; set; }
-        public BoardType BoardType { get; set; }
-        public PlayerHandle CreatedBy { get; set; }
-        public bool RandomFirstPlayer { get; set; }
-        public Seed Seed { get; set; }
-        public int WinCondition { get; set; }
+        public SimulationParams(
+            BoardType boardType,
+            PlayerHandle createdBy,
+            IImmutableList<Bot> players,
+            bool randomFirstPlayer,
+            Seed seed,
+            int winCondition)
+        {
+            BoardType = boardType;
+            CreatedBy = createdBy;
+            Players = players;
+            RandomFirstPlayer = randomFirstPlayer;
+            Seed = seed;
+            WinCondition = winCondition;
+        }
+
+        public BoardType BoardType { get; }
+        public PlayerHandle CreatedBy { get; }
+        public IImmutableList<Bot> Players { get; }
+        public bool RandomFirstPlayer { get; }
+        public Seed Seed { get; }
+        public int WinCondition { get; }
     }
 }

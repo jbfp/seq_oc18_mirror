@@ -14,7 +14,7 @@ namespace Sequence
         public RandomBot() => _rng = new Random();
         public RandomBot(int seed) => _rng = new Random(seed);
 
-        public Move Decide(IImmutableList<Move> moves)
+        public Move? Decide(IImmutableList<Move> moves)
         {
             Thread.Sleep(2500);
 

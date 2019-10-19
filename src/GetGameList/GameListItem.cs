@@ -11,9 +11,9 @@ namespace Sequence.GetGameList
             IImmutableList<PlayerHandle> opponents,
             DateTimeOffset? lastMoveAt)
         {
-            GameId = gameId ?? throw new ArgumentNullException(nameof(gameId));
+            GameId = gameId;
             CurrentPlayer = currentPlayer;
-            Opponents = opponents ?? throw new ArgumentNullException(nameof(opponents));
+            Opponents = opponents;
             LastMoveAt = lastMoveAt;
         }
 

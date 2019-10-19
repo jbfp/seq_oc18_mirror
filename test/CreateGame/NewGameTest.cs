@@ -14,19 +14,12 @@ namespace Sequence.Test.CreateGame
             new NewPlayer(
                     new PlayerHandle("test 2"),
                     PlayerType.User));
-        private static readonly int _firstPlayerIndex = 0;
-        private static readonly Seed _seed = new Seed(42);
-        private static readonly BoardType _boardType = BoardType.OneEyedJack;
-        private static readonly int _numSequencesToWin = 2;
 
-        [Fact]
-        public void NullArgs()
-        {
-            Assert.Throws<ArgumentNullException>(
-                paramName: "players",
-                testCode: () => new NewGame(players: null, _firstPlayerIndex, _seed, _boardType, _numSequencesToWin)
-            );
-        }
+        private static readonly Seed _seed = new Seed(42);
+
+        private const int _firstPlayerIndex = 0;
+        private const BoardType _boardType = BoardType.OneEyedJack;
+        private const int _numSequencesToWin = 2;
 
         [Theory]
         [InlineData(-1)]
@@ -35,7 +28,7 @@ namespace Sequence.Test.CreateGame
         public void BoardTypeMustBeDefined(int boardType)
         {
             Assert.Throws<ArgumentOutOfRangeException>(
-                paramName: "boardType",
+                paramName: nameof(boardType),
                 testCode: () => new NewGame(_players, _firstPlayerIndex, _seed, (BoardType)boardType, _numSequencesToWin)
             );
         }
@@ -51,7 +44,7 @@ namespace Sequence.Test.CreateGame
         public void NumSequencesToWinMustBeGreaterThanZeroAndLessThanFive(int numSequencesToWin)
         {
             Assert.Throws<ArgumentOutOfRangeException>(
-                paramName: "numSequencesToWin",
+                paramName: nameof(numSequencesToWin),
                 testCode: () => new NewGame(_players, _firstPlayerIndex, _seed, _boardType, numSequencesToWin)
             );
         }

@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Options;
 using Sequence.CreateGame;
 using Sequence.PlayCard;
 using Sequence.Postgres;
@@ -14,7 +13,7 @@ namespace Sequence.Test.Postgres
 
         protected PostgresTestBase(PostgresDockerContainerFixture fixture)
         {
-            _fixture = fixture ?? throw new ArgumentNullException(nameof(fixture));
+            _fixture = fixture;
         }
 
         public PlayerHandle Player1 { get; } = new PlayerHandle("Player 1");
@@ -27,14 +26,9 @@ namespace Sequence.Test.Postgres
 
         protected async Task<GameId> CreateGameAsync(
             NpgsqlConnectionFactory connectionFactory,
-            NewPlayer player1 = null,
-            NewPlayer player2 = null)
+            NewPlayer? player1 = null,
+            NewPlayer? player2 = null)
         {
-            if (connectionFactory == null)
-            {
-                throw new ArgumentNullException(nameof(connectionFactory));
-            }
-
             var gameStore = new PostgresGameStore(connectionFactory);
 
             var newGame = new NewGame(
@@ -50,26 +44,11 @@ namespace Sequence.Test.Postgres
             return await gameStore.PersistNewGameAsync(newGame, CancellationToken.None);
         }
 
-        protected async Task AddEventAsync(
+        protected static async Task AddEventAsync(
             NpgsqlConnectionFactory connectionFactory,
             GameId gameId,
             GameEvent gameEvent)
         {
-            if (connectionFactory == null)
-            {
-                throw new ArgumentNullException(nameof(connectionFactory));
-            }
-
-            if (gameId == null)
-            {
-                throw new ArgumentNullException(nameof(gameId));
-            }
-
-            if (gameEvent == null)
-            {
-                throw new ArgumentNullException(nameof(gameEvent));
-            }
-
             var gameEventStore = new PostgresGameEventStore(connectionFactory);
 
             await gameEventStore.AddEventAsync(gameId, gameEvent, CancellationToken.None);

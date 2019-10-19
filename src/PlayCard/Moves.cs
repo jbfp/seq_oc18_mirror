@@ -10,16 +10,6 @@ namespace Sequence.PlayCard
             GameState state,
             PlayerHandle player)
         {
-            if (state == null)
-            {
-                throw new ArgumentNullException(nameof(state));
-            }
-
-            if (player == null)
-            {
-                throw new ArgumentNullException(nameof(player));
-            }
-
             return GenerateMoves(state, state.PlayerHandleByIdx.IndexOf(player));
         }
 
@@ -27,16 +17,6 @@ namespace Sequence.PlayCard
             GameState state,
             PlayerId player)
         {
-            if (state == null)
-            {
-                throw new ArgumentNullException(nameof(state));
-            }
-
-            if (player == null)
-            {
-                throw new ArgumentNullException(nameof(player));
-            }
-
             return GenerateMoves(state, state.PlayerIdByIdx.IndexOf(player));
         }
 
@@ -46,7 +26,7 @@ namespace Sequence.PlayCard
         {
             if (playerIdx == -1)
             {
-                throw new ArgumentException("Playerw is not in game.");
+                throw new ArgumentException("Player is not in game.");
             }
 
             var moves = ImmutableList.CreateBuilder<Move>();
@@ -54,6 +34,12 @@ namespace Sequence.PlayCard
             if (state.Winner.HasValue)
             {
                 return moves.ToImmutable();
+            }
+
+            if (state.CurrentPlayerId is null)
+            {
+                throw new InvalidOperationException(
+                    "Current player is null. This must only be the case when the game is over.");
             }
 
             if (state.PlayerIdByIdx.IndexOf(state.CurrentPlayerId) != playerIdx)

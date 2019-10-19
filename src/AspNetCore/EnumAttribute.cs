@@ -7,7 +7,7 @@ namespace Sequence.AspNetCore
     {
         public EnumAttribute(Type enumType)
         {
-            EnumType = enumType ?? throw new ArgumentNullException(nameof(enumType));
+            EnumType = enumType;
 
             if (!enumType.IsEnum)
             {

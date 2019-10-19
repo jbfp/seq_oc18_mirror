@@ -32,18 +32,17 @@ namespace Sequence.Test.Postgres
             // Try connecting until database is ready.
             while (true)
             {
-                using (var connection = new NpgsqlConnection(_connectionString))
+                using var connection = new NpgsqlConnection(_connectionString);
+
+                try
                 {
-                    try
-                    {
-                        connection.Open();
-                        break;
-                    }
-                    catch (NpgsqlException)
-                    {
-                        // Try again.
-                        Thread.Sleep(500);
-                    }
+                    connection.Open();
+                    break;
+                }
+                catch (NpgsqlException)
+                {
+                    // Try again.
+                    Thread.Sleep(500);
                 }
             }
         }

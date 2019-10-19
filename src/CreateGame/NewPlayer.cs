@@ -6,7 +6,7 @@ namespace Sequence.CreateGame
     {
         public NewPlayer(PlayerHandle handle, PlayerType type)
         {
-            Handle = handle ?? throw new ArgumentNullException(nameof(handle));
+            Handle = handle;
 
             if (Enum.IsDefined(typeof(PlayerType), type))
             {
@@ -21,7 +21,7 @@ namespace Sequence.CreateGame
         public PlayerHandle Handle { get; }
         public PlayerType Type { get; }
 
-        public bool Equals(NewPlayer other)
+        public bool Equals(NewPlayer? other)
         {
             if (other == null)
             {
@@ -31,7 +31,7 @@ namespace Sequence.CreateGame
             return Handle.Equals(other.Handle) && Type.Equals(other.Type);
         }
 
-        public override bool Equals(object obj) => Equals(obj as NewPlayer);
+        public override bool Equals(object? obj) => Equals(obj as NewPlayer);
 
         public override int GetHashCode() => HashCode.Combine(Handle, Type);
     }

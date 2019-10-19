@@ -21,8 +21,7 @@ namespace Sequence.Test.Postgres
             var db = await CreateDatabaseAsync();
             var gameId = await CreateGameAsync(db);
             var sut = new PostgresGameStateProvider(
-                new PostgresGameProvider(db)
-            );
+                new PostgresGameProvider(db));
 
             // Then:
             var game = await sut.GetGameByIdAsync(gameId, CancellationToken.None);
@@ -38,20 +37,19 @@ namespace Sequence.Test.Postgres
             var db = await CreateDatabaseAsync();
             var gameId = await CreateGameAsync(db);
 
-            await AddEventAsync(db, gameId, new GameEvent
-            {
-                ByPlayerId = new PlayerId(1),
-                CardDrawn = null,
-                CardUsed = new Card(DeckNo.Two, Suit.Diamonds, Rank.King),
-                Chip = Team.Green,
-                Coord = new Coord(4, 2),
-                Index = 2,
-                NextPlayerId = new PlayerId(2),
-            });
+            await AddEventAsync(db, gameId, new GameEvent(
+                byPlayerId: new PlayerId(1),
+                cardDrawn: null,
+                cardUsed: new Card(DeckNo.Two, Suit.Diamonds, Rank.King),
+                chip: Team.Green,
+                coord: new Coord(4, 2),
+                index: 2,
+                nextPlayerId: new PlayerId(2),
+                sequences: ImmutableArray<Seq>.Empty,
+                winner: null));
 
             var sut = new PostgresGameStateProvider(
-                new PostgresGameProvider(db)
-            );
+                new PostgresGameProvider(db));
 
             // Then:
             var game = await sut.GetGameByIdAsync(gameId, CancellationToken.None);
@@ -67,20 +65,19 @@ namespace Sequence.Test.Postgres
             var db = await CreateDatabaseAsync();
             var gameId = await CreateGameAsync(db);
 
-            await AddEventAsync(db, gameId, new GameEvent
-            {
-                ByPlayerId = new PlayerId(1),
-                CardDrawn = new Card(DeckNo.One, Suit.Spades, Rank.Five),
-                CardUsed = new Card(DeckNo.Two, Suit.Diamonds, Rank.King),
-                Chip = Team.Green,
-                Coord = new Coord(4, 2),
-                Index = 2,
-                NextPlayerId = new PlayerId(2),
-            });
+            await AddEventAsync(db, gameId, new GameEvent(
+                byPlayerId: new PlayerId(1),
+                cardDrawn: new Card(DeckNo.One, Suit.Spades, Rank.Five),
+                cardUsed: new Card(DeckNo.Two, Suit.Diamonds, Rank.King),
+                chip: Team.Green,
+                coord: new Coord(4, 2),
+                index: 2,
+                nextPlayerId: new PlayerId(2),
+                sequences: ImmutableArray<Seq>.Empty,
+                winner: null));
 
             var sut = new PostgresGameStateProvider(
-                new PostgresGameProvider(db)
-            );
+                new PostgresGameProvider(db));
 
             // Then:
             var game = await sut.GetGameByIdAsync(gameId, CancellationToken.None);
@@ -96,29 +93,25 @@ namespace Sequence.Test.Postgres
             var db = await CreateDatabaseAsync();
             var gameId = await CreateGameAsync(db);
 
-            await AddEventAsync(db, gameId, new GameEvent
-            {
-                ByPlayerId = new PlayerId(1),
-                CardDrawn = new Card(DeckNo.One, Suit.Spades, Rank.Five),
-                CardUsed = new Card(DeckNo.Two, Suit.Diamonds, Rank.King),
-                Chip = Team.Green,
-                Coord = new Coord(4, 2),
-                Index = 2,
-                NextPlayerId = new PlayerId(2),
-                Sequences = new[]
-                {
+            await AddEventAsync(db, gameId, new GameEvent(
+                byPlayerId: new PlayerId(1),
+                cardDrawn: new Card(DeckNo.One, Suit.Spades, Rank.Five),
+                cardUsed: new Card(DeckNo.Two, Suit.Diamonds, Rank.King),
+                chip: Team.Green,
+                coord: new Coord(4, 2),
+                index: 2,
+                nextPlayerId: new PlayerId(2),
+                sequences: ImmutableArray.Create(
                     new Seq(Team.Blue, ImmutableList.Create(
                         new Coord(4, 2),
                         new Coord(5, 2),
                         new Coord(6, 2),
                         new Coord(7, 2),
-                        new Coord(8, 2))),
-                },
-            });
+                        new Coord(8, 2)))),
+                winner: null));
 
             var sut = new PostgresGameStateProvider(
-                new PostgresGameProvider(db)
-            );
+                new PostgresGameProvider(db));
 
             // Then:
             var game = await sut.GetGameByIdAsync(gameId, CancellationToken.None);

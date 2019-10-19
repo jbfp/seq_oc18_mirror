@@ -14,11 +14,6 @@ namespace Sequence.CreateGame
 
         public PlayerList(bool randomFirstPlayer, params NewPlayer[] players)
         {
-            if (players == null)
-            {
-                throw new ArgumentNullException(nameof(players));
-            }
-
             RandomFirstPlayer = randomFirstPlayer;
 
             if (!_allowedGameSizes.Contains(players.Length))

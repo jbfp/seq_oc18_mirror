@@ -18,9 +18,9 @@ namespace Sequence.PlayCard
             IGameEventStore store,
             IRealTimeContext realTime)
         {
-            _provider = provider ?? throw new ArgumentNullException(nameof(provider));
-            _store = store ?? throw new ArgumentNullException(nameof(store));
-            _realTime = realTime ?? throw new ArgumentNullException(nameof(realTime));
+            _provider = provider;
+            _store = store;
+            _realTime = realTime;
         }
 
         public async Task<IImmutableList<Move>> GetMovesForPlayerAsync(
@@ -60,16 +60,6 @@ namespace Sequence.PlayCard
             Coord coord,
             CancellationToken cancellationToken)
         {
-            if (player == null)
-            {
-                throw new ArgumentNullException(nameof(player));
-            }
-
-            if (card == null)
-            {
-                throw new ArgumentNullException(nameof(card));
-            }
-
             return DoThing(
                 gameId,
                 state => Game.PlayCard(state, player, card, coord),
@@ -83,16 +73,6 @@ namespace Sequence.PlayCard
             Coord coord,
             CancellationToken cancellationToken)
         {
-            if (player == null)
-            {
-                throw new ArgumentNullException(nameof(player));
-            }
-
-            if (card == null)
-            {
-                throw new ArgumentNullException(nameof(card));
-            }
-
             return DoThing(
                 gameId,
                 state => Game.PlayCard(state, player, card, coord),
@@ -105,16 +85,6 @@ namespace Sequence.PlayCard
             Card deadCard,
             CancellationToken cancellationToken)
         {
-            if (player == null)
-            {
-                throw new ArgumentNullException(nameof(player));
-            }
-
-            if (deadCard == null)
-            {
-                throw new ArgumentNullException(nameof(deadCard));
-            }
-
             return DoThing(
                 gameId,
                 state => Game.ExchangeDeadCard(state, player, deadCard),
@@ -127,16 +97,6 @@ namespace Sequence.PlayCard
             Card deadCard,
             CancellationToken cancellationToken)
         {
-            if (player == null)
-            {
-                throw new ArgumentNullException(nameof(player));
-            }
-
-            if (deadCard == null)
-            {
-                throw new ArgumentNullException(nameof(deadCard));
-            }
-
             return DoThing(
                 gameId,
                 state => Game.ExchangeDeadCard(state, player, deadCard),
@@ -148,11 +108,6 @@ namespace Sequence.PlayCard
             Func<GameState, GameEvent> doThing,
             CancellationToken cancellationToken)
         {
-            if (gameId == null)
-            {
-                throw new ArgumentNullException(nameof(gameId));
-            }
-
             cancellationToken.ThrowIfCancellationRequested();
 
             var state = await _provider.GetGameByIdAsync(gameId, cancellationToken);
@@ -169,7 +124,7 @@ namespace Sequence.PlayCard
             var _ = Task.Run(() =>
             {
                 var broadcast = _realTime.SendGameUpdatesAsync(
-                    gameId, newState.GenerateForPlayer((PlayerId)null));
+                    gameId, newState.GenerateForObserver());
 
                 var tasks = state
                     .PlayerIdByIdx

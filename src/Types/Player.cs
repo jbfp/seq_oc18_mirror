@@ -6,8 +6,8 @@ namespace Sequence
     {
         public Player(PlayerId id, PlayerHandle handle, PlayerType type = PlayerType.User)
         {
-            Id = id ?? throw new ArgumentNullException(nameof(id));
-            Handle = handle ?? throw new ArgumentNullException(nameof(handle));
+            Id = id;
+            Handle = handle;
 
             if (Enum.IsDefined(typeof(PlayerType), type))
             {
@@ -23,7 +23,7 @@ namespace Sequence
         public PlayerHandle Handle { get; }
         public PlayerType Type { get; }
 
-        public bool Equals(Player other) => Id.Equals(other?.Id);
+        public bool Equals(Player? other) => Id.Equals(other?.Id);
         public override bool Equals(object obj) => Equals(obj as Player);
         public override int GetHashCode() => Id.GetHashCode();
         public override string ToString() => Handle.ToString();

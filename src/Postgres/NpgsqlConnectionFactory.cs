@@ -21,25 +21,23 @@ namespace Sequence.Postgres
             NpgsqlConnection.GlobalTypeMapper.MapComposite<CoordComposite>("coord");
             NpgsqlConnection.GlobalTypeMapper.MapComposite<SequenceComposite>("sequence");
 
-            SqlMapper.AddTypeHandler<GameId>(new GameIdTypeHandler());
-            SqlMapper.AddTypeHandler<PlayerHandle>(new PlayerHandleTypeHandler());
-            SqlMapper.AddTypeHandler<PlayerId>(new PlayerIdTypeHandler());
-            SqlMapper.AddTypeHandler<Seed>(new SeedTypeHandler());
+            SqlMapper.AddTypeHandler(new GameIdTypeHandler());
+            SqlMapper.AddTypeHandler(new PlayerHandleTypeHandler());
+            SqlMapper.AddTypeHandler(new PlayerIdTypeHandler());
+            SqlMapper.AddTypeHandler(new SeedTypeHandler());
         }
-
-        private readonly IOptions<PostgresOptions> _options;
 
         public NpgsqlConnectionFactory(IOptions<PostgresOptions> options)
         {
-            _options = options ?? throw new ArgumentNullException(nameof(options));
+            ConnectionString = options.Value.ConnectionString
+                ?? throw new ArgumentNullException(nameof(options.Value.ConnectionString));
         }
 
-        public string ConnectionString => _options.Value.ConnectionString;
+        public string ConnectionString { get; }
 
         public async Task<NpgsqlConnection> CreateAndOpenAsync(CancellationToken cancellationToken)
         {
-            var connectionString = _options.Value.ConnectionString;
-            var connection = new NpgsqlConnection(connectionString);
+            var connection = new NpgsqlConnection(ConnectionString);
             await connection.OpenAsync(cancellationToken);
             return connection;
         }

@@ -19,9 +19,9 @@ namespace Sequence.Bots
             BotTaskHandler handler,
             ILogger<BotTaskObserver> logger)
         {
-            _observable = observable ?? throw new ArgumentNullException(nameof(observable));
-            _handler = handler ?? throw new ArgumentNullException(nameof(handler));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _observable = observable;
+            _handler = handler;
+            _logger = logger;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)

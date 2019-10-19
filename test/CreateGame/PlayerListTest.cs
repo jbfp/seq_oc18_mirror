@@ -8,12 +8,6 @@ namespace Sequence.Test.CreateGame
     public sealed class PlayerListTest
     {
         [Fact]
-        public void Constructor_NullArgs()
-        {
-            Assert.Throws<ArgumentNullException>(() => new PlayerList(randomFirstPlayer: false, players: null));
-        }
-
-        [Fact]
         public void Constructor_FailsIfAnyPlayersAreSame()
         {
             var player = TestPlayer.Get;

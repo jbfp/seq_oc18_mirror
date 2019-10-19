@@ -1,6 +1,5 @@
 using Microsoft.Extensions.Logging;
 using Sequence.PlayCard;
-using Sequence.RealTime;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -18,17 +17,12 @@ namespace Sequence.Bots
             PlayCardHandler playCardHandler,
             ILogger<BotTaskHandler> logger)
         {
-            _playCardHandler = playCardHandler ?? throw new ArgumentNullException(nameof(playCardHandler));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _playCardHandler = playCardHandler;
+            _logger = logger;
         }
 
         public async Task HandleBotTaskAsync(BotTask botTask, CancellationToken cancellationToken)
         {
-            if (botTask == null)
-            {
-                throw new ArgumentNullException(nameof(botTask));
-            }
-
             cancellationToken.ThrowIfCancellationRequested();
 
             var gameId = botTask.GameId;
@@ -52,7 +46,7 @@ namespace Sequence.Bots
             {
                 var bot = (IBot)Activator.CreateInstance(botType, nonPublic: true);
 
-                IEnumerable<GameUpdated> gameEvents = null;
+                IEnumerable<GameUpdated>? gameEvents = null;
 
                 // Make it look like the bot is thinking... :)
                 await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken);
@@ -61,7 +55,7 @@ namespace Sequence.Bots
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Move move = null;
+                    Move? move;
 
                     try
                     {

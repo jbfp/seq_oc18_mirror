@@ -4,7 +4,7 @@ namespace Sequence
 {
     public interface IBoardType
     {
-        ImmutableArray<ImmutableArray<Tile>> Board { get; }
+        ImmutableArray<ImmutableArray<Tile?>> Board { get; }
 
         IImmutableDictionary<Tile, (Coord, Coord)> CoordsByTile { get; }
     }

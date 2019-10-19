@@ -1,9 +1,8 @@
 using Dapper;
-using Sequence.CreateGame;
 using Sequence.Postgres;
-using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -15,18 +14,13 @@ namespace Sequence.Simulation
 
         public PostgresSimulationStore(NpgsqlConnectionFactory connectionFactory)
         {
-            _connectionFactory = connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
+            _connectionFactory = connectionFactory;
         }
 
         public async Task<IImmutableList<GameId>> GetSimulationsAsync(
             PlayerHandle player,
             CancellationToken cancellationToken)
         {
-            if (player == null)
-            {
-                throw new ArgumentNullException(nameof(player));
-            }
-
             cancellationToken.ThrowIfCancellationRequested();
 
             IEnumerable<GameId> gameIds;
@@ -57,11 +51,6 @@ namespace Sequence.Simulation
             NewSimulation newSimulation,
             CancellationToken cancellationToken)
         {
-            if (newSimulation == null)
-            {
-                throw new ArgumentNullException(nameof(newSimulation));
-            }
-
             cancellationToken.ThrowIfCancellationRequested();
 
             GameId gameId;
@@ -116,7 +105,7 @@ namespace Sequence.Simulation
                         var parameters = new
                         {
                             gameId = surrogateGameId,
-                            playerId = player.BotType.ToString(),
+                            playerId = player.BotType.ToString(CultureInfo.InvariantCulture),
                             playerType = PlayerType.Bot.ToString().ToLowerInvariant(),
                         };
 
@@ -188,12 +177,12 @@ namespace Sequence.Simulation
             return gameId;
         }
 
-#pragma warning disable CS0649
+#pragma warning disable CS0649, IDE1006, CS8618
         private sealed class insert_into_game
         {
             public int id;
             public GameId game_id;
         }
-#pragma warning restore CS0649
+#pragma warning restore CS0649, IDE1006, CS8618
     }
 }

@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using Sequence.AspNetCore;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading;
@@ -15,19 +16,19 @@ namespace Sequence.CreateGame
         private readonly CreateGameHandler _handler;
         private readonly ILogger _logger;
 
-        public CreateGameController(CreateGameHandler handler, ILogger<CreateGameController> logger)
+        public CreateGameController(
+            CreateGameHandler handler,
+            ILogger<CreateGameController> logger)
         {
-            _handler = handler ?? throw new ArgumentNullException(nameof(handler));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _handler = handler;
+            _logger = logger;
         }
 
         [HttpGet("/bots")]
         public ActionResult<BotListResult> Get()
         {
-            return new BotListResult
-            {
-                BotTypes = BotProvider.BotTypes.Keys.ToArray()
-            };
+            return new BotListResult(
+                BotProvider.BotTypes.Keys.ToImmutableArray());
         }
 
         [HttpPost("/games")]
@@ -36,7 +37,9 @@ namespace Sequence.CreateGame
             CancellationToken cancellationToken)
         {
             var players = form.Opponents
-                .Select(opponent => new NewPlayer(new PlayerHandle(opponent.Name), opponent.Type.Value))
+                .Select(opponent => new NewPlayer(
+                    new PlayerHandle(opponent.Name ?? throw new ArgumentNullException(nameof(opponent.Name))),
+                    opponent.Type ?? throw new ArgumentNullException(nameof(opponent.Type))))
                 .Prepend(new NewPlayer(Player, PlayerType.User))
                 .ToArray();
 
@@ -59,7 +62,7 @@ namespace Sequence.CreateGame
                 return BadRequest(new { error = "Duplicate players are not allowed." });
             }
 
-            var boardType = form.BoardType.Value;
+            var boardType = form.BoardType ?? throw new ArgumentNullException(nameof(form.BoardType));
             var numSequencesToWin = form.NumSequencesToWin;
 
             GameId gameId;
@@ -78,13 +81,20 @@ namespace Sequence.CreateGame
                 "Successfully created game with ID {GameId} for {Players}",
                 gameId, players);
 
-            return Created($"/games/{gameId}", new { gameId });
+            return Created(
+                new Uri($"/games/{gameId}", UriKind.Relative),
+                new { gameId });
         }
     }
 
     public sealed class BotListResult
     {
-        public string[] BotTypes { get; set; }
+        public BotListResult(IImmutableList<string> botTypes)
+        {
+            BotTypes = botTypes;
+        }
+
+        public IImmutableList<string> BotTypes { get; }
     }
 
     public sealed class CreateGameForm
@@ -96,7 +106,7 @@ namespace Sequence.CreateGame
         public int NumSequencesToWin { get; set; }
 
         [Required]
-        public Opponent[] Opponents { get; set; }
+        public IImmutableList<Opponent>? Opponents { get; set; }
 
         [Required]
         public bool RandomFirstPlayer { get; set; }
@@ -108,7 +118,7 @@ namespace Sequence.CreateGame
         public PlayerType? Type { get; set; }
 
         [Required]
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
@@ -116,11 +126,17 @@ namespace Sequence.CreateGame
             {
                 if (opponent.Type == PlayerType.Bot)
                 {
-                    var botType = opponent.Name;
+                    var name = opponent.Name;
 
-                    if (!BotProvider.BotTypes.ContainsKey(opponent.Name))
+                    if (name is null)
                     {
-                        var errorMessage = $"The bot type '{opponent.Name}' does not exist.";
+                        var errorMessage = "Name is null.";
+                        var memberNames = new[] { nameof(Name) };
+                        yield return new ValidationResult(errorMessage, memberNames);
+                    }
+                    else if (!BotProvider.BotTypes.ContainsKey(name))
+                    {
+                        var errorMessage = $"The bot type '{name}' does not exist.";
                         var memberNames = new[] { nameof(Name) };
                         yield return new ValidationResult(errorMessage, memberNames);
                     }

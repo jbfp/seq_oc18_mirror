@@ -10,20 +10,12 @@ namespace Sequence
 
     public static class BoardTypeExtensions
     {
-        public static Type ToType(this BoardType boardType)
+        public static Type ToType(this BoardType boardType) => boardType switch
         {
-            switch (boardType)
-            {
-                case BoardType.OneEyedJack:
-                    return typeof(OneEyedJackBoard);
-
-                case BoardType.Sequence:
-                    return typeof(SequenceBoard);
-
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(boardType), boardType, null);
-            }
-        }
+            BoardType.OneEyedJack => typeof(OneEyedJackBoard),
+            BoardType.Sequence => typeof(SequenceBoard),
+            _ => throw new ArgumentOutOfRangeException(nameof(boardType), boardType, null),
+        };
 
         public static IBoardType Create(this BoardType boardType)
         {

@@ -13,18 +13,13 @@ namespace Sequence.Postgres
 
         public PostgresGameProvider(NpgsqlConnectionFactory connectionFactory)
         {
-            _connectionFactory = connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
+            _connectionFactory = connectionFactory;
         }
 
-        public async Task<Tuple<GameInit, GameEvent[]>> GetById(
+        public async Task<Tuple<GameInit, GameEvent[]>?> GetById(
             GameId gameId,
             CancellationToken cancellationToken)
         {
-            if (gameId == null)
-            {
-                throw new ArgumentNullException(nameof(gameId));
-            }
-
             cancellationToken.ThrowIfCancellationRequested();
 
             GameInit init;
@@ -63,7 +58,7 @@ namespace Sequence.Postgres
 
                     rows = await connection
                         .QueryAsync<get_game_init_by_id>(command)
-                        .ContinueWith(t => t.Result.ToArray());
+                        .ContinueWith(t => t.Result.ToArray(), TaskScheduler.Current);
 
                     if (rows.Length == 0)
                     {
@@ -96,7 +91,7 @@ namespace Sequence.Postgres
                         WHERE g.game_id = @gameId
                         ORDER BY idx ASC;";
 
-                    var parameters = new { gameId = gameId };
+                    var parameters = new { gameId };
 
                     var command = new CommandDefinition(
                         commandText,
@@ -118,7 +113,7 @@ namespace Sequence.Postgres
             return Tuple.Create(init, gameEvents);
         }
 
-#pragma warning disable CS0649
+#pragma warning disable CS0649, IDE1006, CS8618
         private sealed class get_game_init_by_id
         {
             public PlayerId first_player_id;
@@ -129,6 +124,6 @@ namespace Sequence.Postgres
             public int num_sequences_to_win;
             public Seed seed;
         }
-#pragma warning restore CS0649
+#pragma warning restore CS0649, IDE1006, CS8618
     }
 }

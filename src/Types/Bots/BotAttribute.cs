@@ -7,11 +7,6 @@ namespace Sequence
     {
         public BotAttribute(string name)
         {
-            if (name == null)
-            {
-                throw new ArgumentNullException(nameof(name));
-            }
-
             if (string.IsNullOrWhiteSpace(name))
             {
                 throw new ArgumentException("Name must not be empty or white space.", nameof(name));

@@ -12,8 +12,8 @@ namespace Sequence.GetGame
 
         public Game(GameState initialState, params GameEvent[] gameEvents)
         {
-            _initialState = initialState ?? throw new ArgumentNullException(nameof(initialState));
-            _gameEvents = gameEvents ?? throw new ArgumentNullException(nameof(gameEvents));
+            _initialState = initialState;
+            _gameEvents = gameEvents;
         }
 
         public InitialGameState Init(PlayerHandle playerHandle)
@@ -38,15 +38,14 @@ namespace Sequence.GetGame
                 numCardsInDeck: state.Deck.Count,
                 playerHandle: isInGame ? state.PlayerHandleByIdx[playerIdx] : null,
                 playerId: isInGame ? state.PlayerIdByIdx[playerIdx] : null,
-                players: Enumerable.Range(0, state.NumberOfPlayers).Select(idx => new Player
-                {
-                    Handle = state.PlayerHandleByIdx[idx],
-                    Id = state.PlayerIdByIdx[idx],
-                    NumberOfCards = state.PlayerHandByIdx[idx].Count,
+                players: Enumerable.Range(0, state.NumberOfPlayers).Select(idx => new Player(
+                    handle: state.PlayerHandleByIdx[idx],
+                    id: state.PlayerIdByIdx[idx],
+                    numberOfCards: state.PlayerHandByIdx[idx].Count,
                     // Shift teams so that the calling player always appears as red.
-                    Team = isInGame ? GetTeam(playerIdx, idx) : GetTeam(idx),
-                    Type = state.PlayerTypeByIdx[idx],
-                }).ToImmutableList(),
+                    team: isInGame ? GetTeam(playerIdx, idx) : GetTeam(idx),
+                    type: state.PlayerTypeByIdx[idx]
+                )).ToImmutableList(),
                 team: isInGame ? Team.Red : (Team?)null,
                 winCondition: state.WinCondition
             );
@@ -62,6 +61,11 @@ namespace Sequence.GetGame
             return GenerateForPlayer(_initialState.PlayerIdByIdx.IndexOf(playerId));
         }
 
+        public IEnumerable<GameUpdated> GenerateForObserver()
+        {
+            return GenerateForPlayer(-1);
+        }
+
         private IEnumerable<GameUpdated> GenerateForPlayer(int playerIdx)
         {
             var state = _initialState;
@@ -72,11 +76,9 @@ namespace Sequence.GetGame
                 var currentState = previousState.Apply(gameEvent);
                 var events = GetEvents(playerIdx, gameEvent, previousState, currentState);
 
-                yield return new GameUpdated
-                {
-                    GameEvents = events.ToArray(),
-                    Version = gameEvent.Index,
-                };
+                yield return new GameUpdated(
+                    events.ToImmutableArray(),
+                    gameEvent.Index);
 
                 state = currentState;
             }
@@ -184,17 +186,12 @@ namespace Sequence.GetGame
 
         private static BoardType FromIBoardType(IBoardType boardType)
         {
-            switch (boardType)
+            return boardType switch
             {
-                case OneEyedJackBoard b1:
-                    return BoardType.OneEyedJack;
-
-                case SequenceBoard b2:
-                    return BoardType.Sequence;
-
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(boardType), boardType.GetType(), null);
-            }
+                OneEyedJackBoard _ => BoardType.OneEyedJack,
+                SequenceBoard _ => BoardType.Sequence,
+                _ => throw new ArgumentOutOfRangeException(nameof(boardType), boardType.GetType(), null),
+            };
         }
     }
 }

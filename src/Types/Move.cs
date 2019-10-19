@@ -6,7 +6,7 @@ namespace Sequence
     {
         public Move(Card card, Coord coord)
         {
-            Card = card ?? throw new ArgumentNullException(nameof(card));
+            Card = card;
             Coord = coord;
         }
 
@@ -19,7 +19,7 @@ namespace Sequence
             coord = Coord;
         }
 
-        public bool Equals(Move other)
+        public bool Equals(Move? other)
         {
             return other != null
                 && Card.Equals(other.Card)

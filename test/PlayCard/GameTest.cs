@@ -1,5 +1,4 @@
 using Sequence.PlayCard;
-using System;
 using System.Collections.Immutable;
 using Xunit;
 
@@ -9,13 +8,11 @@ namespace Sequence.Test.PlayCard
     {
         private readonly Player _player1 = new Player(
             new PlayerId(1),
-            new PlayerHandle("player 1")
-        );
+            new PlayerHandle("player 1"));
 
         private readonly Player _player2 = new Player(
             new PlayerId(2),
-            new PlayerHandle("player 2")
-        );
+            new PlayerHandle("player 2"));
 
         private readonly GameState _sut;
 
@@ -36,30 +33,6 @@ namespace Sequence.Test.PlayCard
                     new Seed(42),
                     BoardType.OneEyedJack,
                     2));
-        }
-
-        [Fact]
-        public void PlayCard_NullArgs()
-        {
-            Assert.Throws<ArgumentNullException>(
-                paramName: "state",
-                testCode: () => Game.PlayCard(state: null, _playerDummy, _cardDummy, _coordDummy)
-            );
-
-            Assert.Throws<ArgumentNullException>(
-                paramName: "player",
-                testCode: () => Game.PlayCard(_sut, player: (PlayerHandle)null, _cardDummy, _coordDummy)
-            );
-
-            Assert.Throws<ArgumentNullException>(
-                paramName: "player",
-                testCode: () => Game.PlayCard(_sut, player: (PlayerId)null, _cardDummy, _coordDummy)
-            );
-
-            Assert.Throws<ArgumentNullException>(
-                paramName: "card",
-                testCode: () => Game.PlayCard(_sut, _playerDummy, card: null, _coordDummy)
-            );
         }
 
         [Fact]
@@ -87,16 +60,16 @@ namespace Sequence.Test.PlayCard
         {
             var sut = _sut;
 
-            sut = GameState.Apply(sut, new GameEvent
-            {
-                ByPlayerId = _player2.Id,
-                CardDrawn = null,
-                CardUsed = _cardDummy,
-                Chip = Team.Green,
-                Coord = _coordDummy,
-                Index = 1,
-                NextPlayerId = _player1.Id,
-            });
+            sut = GameState.Apply(sut, new GameEvent(
+                byPlayerId: _player2.Id,
+                cardDrawn: null,
+                cardUsed: _cardDummy,
+                chip: Team.Green,
+                coord: _coordDummy,
+                index: 1,
+                nextPlayerId: _player1.Id,
+                sequences: ImmutableArray<Seq>.Empty,
+                winner: null));
 
             var card = new Card(DeckNo.Two, Suit.Spades, Rank.Ten);
 
@@ -136,16 +109,16 @@ namespace Sequence.Test.PlayCard
             var card = new Card(DeckNo.Two, Suit.Spades, Rank.Ten);
             var coord = new Coord(1, 9);
 
-            var expected = new GameEvent
-            {
-                ByPlayerId = _player1.Id,
-                CardDrawn = new Card(DeckNo.Two, Suit.Clubs, Rank.Ten),
-                CardUsed = card,
-                Chip = Team.Red,
-                Coord = coord,
-                Index = 1,
-                NextPlayerId = _player2.Id,
-            };
+            var expected = new GameEvent(
+                byPlayerId: _player1.Id,
+                cardDrawn: new Card(DeckNo.Two, Suit.Clubs, Rank.Ten),
+                cardUsed: card,
+                chip: Team.Red,
+                coord: coord,
+                index: 1,
+                nextPlayerId: _player2.Id,
+                sequences: ImmutableArray<Seq>.Empty,
+                winner: null);
 
             // When:
             var actual = Game.PlayCard(_sut, _player1.Handle, card, coord);
@@ -162,16 +135,16 @@ namespace Sequence.Test.PlayCard
             var sut = _sut;
 
             // Add a one-eyed jack to Player1 to use for this test.
-            sut = GameState.Apply(sut, new GameEvent
-            {
-                ByPlayerId = _player1.Id,
-                CardDrawn = card,
-                CardUsed = _cardDummy,
-                Chip = Team.Red,
-                Coord = new Coord(9, 9),
-                Index = 1,
-                NextPlayerId = _player1.Id,
-            });
+            sut = GameState.Apply(sut, new GameEvent(
+                byPlayerId: _player1.Id,
+                cardDrawn: card,
+                cardUsed: _cardDummy,
+                chip: Team.Red,
+                coord: new Coord(9, 9),
+                index: 1,
+                nextPlayerId: _player1.Id,
+                sequences: ImmutableArray<Seq>.Empty,
+                winner: null));
 
             var ex = Assert.Throws<PlayCardFailedException>(
                 () => Game.PlayCard(sut, _player1.Handle, card, coord)
@@ -188,16 +161,16 @@ namespace Sequence.Test.PlayCard
             var sut = _sut;
 
             // Add a one-eyed jack to Player1 to use for this test.
-            sut = GameState.Apply(sut, new GameEvent
-            {
-                ByPlayerId = _player1.Id,
-                CardDrawn = card,
-                CardUsed = _cardDummy,
-                Chip = Team.Red,
-                Coord = coord,
-                Index = 1,
-                NextPlayerId = _player1.Id,
-            });
+            sut = GameState.Apply(sut, new GameEvent(
+                byPlayerId: _player1.Id,
+                cardDrawn: card,
+                cardUsed: _cardDummy,
+                chip: Team.Red,
+                coord: coord,
+                index: 1,
+                nextPlayerId: _player1.Id,
+                sequences: ImmutableArray<Seq>.Empty,
+                winner: null));
 
             var ex = Assert.Throws<PlayCardFailedException>(
                 () => Game.PlayCard(sut, _player1.Handle, card, coord)
@@ -214,32 +187,29 @@ namespace Sequence.Test.PlayCard
             var sut = _sut;
 
             // Add Player1 sequence.
-            sut = GameState.Apply(sut, new GameEvent
-            {
-                ByPlayerId = _player1.Id,
-                CardDrawn = card,
-                CardUsed = _cardDummy,
-                Chip = Team.Red,
-                Coord = coord,
-                Index = 1,
-                NextPlayerId = _player2.Id,
-                Sequences = new[]
-                {
-                    new Seq(Team.Red, ImmutableArray.Create(coord, coord, coord, coord, coord))
-                },
-            });
+            sut = GameState.Apply(sut, new GameEvent(
+                byPlayerId: _player1.Id,
+                cardDrawn: card,
+                cardUsed: _cardDummy,
+                chip: Team.Red,
+                coord: coord,
+                index: 1,
+                nextPlayerId: _player2.Id,
+                sequences: ImmutableArray.Create(
+                    new Seq(Team.Red, ImmutableArray.Create(coord, coord, coord, coord, coord))),
+                winner: null));
 
             // Add a one-eyed jack to Player2 to use for this test.
-            sut = GameState.Apply(sut, new GameEvent
-            {
-                ByPlayerId = _player2.Id,
-                CardDrawn = card,
-                CardUsed = _cardDummy,
-                Chip = Team.Green,
-                Coord = new Coord(2, 4),
-                Index = 2,
-                NextPlayerId = _player2.Id,
-            });
+            sut = GameState.Apply(sut, new GameEvent(
+                byPlayerId: _player2.Id,
+                cardDrawn: card,
+                cardUsed: _cardDummy,
+                chip: Team.Green,
+                coord: new Coord(2, 4),
+                index: 2,
+                nextPlayerId: _player2.Id,
+                sequences: ImmutableArray<Seq>.Empty,
+                winner: null));
 
             var ex = Assert.Throws<PlayCardFailedException>(
                 () => Game.PlayCard(sut, _player2.Handle, card, coord)
@@ -257,43 +227,43 @@ namespace Sequence.Test.PlayCard
             var sut = _sut;
 
             // Add a one-eyed jack to Player1 to use for this test.
-            sut = GameState.Apply(sut, new GameEvent
-            {
-                ByPlayerId = _player1.Id,
-                CardDrawn = oneEyedJack,
-                CardUsed = _cardDummy,
-                Chip = Team.Red,
-                Coord = new Coord(9, 9),
-                Index = 1,
-                NextPlayerId = _player2.Id,
-            });
+            sut = GameState.Apply(sut, new GameEvent(
+                byPlayerId: _player1.Id,
+                cardDrawn: oneEyedJack,
+                cardUsed: _cardDummy,
+                chip: Team.Red,
+                coord: new Coord(9, 9),
+                index: 1,
+                nextPlayerId: _player2.Id,
+                sequences: ImmutableArray<Seq>.Empty,
+                winner: null));
 
             // Add a Team Green chip to some coordinate that Team Red can remove.
-            sut = GameState.Apply(sut, new GameEvent
-            {
-                ByPlayerId = _player2.Id,
-                CardDrawn = null,
-                CardUsed = _cardDummy,
-                Chip = Team.Green,
-                Coord = _coordDummy,
-                Index = 2,
-                NextPlayerId = _player1.Id,
-            });
+            sut = GameState.Apply(sut, new GameEvent(
+                byPlayerId: _player2.Id,
+                cardDrawn: null,
+                cardUsed: _cardDummy,
+                chip: Team.Green,
+                coord: _coordDummy,
+                index: 2,
+                nextPlayerId: _player1.Id,
+                sequences: ImmutableArray<Seq>.Empty,
+                winner: null));
 
             // When:
             var actual = Game.PlayCard(sut, _player1.Handle, oneEyedJack, coord);
 
             // Then:
-            var expected = new GameEvent
-            {
-                ByPlayerId = _player1.Id,
-                CardDrawn = new Card(DeckNo.Two, Suit.Clubs, Rank.Ten),
-                CardUsed = oneEyedJack,
-                Chip = null,
-                Coord = coord,
-                Index = 3,
-                NextPlayerId = _player2.Id,
-            };
+            var expected = new GameEvent(
+                byPlayerId: _player1.Id,
+                cardDrawn: new Card(DeckNo.Two, Suit.Clubs, Rank.Ten),
+                cardUsed: oneEyedJack,
+                chip: null,
+                coord: coord,
+                index: 3,
+                nextPlayerId: _player2.Id,
+                sequences: ImmutableArray<Seq>.Empty,
+                winner: null);
 
             Assert.Equal(expected, actual, new GameEventEqualityComparer());
         }

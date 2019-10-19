@@ -1,5 +1,3 @@
-using System;
-
 namespace Sequence
 {
     public interface IGameEvent
@@ -10,8 +8,8 @@ namespace Sequence
     {
         public CardDiscarded(PlayerId byPlayerId, Card card)
         {
-            ByPlayerId = byPlayerId ?? throw new ArgumentNullException(nameof(byPlayerId));
-            Card = card ?? throw new ArgumentNullException(nameof(card));
+            ByPlayerId = byPlayerId;
+            Card = card;
         }
 
         public PlayerId ByPlayerId { get; }
@@ -42,14 +40,14 @@ namespace Sequence
 
     public sealed class CardDrawn : IGameEvent
     {
-        public CardDrawn(PlayerId byPlayerId, Card card)
+        public CardDrawn(PlayerId byPlayerId, Card? card)
         {
-            ByPlayerId = byPlayerId ?? throw new ArgumentNullException(nameof(byPlayerId));
+            ByPlayerId = byPlayerId;
             Card = card;
         }
 
         public PlayerId ByPlayerId { get; }
-        public Card Card { get; }
+        public Card? Card { get; }
     }
 
     public sealed class DeckShuffled : IGameEvent
@@ -66,7 +64,7 @@ namespace Sequence
     {
         public CardDied(Card card)
         {
-            Card = card ?? throw new ArgumentNullException(nameof(card));
+            Card = card;
         }
 
         public Card Card { get; }
@@ -76,7 +74,7 @@ namespace Sequence
     {
         public CardRevived(Card card)
         {
-            Card = card ?? throw new ArgumentNullException(nameof(card));
+            Card = card;
         }
 
         public Card Card { get; }
@@ -86,7 +84,7 @@ namespace Sequence
     {
         public SequenceCreated(Seq sequence)
         {
-            Sequence = sequence ?? throw new ArgumentNullException(nameof(sequence));
+            Sequence = sequence;
         }
 
         public Seq Sequence { get; set; }
@@ -96,7 +94,7 @@ namespace Sequence
     {
         public TurnEnded(PlayerId nextPlayerId)
         {
-            NextPlayerId = nextPlayerId ?? throw new ArgumentNullException(nameof(nextPlayerId));
+            NextPlayerId = nextPlayerId;
         }
 
         public PlayerId NextPlayerId { get; }

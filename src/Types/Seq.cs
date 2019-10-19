@@ -16,7 +16,7 @@ namespace Sequence
                 throw new ArgumentException($"Must have {DefaultLength} coords.", nameof(coords));
             }
 
-            Coords = coords ?? throw new ArgumentNullException(nameof(coords));
+            Coords = coords;
         }
 
         public Team Team { get; }

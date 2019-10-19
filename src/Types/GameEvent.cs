@@ -1,15 +1,39 @@
+using System.Collections.Immutable;
+
 namespace Sequence
 {
     public sealed class GameEvent
     {
-        public PlayerId ByPlayerId { get; set; }
-        public Card CardDrawn { get; set; }
-        public Card CardUsed { get; set; }
-        public Team? Chip { get; set; }
-        public Coord Coord { get; set; }
-        public int Index { get; set; }
-        public PlayerId NextPlayerId { get; set; }
-        public Seq[] Sequences { get; set; } = new Seq[0];
-        public Team? Winner { get; set; }
+        public GameEvent(
+            PlayerId byPlayerId,
+            Card? cardDrawn,
+            Card cardUsed,
+            Team? chip,
+            Coord coord,
+            int index,
+            PlayerId? nextPlayerId,
+            IImmutableList<Seq> sequences,
+            Team? winner)
+        {
+            ByPlayerId = byPlayerId;
+            CardDrawn = cardDrawn;
+            CardUsed = cardUsed;
+            Chip = chip;
+            Coord = coord;
+            Index = index;
+            NextPlayerId = nextPlayerId;
+            Sequences = sequences;
+            Winner = winner;
+        }
+
+        public PlayerId ByPlayerId { get; }
+        public Card? CardDrawn { get; }
+        public Card CardUsed { get; }
+        public Team? Chip { get; }
+        public Coord Coord { get; }
+        public int Index { get; }
+        public PlayerId? NextPlayerId { get; }
+        public IImmutableList<Seq> Sequences { get; }
+        public Team? Winner { get; }
     }
 }

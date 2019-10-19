@@ -22,16 +22,6 @@ namespace Sequence
 
         public GameState(GameInit init, params GameEvent[] gameEvents)
         {
-            if (init == null)
-            {
-                throw new ArgumentNullException(nameof(init));
-            }
-
-            if (gameEvents == null)
-            {
-                throw new ArgumentNullException(nameof(gameEvents));
-            }
-
             _init = init;
 
             var numPlayers = init.Players.Count;
@@ -118,7 +108,7 @@ namespace Sequence
         public IImmutableDictionary<Coord, Team> Chips { get; } =
             ImmutableDictionary<Coord, Team>.Empty;
         public IImmutableSet<Coord> CoordsInSequence { get; } = ImmutableHashSet<Coord>.Empty;
-        public PlayerId CurrentPlayerId { get; }
+        public PlayerId? CurrentPlayerId { get; }
         public IImmutableSet<Card> DeadCards { get; } = ImmutableHashSet<Card>.Empty;
         public IImmutableList<Card> Deck { get; } = ImmutableList<Card>.Empty;
         public IImmutableList<Card> Discards { get; } = ImmutableList<Card>.Empty;
@@ -146,16 +136,6 @@ namespace Sequence
 
         public static GameState Apply(GameState state, GameEvent gameEvent)
         {
-            if (state == null)
-            {
-                throw new ArgumentNullException(nameof(state));
-            }
-
-            if (gameEvent == null)
-            {
-                throw new ArgumentNullException(nameof(gameEvent));
-            }
-
             return new GameState(state._init, state.GameEvents.Add(gameEvent).ToArray());
         }
 

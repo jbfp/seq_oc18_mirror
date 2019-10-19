@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
@@ -21,8 +20,8 @@ namespace Sequence
 
         public Startup(IHostingEnvironment env, IConfiguration configuration)
         {
-            _env = env ?? throw new ArgumentNullException(nameof(env));
-            _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+            _env = env;
+            _configuration = configuration;
         }
 
         public IServiceProvider ConfigureServices(IServiceCollection services)

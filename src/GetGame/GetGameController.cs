@@ -14,7 +14,7 @@ namespace Sequence.GetGame
 
         public GetGameController(IGameProvider provider)
         {
-            _provider = provider ?? throw new ArgumentNullException(nameof(provider));
+            _provider = provider;
         }
 
         [HttpGet("/boards")]

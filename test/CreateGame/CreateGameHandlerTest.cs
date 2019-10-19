@@ -1,8 +1,6 @@
 using Moq;
-using Sequence;
 using Sequence.CreateGame;
 using System;
-using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -11,31 +9,14 @@ namespace Sequence.Test.CreateGame
 {
     public sealed class CreateGameHandlerTest
     {
-        [Fact]
-        public void Constructor_NullArgs()
-        {
-            var randomFactory = Mock.Of<IRandomFactory>();
-            var gameStore = Mock.Of<IGameStore>();
-
-            Assert.Throws<ArgumentNullException>(
-                paramName: "randomFactory",
-                () => new CreateGameHandler(randomFactory: null, gameStore)
-            );
-
-            Assert.Throws<ArgumentNullException>(
-                paramName: "gameStore",
-                () => new CreateGameHandler(randomFactory, gameStore: null)
-            );
-        }
-
         private static readonly PlayerList _twoPlayers = new PlayerList(
             randomFirstPlayer: false,
             TestPlayer.Get,
             TestPlayer.Get);
 
-        private static readonly BoardType _boardType = BoardType.OneEyedJack;
+        private const BoardType _boardType = BoardType.OneEyedJack;
 
-        private static readonly int _numSequencesToWin = 2;
+        private const int _numSequencesToWin = 2;
 
         private readonly Mock<IRandomFactory> _randomFactory = new Mock<IRandomFactory>();
         private readonly Mock<IGameStore> _store = new Mock<IGameStore>();
@@ -48,15 +29,6 @@ namespace Sequence.Test.CreateGame
                 .Returns(new Random(42));
 
             _sut = new CreateGameHandler(_randomFactory.Object, _store.Object);
-        }
-
-        [Fact]
-        public async Task CreateGameAsync_NullArgs()
-        {
-            await Assert.ThrowsAsync<ArgumentNullException>(
-                paramName: "players",
-                testCode: () => _sut.CreateGameAsync(null, _boardType, _numSequencesToWin, CancellationToken.None)
-            );
         }
 
         [Fact]

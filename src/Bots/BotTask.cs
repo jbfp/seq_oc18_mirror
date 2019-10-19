@@ -1,13 +1,11 @@
-﻿using System;
-
-namespace Sequence.Bots
+﻿namespace Sequence.Bots
 {
     public sealed class BotTask
     {
         public BotTask(GameId gameId, Player player)
         {
-            GameId = gameId ?? throw new ArgumentNullException(nameof(gameId));
-            Player = player ?? throw new ArgumentNullException(nameof(player));
+            GameId = gameId;
+            Player = player;
         }
 
         public GameId GameId { get; }

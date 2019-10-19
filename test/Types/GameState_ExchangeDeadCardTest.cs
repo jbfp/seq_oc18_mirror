@@ -10,31 +10,30 @@ namespace Sequence.Test
                 players: ImmutableArray.Create(
                     new Player(
                         new PlayerId(1),
-                        new PlayerHandle("test 1")
-                    ),
+                        new PlayerHandle("test 1")),
                     new Player(
                         new PlayerId(2),
-                        new PlayerHandle("test 2")
-                    )
-                ),
+                        new PlayerHandle("test 2"))),
                 firstPlayerId: new PlayerId(1),
                 seed: new Seed(42),
                 boardType: BoardType.OneEyedJack,
-                numSequencesToWin: 2
-            )
-        );
+                numSequencesToWin: 2));
 
         [Fact]
         public void ExchangeDeadCardSetsFlag()
         {
             var sut = _default;
 
-            sut = _default.Apply(new GameEvent
-            {
-                ByPlayerId = sut.PlayerIdByIdx[0],
-                CardUsed = sut.PlayerHandByIdx[0][0],
-                Coord = new Coord(-1, -1), // Exchange dead card marker.
-            });
+            sut = _default.Apply(new GameEvent(
+                byPlayerId: sut.PlayerIdByIdx[0],
+                cardDrawn: null,
+                cardUsed: sut.PlayerHandByIdx[0][0],
+                chip: null,
+                coord: new Coord(-1, -1), // Exchange dead card marker.
+                index: 0,
+                nextPlayerId: null,
+                sequences: ImmutableArray<Seq>.Empty,
+                winner: null));
 
             Assert.True(sut.HasExchangedDeadCard);
         }

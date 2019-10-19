@@ -1,5 +1,4 @@
 using Microsoft.Extensions.DependencyInjection;
-using System;
 
 namespace Sequence.Simulation
 {
@@ -7,11 +6,6 @@ namespace Sequence.Simulation
     {
         public static IServiceCollection AddSimulationFeature(this IServiceCollection services)
         {
-            if (services == null)
-            {
-                throw new ArgumentNullException(nameof(services));
-            }
-
             return services
                 .AddScoped<SimulationHandler>()
                 .AddScoped<ISimulationStore, PostgresSimulationStore>();

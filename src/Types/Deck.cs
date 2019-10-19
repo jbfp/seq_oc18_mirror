@@ -23,9 +23,7 @@ namespace Sequence
             .Cast<Rank>()
             .ToImmutableArray();
 
-        private static readonly ImmutableArray<Card> _cards;
-
-        static Deck()
+        private static readonly Lazy<ImmutableArray<Card>> _cards = new Lazy<ImmutableArray<Card>>(() =>
         {
             var numCards = _deckNos.Length * _suits.Length * _ranks.Length;
             var builder = ImmutableArray.CreateBuilder<Card>(numCards);
@@ -41,8 +39,8 @@ namespace Sequence
                 }
             }
 
-            _cards = builder.ToImmutable();
-        }
+            return builder.ToImmutable();
+        }, isThreadSafe: true);
 
         private readonly Random _rng;
         private readonly List<Card> _deck;
@@ -51,7 +49,7 @@ namespace Sequence
         public Deck(Seed seed, int numPlayers)
         {
             _rng = seed.ToRandom();
-            _deck = _cards.ToList();
+            _deck = _cards.Value.ToList();
             _numPlayers = numPlayers;
 
             // Shuffle with Fisher-Yates algorithm.

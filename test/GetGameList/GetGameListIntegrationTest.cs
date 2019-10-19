@@ -1,10 +1,8 @@
 using Microsoft.AspNetCore.Mvc.Testing;
 using Newtonsoft.Json.Linq;
-using Sequence.GetGameList;
 using Sequence.Test.Postgres;
 using System;
 using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -13,7 +11,7 @@ namespace Sequence.Test.GetGameList
     [Trait("Category", "Integration")]
     public sealed class GetGameListIntegrationTest : IntegrationTestBase
     {
-        private const string BasePath = "/games";
+        private static readonly Uri BasePath = new Uri("/games", UriKind.Relative);
 
         public GetGameListIntegrationTest(
             PostgresDockerContainerFixture fixture,
@@ -25,20 +23,18 @@ namespace Sequence.Test.GetGameList
         [Fact]
         public async Task RoutesAreProtected()
         {
-            using (var response = await UnauthorizedClient.GetAsync(BasePath))
-            {
-                Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
-            }
+            using var response = await UnauthorizedClient.GetAsync(BasePath);
+
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
         }
 
 
         [Fact]
         public async Task GetGamesReturnsOk()
         {
-            using (var response = await AuthorizedClient.GetAsync("/games"))
-            {
-                Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            }
+            using var response = await AuthorizedClient.GetAsync(BasePath);
+
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
 
         [Fact]
@@ -48,7 +44,7 @@ namespace Sequence.Test.GetGameList
             await CreateGameAsync();
 
             // When:
-            var result = JObject.Parse(await AuthorizedClient.GetStringAsync("/games"));
+            var result = JObject.Parse(await AuthorizedClient.GetStringAsync(BasePath));
 
             // Then:
             var games = result["games"].ToObject<JArray>();

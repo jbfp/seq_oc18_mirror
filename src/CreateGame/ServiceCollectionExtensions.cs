@@ -7,11 +7,6 @@ namespace Sequence.CreateGame
     {
         public static IServiceCollection AddCreateGameFeature(this IServiceCollection services)
         {
-            if (services == null)
-            {
-                throw new ArgumentNullException(nameof(services));
-            }
-
             return services
                 .AddScoped<CreateGameHandler>()
                 .AddSingleton<IRandomFactory, SystemRandomFactory>()

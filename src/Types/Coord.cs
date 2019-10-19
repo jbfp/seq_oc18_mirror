@@ -15,9 +15,9 @@ namespace Sequence
 
         public bool Equals(Coord other) => Column.Equals(other.Column) && Row.Equals(other.Row);
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
-            if (ReferenceEquals(obj, null))
+            if (obj is null)
             {
                 return false;
             }
@@ -33,5 +33,8 @@ namespace Sequence
         public override int GetHashCode() => HashCode.Combine(Column, Row);
 
         public override string ToString() => $"(Column, Row): ({Column}, {Row})";
+
+        public static bool operator ==(Coord left, Coord right) => left.Equals(right);
+        public static bool operator !=(Coord left, Coord right) => !(left == right);
     }
 }

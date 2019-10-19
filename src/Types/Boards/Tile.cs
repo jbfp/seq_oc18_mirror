@@ -19,17 +19,17 @@ namespace Sequence
             rank = Rank;
         }
 
-        public bool Equals(Tile other) =>
+        public bool Equals(Tile? other) =>
             other != null &&
             Suit.Equals(other.Suit) &&
             Rank.Equals(other.Rank);
 
-        public bool Equals(Card other) =>
+        public bool Equals(Card? other) =>
             other != null &&
             Suit.Equals(other.Suit) &&
             Rank.Equals(other.Rank);
 
-        public override bool Equals(object obj) => Equals(obj as Tile) || Equals(obj as Card);
+        public override bool Equals(object? obj) => Equals(obj as Tile) || Equals(obj as Card);
 
         public override int GetHashCode() => HashCode.Combine(Suit, Rank);
 

@@ -1,6 +1,7 @@
 using Sequence.CreateGame;
 using Sequence.GetGameList;
 using Sequence.Test.Postgres;
+using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -42,15 +43,16 @@ namespace Sequence.Test.GetGameList
             var db = await CreateDatabaseAsync();
             var gameId = await CreateGameAsync(db);
 
-            await AddEventAsync(db, gameId, new GameEvent
-            {
-                ByPlayerId = new PlayerId(1),
-                CardUsed = new Card(DeckNo.One, Suit.Spades, Rank.Ace),
-                Chip = Team.Red,
-                Coord = new Coord(4, 2),
-                Index = 1,
-                NextPlayerId = null
-            });
+            await AddEventAsync(db, gameId, new GameEvent(
+                byPlayerId: new PlayerId(1),
+                cardDrawn: null,
+                cardUsed: new Card(DeckNo.One, Suit.Spades, Rank.Ace),
+                chip: Team.Red,
+                coord: new Coord(4, 2),
+                index: 1,
+                nextPlayerId: null,
+                sequences: ImmutableArray<Seq>.Empty,
+                winner: null));
 
             var sut = new PostgresGameListProvider(db);
 
@@ -68,8 +70,7 @@ namespace Sequence.Test.GetGameList
             // Given:
             var db = await CreateDatabaseAsync();
             var player = new PlayerHandle("Super Bot");
-            var gameId = await CreateGameAsync(db,
-                player1: new NewPlayer(player, PlayerType.Bot));
+            await CreateGameAsync(db, player1: new NewPlayer(player, PlayerType.Bot));
 
             var sut = new PostgresGameListProvider(db);
 

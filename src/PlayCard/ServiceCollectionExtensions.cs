@@ -1,5 +1,4 @@
 using Microsoft.Extensions.DependencyInjection;
-using System;
 
 namespace Sequence.PlayCard
 {
@@ -7,11 +6,6 @@ namespace Sequence.PlayCard
     {
         public static IServiceCollection AddPlayCardFeature(this IServiceCollection services)
         {
-            if (services == null)
-            {
-                throw new ArgumentNullException(nameof(services));
-            }
-
             return services
                 .AddScoped<PlayCardHandler>()
                 .AddScoped<IGameEventStore, PostgresGameEventStore>();

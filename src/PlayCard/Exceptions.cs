@@ -9,16 +9,40 @@ namespace Sequence.PlayCard
             Error = error;
         }
 
-        public PlayCardError Error { get; }
+        public PlayCardFailedException()
+        {
+        }
+
+        public PlayCardFailedException(string message) : base(message)
+        {
+        }
+
+        public PlayCardFailedException(string message, Exception innerException) : base(message, innerException)
+        {
+        }
+
+        public PlayCardError? Error { get; }
     }
 
     public sealed class ExchangeDeadCardFailedException : Exception
     {
-        public ExchangeDeadCardFailedException(ExchangeDeadCardError error) : base(error.ToString())
+        public ExchangeDeadCardFailedException(ExchangeDeadCardError error) : this(error.ToString())
         {
             Error = error;
         }
 
-        public ExchangeDeadCardError Error { get; }
+        public ExchangeDeadCardFailedException()
+        {
+        }
+
+        public ExchangeDeadCardFailedException(string? message) : this(message, null)
+        {
+        }
+
+        public ExchangeDeadCardFailedException(string? message, Exception? innerException) : base(message, innerException)
+        {
+        }
+
+        public ExchangeDeadCardError? Error { get; }
     }
 }

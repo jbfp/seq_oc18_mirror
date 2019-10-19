@@ -8,7 +8,7 @@ namespace Sequence.Test
 {
     public sealed class BoardExtensionsTest
     {
-        private static readonly Team _team = Team.Red;
+        private const Team _team = Team.Red;
 
         public static IEnumerable<object[]> Data => new List<object[]>
         {
@@ -29,14 +29,14 @@ namespace Sequence.Test
         {
             var coordsInSequence = ImmutableHashSet<Coord>.Empty;
             var boardSize = 10;
-            var boardBuilder = ImmutableArray.CreateBuilder<ImmutableArray<Tile>>();
+            var boardBuilder = ImmutableArray.CreateBuilder<ImmutableArray<Tile?>>();
 
             for (int i = 0; i < boardSize; i++)
             {
-                var row = ImmutableArray.CreateRange<Tile>(
+                var row = ImmutableArray.CreateRange(
                     Enumerable
                         .Range(0, 10)
-                        .Select(_ => (Tile)null));
+                        .Select(_ => (Tile?)null));
 
                 boardBuilder.Add(row);
             }
@@ -62,11 +62,11 @@ namespace Sequence.Test
         public void TwoSequencesCanShareOneCoord()
         {
             var boardSize = 10;
-            var boardBuilder = ImmutableArray.CreateBuilder<ImmutableArray<Tile>>();
+            var boardBuilder = ImmutableArray.CreateBuilder<ImmutableArray<Tile?>>();
 
             for (int i = 0; i < boardSize; i++)
             {
-                var row = ImmutableArray.CreateRange<Tile>(
+                var row = ImmutableArray.CreateRange<Tile?>(
                     Enumerable
                         .Range(0, 10)
                         .Select(_ => new Tile(Suit.Spades, Rank.Ace)));
@@ -87,7 +87,7 @@ namespace Sequence.Test
                 .Add(new Coord(1, 7), _team)
                 .Add(new Coord(1, 8), _team);
 
-            var coordsInSequence = ImmutableHashSet.Create<Coord>(
+            var coordsInSequence = ImmutableHashSet.Create(
                 new Coord(1, 4),
                 new Coord(1, 5),
                 new Coord(1, 6),
@@ -106,11 +106,11 @@ namespace Sequence.Test
         public void TwoInOneSequence()
         {
             var boardSize = 10;
-            var boardBuilder = ImmutableArray.CreateBuilder<ImmutableArray<Tile>>();
+            var boardBuilder = ImmutableArray.CreateBuilder<ImmutableArray<Tile?>>();
 
             for (int i = 0; i < boardSize; i++)
             {
-                var row = ImmutableArray.CreateRange<Tile>(
+                var row = ImmutableArray.CreateRange<Tile?>(
                     Enumerable
                         .Range(0, 10)
                         .Select(_ => new Tile(Suit.Spades, Rank.Ace)));

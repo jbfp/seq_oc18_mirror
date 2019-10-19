@@ -9,7 +9,7 @@ namespace Sequence.Test.PlayCard
         public override bool Equals(GameEvent x, GameEvent y)
         {
             return x.ByPlayerId.Equals(y.ByPlayerId)
-                && x.CardDrawn.Equals(y.CardDrawn)
+                && Equals(x.CardDrawn, y.CardDrawn)
                 && x.CardUsed.Equals(y.CardUsed)
                 && x.Chip.Equals(y.Chip)
                 && x.Coord.Equals(y.Coord)

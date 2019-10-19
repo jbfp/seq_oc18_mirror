@@ -17,7 +17,7 @@ namespace Sequence.Simulation
 
         public SimulationController(SimulationHandler handler)
         {
-            _handler = handler ?? throw new ArgumentNullException(nameof(handler));
+            _handler = handler;
         }
 
         [HttpGet]
@@ -32,15 +32,13 @@ namespace Sequence.Simulation
             [FromBody] SimulationForm form,
             CancellationToken cancellationToken)
         {
-            var parameters = new SimulationParams
-            {
-                BoardType = form.BoardType.Value,
-                CreatedBy = Player,
-                Players = form.Bots.Select(type => new Bot(type)).ToImmutableList(),
-                RandomFirstPlayer = form.RandomFirstPlayer,
-                Seed = new Seed(form.Seed.Value),
-                WinCondition = form.NumSequencesToWin,
-            };
+            var parameters = new SimulationParams(
+                boardType: form.BoardType ?? throw new ArgumentNullException(nameof(form.BoardType)),
+                createdBy: Player,
+                players: form.Bots.Select(type => new Bot(type)).ToImmutableList(),
+                randomFirstPlayer: form.RandomFirstPlayer,
+                seed: new Seed(form.Seed ?? throw new ArgumentNullException(nameof(form.Seed))),
+                winCondition: form.NumSequencesToWin);
 
             GameId gameId;
 
@@ -53,7 +51,9 @@ namespace Sequence.Simulation
                 return BadRequest(new { error = "Number of sequences to win is invalid." });
             }
 
-            return Created($"/simulations/{gameId}", new { gameId });
+            return Created(
+                new Uri($"/simulations/{gameId}", UriKind.Relative),
+                new { gameId });
         }
     }
 
@@ -66,7 +66,7 @@ namespace Sequence.Simulation
         public int NumSequencesToWin { get; set; }
 
         [Required]
-        public string[] Bots { get; set; }
+        public IImmutableList<string>? Bots { get; set; }
 
         [Required]
         public bool RandomFirstPlayer { get; set; }
@@ -77,23 +77,30 @@ namespace Sequence.Simulation
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
             var validGameSizes = new[] { 2, 3, 4, 6 };
-
-            if (validationContext.ObjectInstance is SimulationForm form)
+            
+            if (validationContext.ObjectInstance is SimulationForm)
             {
-                if (!validGameSizes.Contains(Bots.Length))
+                if (Bots is null)
                 {
-                    var errorMessage = "Game size is not valid.";
-                    var memberNames = new[] { nameof(Bots) };
-                    yield return new ValidationResult(errorMessage, memberNames);
+                    yield return new ValidationResult("Bots is null.", new[] { nameof(Bots) });
                 }
-
-                foreach (var bot in Bots)
+                else
                 {
-                    if (!BotProvider.BotTypes.ContainsKey(bot))
+                    if (!validGameSizes.Contains(Bots.Count))
                     {
-                        var errorMessage = $"The bot type '{bot}' does not exist.";
+                        var errorMessage = "Game size is not valid.";
                         var memberNames = new[] { nameof(Bots) };
                         yield return new ValidationResult(errorMessage, memberNames);
+                    }
+
+                    foreach (var bot in Bots)
+                    {
+                        if (!BotProvider.BotTypes.ContainsKey(bot))
+                        {
+                            var errorMessage = $"The bot type '{bot}' does not exist.";
+                            var memberNames = new[] { nameof(Bots) };
+                            yield return new ValidationResult(errorMessage, memberNames);
+                        }
                     }
                 }
             }

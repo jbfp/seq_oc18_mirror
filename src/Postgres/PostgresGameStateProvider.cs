@@ -1,4 +1,3 @@
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -10,10 +9,10 @@ namespace Sequence.Postgres
 
         public PostgresGameStateProvider(PostgresGameProvider gameProvider)
         {
-            _gameProvider = gameProvider ?? throw new ArgumentNullException(nameof(gameProvider));
+            _gameProvider = gameProvider;
         }
 
-        public async Task<GameState> GetGameByIdAsync(
+        public async Task<GameState?> GetGameByIdAsync(
             GameId gameId,
             CancellationToken cancellationToken)
         {

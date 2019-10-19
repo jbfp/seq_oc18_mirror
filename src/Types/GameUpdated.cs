@@ -1,8 +1,16 @@
+using System.Collections.Immutable;
+
 namespace Sequence
 {
     public sealed class GameUpdated
     {
-        public IGameEvent[] GameEvents { get; set; }
-        public int Version { get; set; }
+        public GameUpdated(IImmutableList<IGameEvent> gameEvents, int version)
+        {
+            GameEvents = gameEvents;
+            Version = version;
+        }
+
+        public IImmutableList<IGameEvent> GameEvents { get; }
+        public int Version { get; }
     }
 }

@@ -13,13 +13,11 @@ namespace Sequence.Test.PlayCard
     {
         private static readonly Player _player1 = new Player(
             new PlayerId(1),
-            new PlayerHandle("player 1")
-        );
+            new PlayerHandle("player 1"));
 
         private static readonly Player _player2 = new Player(
             new PlayerId(2),
-            new PlayerHandle("player 2")
-        );
+            new PlayerHandle("player 2"));
 
         private readonly Mock<IGameStateProvider> _provider = new Mock<IGameStateProvider>();
         private readonly Mock<IGameEventStore> _store = new Mock<IGameEventStore>();
@@ -36,7 +34,7 @@ namespace Sequence.Test.PlayCard
         {
             _provider
                 .Setup(p => p.GetGameByIdAsync(_gameId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((GameState)null)
+                .ReturnsAsync((GameState?)null)
                 .Verifiable();
 
             _store
@@ -59,50 +57,27 @@ namespace Sequence.Test.PlayCard
                 _player1.Id,
                 new Seed(42),
                 BoardType.OneEyedJack,
-                2
-            )).Apply(new GameEvent
-            {
-                ByPlayerId = _player1.Id,
-                CardUsed = new Card(DeckNo.One, Suit.Clubs, Rank.Jack),
-                Chip = Team.Red,
-                Coord = new Coord(1, 9),
-                Index = 1,
-                NextPlayerId = _player1.Id,
-            }).Apply(new GameEvent
-            {
-                ByPlayerId = _player1.Id,
-                CardUsed = new Card(DeckNo.Two, Suit.Clubs, Rank.Jack),
-                Chip = Team.Red,
-                Coord = new Coord(8, 0),
-                Index = 2,
-                NextPlayerId = _player1.Id,
-            });
-        }
-
-        [Fact]
-        public async Task ThrowsWhenArgsAreNull()
-        {
-            var player = new PlayerHandle("123");
-
-            await Assert.ThrowsAsync<ArgumentNullException>(
-                paramName: "gameId",
-                testCode: () => _sut.ExchangeDeadCardAsync(gameId: null, player, _deadCard, CancellationToken.None)
-            );
-
-            await Assert.ThrowsAsync<ArgumentNullException>(
-                paramName: "player",
-                testCode: () => _sut.ExchangeDeadCardAsync(_gameId, player: (PlayerHandle)null, _deadCard, CancellationToken.None)
-            );
-
-            await Assert.ThrowsAsync<ArgumentNullException>(
-                paramName: "player",
-                testCode: () => _sut.ExchangeDeadCardAsync(_gameId, player: (PlayerId)null, _deadCard, CancellationToken.None)
-            );
-
-            await Assert.ThrowsAsync<ArgumentNullException>(
-                paramName: "deadCard",
-                testCode: () => _sut.ExchangeDeadCardAsync(_gameId, player, deadCard: null, CancellationToken.None)
-            );
+                2))
+                .Apply(new GameEvent(
+                    byPlayerId: _player1.Id,
+                    cardDrawn: null,
+                    cardUsed: new Card(DeckNo.One, Suit.Clubs, Rank.Jack),
+                    chip: Team.Red,
+                    coord: new Coord(1, 9),
+                    index: 1,
+                    nextPlayerId: _player1.Id,
+                    sequences: ImmutableArray<Seq>.Empty,
+                    winner: null))
+                .Apply(new GameEvent(
+                    byPlayerId: _player1.Id,
+                    cardDrawn: null,
+                    cardUsed: new Card(DeckNo.Two, Suit.Clubs, Rank.Jack),
+                    chip: Team.Red,
+                    coord: new Coord(8, 0),
+                    index: 2,
+                    nextPlayerId: _player1.Id,
+                    sequences: ImmutableArray<Seq>.Empty,
+                    winner: null));
         }
 
         [Fact]

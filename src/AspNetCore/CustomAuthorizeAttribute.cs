@@ -4,6 +4,7 @@ using System;
 
 namespace Sequence.AspNetCore
 {
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
     internal sealed class CustomAuthorizeAttribute : Attribute, IAuthorizationFilter
     {
         public void OnAuthorization(AuthorizationFilterContext context)

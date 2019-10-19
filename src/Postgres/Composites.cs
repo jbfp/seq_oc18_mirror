@@ -3,14 +3,14 @@ using System.Linq;
 
 namespace Sequence.Postgres
 {
-#pragma warning disable CS0649
+#pragma warning disable CS0649, CS8618
     internal sealed class CardComposite
     {
         public DeckNo deckno;
         public Suit suit;
         public Rank rank;
 
-        public static CardComposite FromCard(Card card)
+        public static CardComposite? FromCard(Card? card)
         {
             if (card == null)
             {
@@ -57,5 +57,5 @@ namespace Sequence.Postgres
             seq.team,
             seq.coords.Select(c => c.ToCoord()).ToImmutableList());
     }
-#pragma warning restore CS0649
+#pragma warning restore CS0649, CS8618
 }
