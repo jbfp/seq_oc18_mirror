@@ -246,3 +246,5 @@ logs/
 
 # IdentityServer developer key.
 tempkey.rsa
+
+launchSettings.json
