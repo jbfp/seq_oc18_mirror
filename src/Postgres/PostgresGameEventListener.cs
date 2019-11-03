@@ -43,7 +43,7 @@ namespace Sequence.Postgres
                         action => new NotificationEventHandler((_, args) => action(args)),
                         handler => connection.Notification += handler,
                         handler => connection.Notification -= handler)
-                    .Select(args => args.AdditionalInformation)
+                    .Select(args => args.Payload)
                     .Select(JsonConvert.DeserializeObject<GameEventRow>)
                     .Select(MapToReturnType);
 
