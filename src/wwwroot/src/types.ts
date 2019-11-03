@@ -3,7 +3,7 @@ export enum BoardType {
     Sequence = 'sequence',
 }
 
-export type Board = Array<Array<Tile>>;
+export type Board = Tile[][];
 
 export type GameId = string;
 
@@ -93,7 +93,7 @@ export interface CardPlayedError {
 }
 
 export enum LoadGameResponseKind {
-    Ok, NotFound, Error
+    Ok, NotFound, Error,
 }
 
 export interface OkLoadGameResponse {

@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
-import * as t from "../types";
+import * as t from '../types';
 
 interface CardProps {
     card: t.Card;
@@ -24,7 +24,6 @@ export default function Card(props: CardProps) {
             data-dead={isDead}
             data-selected={isSelected}
             onClick={handleCardClick}
-        ></div>
+        />
     );
 }
-

@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { cardKey } from "./helpers";
 import * as t from '../types';
 import Card from './Card';
+import { cardKey } from './helpers';
 
 interface HandProps {
     cards: t.Card[];
@@ -84,7 +84,7 @@ export default function Hand(props: HandProps) {
         window.addEventListener('touchend', handleTouchEnd, false);
 
         return () => document.removeEventListener('touchend', handleTouchEnd, false);
-    }), [];
+    }, []);
 
     useEffect(() => {
         function handleDeviceOrientation({ beta }: DeviceOrientationEvent) {
@@ -118,25 +118,27 @@ export default function Hand(props: HandProps) {
         return () => window.removeEventListener('deviceorientation', handleDeviceOrientation, false);
     }, [hideCards]);
 
+    const $cards = cards.map((card, idx) => {
+        const key = cardKey(card);
+        const isDead = deadCards.has(key);
+
+        return (
+            <div key={key} className="hand-card">
+                <Card
+                    card={card}
+                    isDead={isDead}
+                    isSelected={key === selectedCardKey}
+                    onCardClick={onCardClick}
+                />
+
+                <kbd>{idx + 1}</kbd>
+            </div>
+        );
+    });
+
     return (
         <div className={classes.join(' ')}>
-            {cards.map((card, idx) => {
-                const key = cardKey(card);
-                const isDead = deadCards.has(key);
-
-                return (
-                    <div key={key} className="hand-card">
-                        <Card
-                            card={card}
-                            isDead={isDead}
-                            isSelected={key === selectedCardKey}
-                            onCardClick={onCardClick}
-                        />
-
-                        <kbd>{idx + 1}</kbd>
-                    </div>
-                );
-            })}
+            {$cards}
         </div>
-    )
+    );
 }

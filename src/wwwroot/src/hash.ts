@@ -1,7 +1,7 @@
 const GET_HASH_PATH = '/hash.txt';
 
 const GET_HASH_REQUEST = Object.freeze({
-    headers: { 'Accept': 'text/plain' },
+    headers: { Accept: 'text/plain' },
 });
 
 export async function getHashAsync() {

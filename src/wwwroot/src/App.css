@@ -1,3 +1,25 @@
+.anchor {
+    background: none;
+    border: none;
+    color: #333333;
+    cursor: pointer;
+    display: inline-block;
+    float: none;
+    font-size: inherit;
+    line-height: inherit;
+    margin: 0;
+    padding: 0;
+    position: static;
+    text-decoration: underline;
+    text-align: inherit;
+    width: auto;
+    z-index: auto;
+}
+
+.anchor:hover {
+    text-decoration: underline;
+}
+
 .layout {
     display: flex;
     flex-direction: column;
@@ -55,6 +77,7 @@
     .layout-footer {
         flex-direction: column;
     }
+
     .layout-footer>* {
         padding: 0.25em;
     }
@@ -91,6 +114,7 @@
     .layout {
         width: 100%;
     }
+
     .layout-header-title,
     .layout-header-subtitle {
         font-size: 24pt;
@@ -102,9 +126,11 @@
         flex-direction: column;
         margin: 0;
     }
+
     .layout-header-subtitle {
         margin: 0;
     }
+
     .layout-header-title h1,
     .layout-header-subtitle h2 {
         font-size: 20pt;

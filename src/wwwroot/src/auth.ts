@@ -11,7 +11,7 @@ class Authentication {
         return this.userName.length > 0;
     }
 
-    async signInAsync(userName: string) {
+    public async signInAsync(userName: string) {
         if (userName.length === 0) {
             throw new Error('user name is not valid.');
         }
@@ -20,7 +20,7 @@ class Authentication {
         window.localStorage.setItem(USER_NAME_KEY, this._userName);
     }
 
-    async signOutAsync() {
+    public async signOutAsync() {
         this._userName = '';
         window.localStorage.removeItem(USER_NAME_KEY);
     }

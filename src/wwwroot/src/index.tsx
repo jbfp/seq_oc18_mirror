@@ -6,8 +6,8 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App';
-import * as serviceWorker from './serviceWorker';
 import './index.css';
+import * as serviceWorker from './serviceWorker';
 
 ReactDOM.render((
     <BrowserRouter>
@@ -24,7 +24,7 @@ declare global {
 
 const LOG_URL = `${window.env.api}/logs`;
 
-window.addEventListener('error', async event => {
+window.addEventListener('error', async (event) => {
     // Cannot serialize Error from event so we convert it to a plain object first.
     // Spread operator does not work (i.e. {...error}).
     const error = event.error;
@@ -54,6 +54,6 @@ window.addEventListener('error', async event => {
 });
 
 // Number.isSafeInteger polyfill:
-Number.isSafeInteger = Number.isSafeInteger || function (value) {
+Number.isSafeInteger = Number.isSafeInteger || ((value) => {
     return Number.isInteger(value) && Math.abs(value) <= Number.MAX_SAFE_INTEGER;
-};
+});

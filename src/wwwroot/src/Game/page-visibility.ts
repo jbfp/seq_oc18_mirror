@@ -13,13 +13,13 @@ interface PageVisibility {
 
 let keys: PageVisibility | null;
 
-if (typeof document.hidden !== "undefined") {
+if (typeof document.hidden !== 'undefined') {
     keys = { hidden: 'hidden', visibilityChange: 'visibilitychange' };
-} else if (typeof document.mozHidden !== "undefined") {
+} else if (typeof document.mozHidden !== 'undefined') {
     keys = { hidden: 'mozHidden', visibilityChange: 'mozvisibilitychange' };
-} else if (typeof document.msHidden !== "undefined") {
+} else if (typeof document.msHidden !== 'undefined') {
     keys = { hidden: 'msHidden', visibilityChange: 'msvisibilitychange' };
-} else if (typeof document.webkitHidden !== "undefined") {
+} else if (typeof document.webkitHidden !== 'undefined') {
     keys = { hidden: 'webkitHidden', visibilityChange: 'webkitvisibilitychange' };
 } else {
     keys = null;

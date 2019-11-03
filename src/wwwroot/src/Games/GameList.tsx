@@ -18,14 +18,15 @@ export default function GameList(props: GameListProps) {
         );
     }
 
+    const $games = games.map((game) => (
+        <li key={game.gameId}>
+            <GameListItem {...game} userName={userName} />
+        </li>
+    ));
+
     return (
         <ul className="game-list">
-            {games.map(game => (
-                <li key={game.gameId}>
-                    <GameListItem {...game} userName={userName} />
-                </li>)
-            )}
+            {$games}
         </ul>
     );
 }
-

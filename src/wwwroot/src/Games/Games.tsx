@@ -1,9 +1,9 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { ServerContext } from '../contexts';
-import { Game, GameCollections } from './types';
+import * as t from '../types';
 import GamesView from './GamesView';
-import * as t from "../types";
-import { Link } from "react-router-dom";
+import { Game, GameCollections } from './types';
 
 export default function Games() {
     const context = useContext(ServerContext);
@@ -16,7 +16,7 @@ export default function Games() {
         const timerHandler = async () => {
             const promise0 = context
                 .getGamesAsync()
-                .then(allGames => mapAllGamesToCollection(allGames, userName))
+                .then((allGames) => mapAllGamesToCollection(allGames, userName))
                 .then(setGames);
 
             const promise1 = context
@@ -55,7 +55,7 @@ export default function Games() {
                 {simulations.length > 0 ?
                     (
                         <ul>
-                            {simulations.map(sim => (
+                            {simulations.map((sim) => (
                                 <li key={sim}>
                                     <Link to={`/games/${sim}`}>
                                         {sim}
@@ -89,15 +89,15 @@ function mapAllGamesToCollection(allGames: Game[], userName: string): GameCollec
     const yourTurn: Game[] = [];
     const theirTurn: Game[] = [];
 
-    allGames.map(game => {
+    allGames.map((game) => {
         return {
             ...game,
-            lastMoveAt: new Date(game.lastMoveAt)
+            lastMoveAt: new Date(game.lastMoveAt),
         };
-    }).forEach(game => {
+    }).forEach((game) => {
         if (game.currentPlayer) {
             if (game.currentPlayer === userName) {
-                yourTurn.push(game)
+                yourTurn.push(game);
             } else {
                 theirTurn.push(game);
             }

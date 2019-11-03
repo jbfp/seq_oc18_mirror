@@ -1,14 +1,14 @@
 import React, { useMemo } from 'react';
-import { Link } from "react-router-dom";
-import { GameState } from './reducer';
-import { cardKey } from "./helpers";
+import { Link } from 'react-router-dom';
 import * as t from '../types';
 import BoardView from './BoardView';
 import DeckView from './DeckView';
-import PlayerView from './PlayerView';
-import PlayersView from './PlayersView';
-import RulesView from './RulesView';
 import './Game.css';
+import { cardKey } from './helpers';
+import PlayersView from './PlayersView';
+import PlayerView from './PlayerView';
+import { GameState } from './reducer';
+import RulesView from './RulesView';
 
 interface GameViewProps {
     game: GameState;
@@ -27,7 +27,7 @@ export default function GameView(props: GameViewProps) {
     if (game.winnerTeam) {
         const players = game.players;
         const numPlayers = game.players.length;
-        const startIndex = players.findIndex(player => player.id === game.playerId);
+        const startIndex = players.findIndex((player) => player.id === game.playerId);
 
         const query = new URLSearchParams();
         query.append('board-type', game.boardType);
@@ -49,7 +49,7 @@ export default function GameView(props: GameViewProps) {
         );
     }
 
-    const players = game.players.map(player => {
+    const players = game.players.map((player) => {
         return {
             ...player,
             latestCardPlayed: game.latestCardPlayed.get(player.id) || null,
@@ -57,7 +57,7 @@ export default function GameView(props: GameViewProps) {
     });
 
     // Shift players array so that the player is always the top player in the opponent list.
-    const playerIdx = players.findIndex(player => player.id === game.playerId);
+    const playerIdx = players.findIndex((player) => player.id === game.playerId);
     const shiftedPlayers = playerIdx !== -1 ? [
         players[playerIdx],
         ...players.slice(playerIdx + 1),
@@ -80,6 +80,19 @@ export default function GameView(props: GameViewProps) {
         return null;
     }, [selectedCard]);
 
+    const $player = game.playerId ? (
+        <PlayerView
+            deadCards={game.deadCards}
+            hasExchangedDeadCard={game.hasExchangedDeadCard}
+            hand={hand!}
+            isCurrentPlayer={game.currentPlayerId === game.playerId}
+            onCardClick={onCardClick}
+            onExchangeDeadCardClick={onExchangeDeadCardClick}
+            selectedCardKey={selectedCardKey}
+            team={game.playerTeam!}
+        />
+    ) : null;
+
     return (
         <div>
             {reCreateLink}
@@ -87,7 +100,8 @@ export default function GameView(props: GameViewProps) {
             <PlayersView
                 currentPlayerId={game.currentPlayerId}
                 players={shiftedPlayers}
-                winner={game.winnerTeam} />
+                winner={game.winnerTeam}
+            />
 
             <BoardView
                 board={game.board}
@@ -97,18 +111,7 @@ export default function GameView(props: GameViewProps) {
                 onCoordClick={onCoordClick}
             />
 
-            {game.playerId ? (
-                <PlayerView
-                    deadCards={game.deadCards}
-                    hasExchangedDeadCard={game.hasExchangedDeadCard}
-                    hand={hand!}
-                    isCurrentPlayer={game.currentPlayerId === game.playerId}
-                    onCardClick={onCardClick}
-                    onExchangeDeadCardClick={onExchangeDeadCardClick}
-                    selectedCardKey={selectedCardKey}
-                    team={game.playerTeam!}
-                />
-            ) : null}
+            {$player}
 
             <div className="game-metadata">
                 <div>

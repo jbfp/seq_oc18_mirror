@@ -1,14 +1,14 @@
-import { History } from "history";
+import { History } from 'history';
+import shuffle from 'lodash.shuffle';
 import React, { useCallback, useContext, useReducer } from 'react';
 import { Link } from 'react-router-dom';
-import shuffle from 'lodash.shuffle';
-import { setBoardType, setBusy, setError, setGameSize, setOpponents, setRandomFirstPlayer, setWinCondition } from './actions';
 import { ServerContext } from '../contexts';
-import { reducer } from './reducer';
-import { BoardType } from "../types";
-import { GameSize, NewGameState, NumSequencesToWin, Opponent, OpponentType } from "./types";
-import Opponents from "./Opponents";
+import { BoardType } from '../types';
+import { setBoardType, setBusy, setError, setGameSize, setOpponents, setRandomFirstPlayer, setWinCondition } from './actions';
 import './NewGame.css';
+import Opponents from './Opponents';
+import { reducer } from './reducer';
+import { GameSize, NewGameState, NumSequencesToWin, Opponent, OpponentType } from './types';
 
 interface NewGameProps {
     history: History;
@@ -25,11 +25,11 @@ export default function NewGame(props: NewGameProps) {
         }
 
         if (query.has('win-condition')) {
-            init.numSequencesToWin = Number.parseInt(query.getAll('win-condition')[0]) as NumSequencesToWin;
+            init.numSequencesToWin = Number.parseInt(query.getAll('win-condition')[0], 10) as NumSequencesToWin;
         }
 
         if (query.has('num-players')) {
-            let numPlayers = Number.parseInt(query.getAll('num-players')[0]) - 1;
+            let numPlayers = Number.parseInt(query.getAll('num-players')[0], 10) - 1;
 
             if (numPlayers > GameSize.TwoVsTwoVsTwo) {
                 numPlayers = GameSize.TwoVsTwoVsTwo;
@@ -93,8 +93,8 @@ export default function NewGame(props: NewGameProps) {
             gameId = await context.createGameAsync({
                 boardType: state.boardType,
                 numSequencesToWin: state.numSequencesToWin,
+                opponents: state.opponents,
                 randomFirstPlayer: state.randomFirstPlayer,
-                opponents: state.opponents
             });
         } catch (e) {
             dispatch(setError(e.toString()));
@@ -108,7 +108,7 @@ export default function NewGame(props: NewGameProps) {
     }
 
     const disabled = state.opponents.length === 0
-        || state.opponents.some(opponent => opponent.name.length === 0)
+        || state.opponents.some((opponent) => opponent.name.length === 0)
         || state.boardType === null
         || state.numSequencesToWin === null
         || state.busy;
@@ -137,7 +137,7 @@ export default function NewGame(props: NewGameProps) {
                     ))}
                 </div>
 
-                <Opponents opponents={state.opponents} dispatch={dispatch}></Opponents>
+                <Opponents opponents={state.opponents} dispatch={dispatch} />
 
                 <label>
                     <input
@@ -196,8 +196,8 @@ export default function NewGame(props: NewGameProps) {
                                 min={1}
                                 max={4}
                                 value={state.numSequencesToWin || ''}
-                                onFocus={e => e.target.select()}
-                                onChange={event => dispatch(setWinCondition(event.target.valueAsNumber as NumSequencesToWin))}
+                                onFocus={(e) => e.target.select()}
+                                onChange={(event) => dispatch(setWinCondition(event.target.valueAsNumber as NumSequencesToWin))}
                                 readOnly={disabled}
                             />
                         </div>
@@ -227,9 +227,9 @@ const GameSizes: Array<[GameSize, string]> = [
 
 const initialState = Object.freeze<NewGameState>({
     boardType: BoardType.Sequence,
+    busy: false,
+    error: null,
     numSequencesToWin: null,
     opponents: [],
     randomFirstPlayer: true,
-    busy: false,
-    error: null,
 });

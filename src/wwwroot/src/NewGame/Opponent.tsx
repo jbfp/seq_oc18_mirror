@@ -2,7 +2,7 @@ import React from 'react';
 import { BackgroundColor, BotType, OpponentType } from './types';
 
 interface OpponentProps {
-    backgroundColor: BackgroundColor,
+    backgroundColor: BackgroundColor;
     botTypes: BotType[];
     index: number;
     name: string;
@@ -13,11 +13,11 @@ interface OpponentProps {
 
 const OpponentTypes: Array<[OpponentType, string]> = [
     [OpponentType.User, 'User'],
-    [OpponentType.Bot, 'Bot']
+    [OpponentType.Bot, 'Bot'],
 ];
 
 class Opponent extends React.PureComponent<OpponentProps> {
-    render() {
+    public render() {
         const { backgroundColor, botTypes, index, name, type } = this.props;
         const { onNameChange, onTypeChange } = this.props;
 
@@ -28,7 +28,7 @@ class Opponent extends React.PureComponent<OpponentProps> {
                 <input
                     type="text"
                     value={name}
-                    onChange={event => onNameChange(event.target.value)}
+                    onChange={(event) => onNameChange(event.target.value)}
                     placeholder={`Opponent #${index + 1}`}
                     autoFocus={true}
                 />
@@ -37,11 +37,11 @@ class Opponent extends React.PureComponent<OpponentProps> {
             $input = (
                 <select
                     value={name}
-                    onChange={event => onNameChange(event.target.value)}
+                    onChange={(event) => onNameChange(event.target.value)}
                     autoFocus={true}
                 >
                     <option value="">Select bot type</option>
-                    {botTypes.map(botType => (
+                    {botTypes.map((botType) => (
                         <option key={botType} value={botType}>{botType}</option>
                     ))}
                 </select>

@@ -12,7 +12,8 @@
                 "single",
                 "jsx-double"
             ]
-        }
+        },
+        "no-shadowed-variable": false
     },
     "rulesDirectory": []
 }

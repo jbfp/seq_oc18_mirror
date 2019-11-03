@@ -1,9 +1,9 @@
-import React, { useCallback, useContext, useMemo, useRef, useEffect, useState } from 'react';
 import * as SignalR from '@aspnet/signalr';
-import { ServerContext } from "../contexts";
-import { GameState, reducer } from './reducer';
-import * as t from "../types";
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { ServerContext } from '../contexts';
+import * as t from '../types';
 import GameView from './GameView';
+import { GameState, reducer } from './reducer';
 
 interface GameProps {
     id: t.GameId;
@@ -11,13 +11,12 @@ interface GameProps {
     onRequestReload: () => Promise<void>;
 }
 
-
 const HUB_URL = `${window.env.api}/game-hub`;
 
 const CONNECTION_OPTIONS: SignalR.IHttpConnectionOptions = {
+    logMessageContent: true,
     skipNegotiation: true,
     transport: SignalR.HttpTransportType.WebSockets,
-    logMessageContent: true,
 };
 
 async function startAsync(connection: SignalR.HubConnection, callback: () => Promise<void>) {
@@ -49,7 +48,7 @@ export default function Game(props: GameProps) {
 
     const handleUpdatesAsync = useCallback((update: t.GameUpdated) => {
         setUpdates((currentUpdates) => [...currentUpdates, update]);
-    }, [props.onRequestReload]);
+    }, []);
 
     useEffect(() => {
         const newUpdates = updates.filter((update) => update.version >= init.version);
@@ -63,7 +62,7 @@ export default function Game(props: GameProps) {
             .configureLogging(SignalR.LogLevel.Information)
             .build();
 
-        conn.on('UpdateGame', msg => handleUpdatesAsync(msg));
+        conn.on('UpdateGame', (msg) => handleUpdatesAsync(msg));
 
         async function handleConnectionStarted() {
             if (conn.state === SignalR.HubConnectionState.Connected) {
@@ -77,7 +76,7 @@ export default function Game(props: GameProps) {
             setTimeout(handleConnectionStarted, 5000);
         }
 
-        conn.onclose(async error => {
+        conn.onclose(async (error) => {
             if (error) {
                 await startAsync(conn, handleConnectionStarted);
             } else {
@@ -97,7 +96,7 @@ export default function Game(props: GameProps) {
     useEffect(() => {
         if (showNotifications.current === null && typeof Notification !== 'undefined') {
             const handlePermissionCallback = (result: NotificationPermission) => {
-                showNotifications.current = result === 'granted'
+                showNotifications.current = result === 'granted';
             };
 
             const promise = Notification.requestPermission();
@@ -112,7 +111,7 @@ export default function Game(props: GameProps) {
     }, []);
 
     const handleCardClick = useCallback((card: t.Card) => {
-        setSelectedCard(selectedCard => {
+        setSelectedCard((selectedCard) => {
             if (selectedCard === card) {
                 return null;
             } else {
@@ -138,7 +137,7 @@ export default function Game(props: GameProps) {
                 alert(err.toString());
             }
         }
-    }, [gameId, handleUpdatesAsync, selectedCard]);
+    }, [gameId, handleUpdatesAsync, selectedCard, server]);
 
     const handleExchangeDeadCardClick = useCallback(async () => {
         if (selectedCard) {
@@ -151,13 +150,13 @@ export default function Game(props: GameProps) {
                     const updates = (result as t.CardPlayed).updates;
                     console.assert(updates.length === 1);
                     setSelectedCard(null);
-                    await handleUpdatesAsync(updates[0]);
+                    handleUpdatesAsync(updates[0]);
                 }
             } catch (err) {
                 alert(err.toString());
             }
         }
-    }, [gameId, handleUpdatesAsync, selectedCard]);
+    }, [gameId, handleUpdatesAsync, selectedCard, server]);
 
     return (
         <GameView

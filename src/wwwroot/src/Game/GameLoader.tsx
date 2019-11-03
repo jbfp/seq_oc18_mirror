@@ -1,11 +1,11 @@
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { RouteComponentProps } from "react-router";
+import { RouteComponentProps } from 'react-router';
 import { Link } from 'react-router-dom';
 import { ServerContext } from '../contexts';
-import { GameState, init, reducer } from './reducer';
-import * as t from "../types";
-import PageVisibility from './page-visibility';
+import * as t from '../types';
 import Game from './Game';
+import PageVisibility from './page-visibility';
+import { GameState, init, reducer } from './reducer';
 
 interface GameLoaderProps {
     id: t.GameId;
@@ -34,7 +34,7 @@ export default function GameLoader(props: RouteComponentProps<GameLoaderProps>) 
             const initialState = init(result.init, result.board);
             const finalState = result.updates.reduce(reducer, initialState);
 
-            setState(currentState => {
+            setState((currentState) => {
                 if (currentState && currentState.version === finalState.version) {
                     return currentState;
                 } else {
@@ -46,7 +46,7 @@ export default function GameLoader(props: RouteComponentProps<GameLoaderProps>) 
         } else if (result.kind === t.LoadGameResponseKind.Error) {
             setError(result.error.message);
         }
-    }, [gameId]);
+    }, [gameId, context]);
 
     useEffect(() => {
         const timerHandler = async () => {
@@ -88,7 +88,9 @@ export default function GameLoader(props: RouteComponentProps<GameLoaderProps>) 
         elements.push((
             <div key="error">
                 Failed to load newest game state: {error}&nbsp;
-                <a href="#" onClick={loadGameAsync}>Click here to try again</a>.
+                <button className="anchor" type="button" onClick={loadGameAsync}>
+                    Click here to try again
+                </button>.
                 <br /><br />
             </div>
         ));

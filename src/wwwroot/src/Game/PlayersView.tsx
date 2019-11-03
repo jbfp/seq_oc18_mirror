@@ -14,17 +14,18 @@ interface PlayersViewProps {
 
 export default function PlayersView(props: PlayersViewProps) {
     const { currentPlayerId, players, winner } = props;
+    const $players = players.map((player) => (
+        <PlayerView
+            key={player.id}
+            {...player}
+            isCurrentPlayer={player.id === currentPlayerId}
+            isWinner={player.team === winner}
+        />
+    ));
 
     return (
         <div className="players">
-            {players.map(player => (
-                <PlayerView
-                    key={player.id}
-                    {...player}
-                    isCurrentPlayer={player.id === currentPlayerId}
-                    isWinner={player.team === winner}
-                />
-            ))}
+            {$players}
         </div>
     );
 }
@@ -41,7 +42,16 @@ interface PlayerViewProps {
 function PlayerView(props: PlayerViewProps) {
     const { handle, isCurrentPlayer, isWinner, latestCardPlayed, team } = props;
     const name = isWinner ? `👑 ${handle}` : handle;
-    const handleCardClick = useCallback(() => { }, []);
+    const handleCardClick = useCallback(() => undefined, []);
+    const $latestCardPlayed = latestCardPlayed === null ? null : (
+        <Card
+            card={latestCardPlayed}
+            className="small"
+            isDead={false}
+            isSelected={false}
+            onCardClick={handleCardClick}
+        />
+    );
 
     return (
         <div
@@ -56,13 +66,7 @@ function PlayerView(props: PlayerViewProps) {
             </div>
 
             <div>
-                {latestCardPlayed === null ? null : (<Card
-                    card={latestCardPlayed}
-                    className="small"
-                    isDead={false}
-                    isSelected={false}
-                    onCardClick={handleCardClick}
-                />)}
+                {$latestCardPlayed}
             </div>
         </div>
     );

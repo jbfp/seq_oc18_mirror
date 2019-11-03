@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { Link, Redirect, Route, RouteComponentProps, RouteProps, Switch, withRouter } from 'react-router-dom';
+import './App.css';
 import { Auth } from './auth';
-import { ServerContext } from "./contexts";
-import { getHashAsync } from './hash';
-import Server from "./server";
+import { ServerContext } from './contexts';
 import { Game } from './Game';
 import { Games } from './Games';
+import { getHashAsync } from './hash';
 import { Heartbeat } from './Heartbeat';
 import { Login } from './Login';
 import { NewGame } from './NewGame';
 import { NewSimulation } from './NewSimulation';
-import './App.css';
+import Server from './server';
 
 function ProtectedRoute(props: RouteProps) {
     const { component: Component, ...rest } = props;
@@ -23,8 +23,8 @@ function ProtectedRoute(props: RouteProps) {
         Auth.isAuthenticated
             ? <Component {...props} />
             : (<Redirect to={{
-                pathname: "/login",
-                state: { from: props.location }
+                pathname: '/login',
+                state: { from: props.location },
             }} />)
     );
 
@@ -53,9 +53,9 @@ function App(props: RouteProps) {
                     <h2>
                         <Switch>
                             <Route path="/login" render={() => 'sign in'} />
-                            <Route path="/" exact render={() => 'games'} />
-                            <Route path="/new-game" exact render={() => 'new game'} />
-                            <Route path="/new-simulation" exact render={() => 'new simulation'} />
+                            <Route path="/" exact={true} render={() => 'games'} />
+                            <Route path="/new-game" exact={true} render={() => 'new game'} />
+                            <Route path="/new-simulation" exact={true} render={() => 'new simulation'} />
                             <Route path="/games/:id" render={() => 'play'} />
                             <Route render={() => 'not found'} />
                         </Switch>
@@ -82,10 +82,10 @@ function App(props: RouteProps) {
                     <Route path="/login" component={Login} />
 
                     <ServerContext.Provider value={new Server(window.env.api, userName)}>
-                        <ProtectedRoute path="/" exact component={Games} />
-                        <ProtectedRoute path="/games" exact component={Games} />
-                        <ProtectedRoute path="/new-game" exact component={NewGame} />
-                        <ProtectedRoute path="/new-simulation" exact component={NewSimulation} />
+                        <ProtectedRoute path="/" exact={true} component={Games} />
+                        <ProtectedRoute path="/games" exact={true} component={Games} />
+                        <ProtectedRoute path="/new-game" exact={true} component={NewGame} />
+                        <ProtectedRoute path="/new-simulation" exact={true} component={NewSimulation} />
                         <ProtectedRoute path="/games/:id" component={Game} />
                     </ServerContext.Provider>
                 </Switch>
@@ -94,9 +94,11 @@ function App(props: RouteProps) {
             <hr className="layout-body-end" />
 
             <div className="layout-footer">
-                <span>© <a href="/">jbfp.dk</a>&nbsp;<Heartbeat></Heartbeat></span>
+                <span>© <a href="/">jbfp.dk</a>&nbsp;<Heartbeat /></span>
                 <span>By <a href="mailto:jakob@jbfp.dk">Jakob Pedersen</a></span>
-                <a href="https://www.linkedin.com/in/jakob-pedersen-835a824b" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+                <a href="https://www.linkedin.com/in/jakob-pedersen-835a824b" target="_blank" rel="noopener noreferrer">
+                    LinkedIn
+                </a>
                 <a href="https://github.com/jbfp" target="_blank" rel="noopener noreferrer">GitHub</a>
                 <a href={`https://github.com/jbfp/one_eyed_jack/commit/${hash}`} target="_blank" rel="noopener noreferrer">{hash}</a>
             </div>

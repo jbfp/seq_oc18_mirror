@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
-import { Chip, Coord, Tile } from "../types";
+import { Chip, Coord, Tile } from '../types';
 
 interface CellViewProps {
     chip: Chip | null;
@@ -11,7 +11,7 @@ interface CellViewProps {
 }
 
 export function JokerView() {
-    return <div className="cell" data-joker></div>;
+    return <div className="cell" data-joker={true} />;
 }
 
 export function CellView(props: CellViewProps) {
@@ -40,7 +40,7 @@ export function CellView(props: CellViewProps) {
         return chip === null
             ? {}
             : { 'data-chip': chip.team, 'data-sequence': chip.isLocked };
-    }, [chip])
+    }, [chip]);
 
     return (
         <div
@@ -48,7 +48,7 @@ export function CellView(props: CellViewProps) {
             onClick={handleCoordClick}
             data-suit={tile.suit}
             data-rank={tile.rank}
-            {...chipProps}>
-        </div>
+            {...chipProps}
+        />
     );
 }

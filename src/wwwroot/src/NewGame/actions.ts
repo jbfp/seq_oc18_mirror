@@ -1,5 +1,5 @@
-import { BoardType } from "../types";
-import { GameSize, NumSequencesToWin, Opponent, OpponentType } from "./types";
+import { BoardType } from '../types';
+import { GameSize, NumSequencesToWin, Opponent, OpponentType } from './types';
 
 export enum NewGameActionKind {
     SetBoardType = 'set-board-type',

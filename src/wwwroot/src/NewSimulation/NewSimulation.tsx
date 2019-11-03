@@ -1,4 +1,4 @@
-import { History } from "history";
+import { History } from 'history';
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ServerContext } from '../contexts';
@@ -17,7 +17,7 @@ export default function NewSimulation(props: NewSimulationProps) {
     const [boardType, setBoardType] = useState<BoardType>(BoardType.Sequence);
     const [winCondition, setWinCondition] = useState<number>(2);
     const [error, setError] = useState<string>('');
-    const [busy, setBusy] = useState<boolean>(false)
+    const [busy, setBusy] = useState<boolean>(false);
 
     useEffect(() => {
         server.getBotsAsync().then(setBotTypes);
@@ -25,7 +25,7 @@ export default function NewSimulation(props: NewSimulationProps) {
 
     const disabled = useMemo(() => {
         return players.length === 0
-            || players.some(player => player.length === 0)
+            || players.some((player) => player.length === 0)
             || boardType === null
             || winCondition === 0
             || busy;
@@ -54,7 +54,7 @@ export default function NewSimulation(props: NewSimulationProps) {
 
     const handleRandomFirstPlayerChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
         setRandomFirstPlayer(event.target.checked);
-    }, [])
+    }, []);
 
     const handleBoardTypeChange = useCallback((newBoardType: BoardType) => {
         return () => setBoardType(newBoardType);
@@ -77,10 +77,10 @@ export default function NewSimulation(props: NewSimulationProps) {
 
         try {
             gameId = await server.createSimulationAsync({
-                boardType: boardType,
-                numSequencesToWin: winCondition,
-                randomFirstPlayer: randomFirstPlayer,
+                boardType,
                 bots: players,
+                numSequencesToWin: winCondition,
+                randomFirstPlayer,
                 seed: Math.trunc(Math.random() * 2147483647),
             });
         } catch (e) {
@@ -92,7 +92,7 @@ export default function NewSimulation(props: NewSimulationProps) {
         if (gameId) {
             props.history.push(`/games/${gameId}`);
         }
-    }, [boardType, randomFirstPlayer, players, winCondition]);
+    }, [boardType, randomFirstPlayer, players, props.history, server, winCondition]);
 
     return (
         <div>
@@ -128,7 +128,7 @@ export default function NewSimulation(props: NewSimulationProps) {
                                 autoFocus={true}
                             >
                                 <option value="">Select bot type</option>
-                                {botTypes.map(botType => (
+                                {botTypes.map((botType) => (
                                     <option key={botType} value={botType}>{botType}</option>
                                 ))}
                             </select>

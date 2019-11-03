@@ -1,7 +1,7 @@
-import * as t from './types';
 import { Game } from './Games/types';
 import { CanCreateGame, CreateGameForm } from './NewGame/types';
 import { BotType, CanGetBotTypes } from './NewGame/types';
+import * as t from './types';
 
 interface CreateGameResponseBody {
   gameId: t.GameId;
@@ -27,7 +27,7 @@ interface CreateGameResponseError {
 class Server implements CanCreateGame, CanGetBotTypes {
   constructor(readonly endpoint: URL, readonly userName: string) { }
 
-  async createGameAsync(form: CreateGameForm): Promise<t.GameId> {
+  public async createGameAsync(form: CreateGameForm): Promise<t.GameId> {
     const url = this.buildUrl('games');
 
     const response = await fetch(url, {
@@ -43,9 +43,9 @@ class Server implements CanCreateGame, CanGetBotTypes {
     const responseBody: CreateGameResponseBody | CreateGameResponseError = await response.json();
 
     if (response.ok) {
-      return (<CreateGameResponseBody>responseBody).gameId;
+      return (responseBody as CreateGameResponseBody).gameId;
     } else {
-      throw new Error((<CreateGameResponseError>responseBody).error);
+      throw new Error((responseBody as CreateGameResponseError).error);
     }
   }
 
@@ -65,14 +65,14 @@ class Server implements CanCreateGame, CanGetBotTypes {
     const responseBody: CreateGameResponseBody | CreateGameResponseError = await response.json();
 
     if (response.ok) {
-      return (<CreateGameResponseBody>responseBody).gameId;
+      return (responseBody as CreateGameResponseBody).gameId;
     } else {
-      throw new Error((<CreateGameResponseError>responseBody).error);
+      throw new Error((responseBody as CreateGameResponseError).error);
     }
   }
 
-  async exchangeDeadCardAsync(
-    id: t.GameId, deadCard: t.Card
+  public async exchangeDeadCardAsync(
+    id: t.GameId, deadCard: t.Card,
   ): Promise<t.CardPlayed | t.CardPlayedError> {
     const url = this.buildUrl('games', id, 'dead-card');
 
@@ -81,7 +81,7 @@ class Server implements CanCreateGame, CanGetBotTypes {
       headers: {
         'Accept': 'application/json',
         'Authorization': this.userName,
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
       method: 'POST',
     });
@@ -89,13 +89,13 @@ class Server implements CanCreateGame, CanGetBotTypes {
     return await response.json();
   }
 
-  async getBoardAsync(boardType: t.BoardType): Promise<t.Board> {
+  public async getBoardAsync(boardType: t.BoardType): Promise<t.Board> {
     const url = this.buildUrl('boards', boardType.toString());
 
     const response = await fetch(url, {
       headers: {
-        'Accept': 'application/json',
-        'Authorization': this.userName,
+        Accept: 'application/json',
+        Authorization: this.userName,
       },
       method: 'GET',
     });
@@ -103,13 +103,13 @@ class Server implements CanCreateGame, CanGetBotTypes {
     return await response.json();
   }
 
-  async getBotsAsync(): Promise<BotType[]> {
+  public async getBotsAsync(): Promise<BotType[]> {
     const url = this.buildUrl('bots');
 
     const response = await fetch(url, {
       headers: {
-        'Accept': 'application/json',
-        'Authorization': this.userName,
+        Accept: 'application/json',
+        Authorization: this.userName,
       },
       method: 'GET',
     });
@@ -119,13 +119,13 @@ class Server implements CanCreateGame, CanGetBotTypes {
     return body.botTypes;
   }
 
-  async getGamesAsync() {
+  public async getGamesAsync() {
     const url = this.buildUrl('games');
 
     const response = await fetch(url, {
       headers: {
-        'Accept': 'application/json',
-        'Authorization': this.userName,
+        Accept: 'application/json',
+        Authorization: this.userName,
       },
       method: 'GET',
     });
@@ -135,14 +135,14 @@ class Server implements CanCreateGame, CanGetBotTypes {
     return body.games;
   }
 
-  async getGameByIdAsync(id: t.GameId): Promise<t.LoadGameResponse> {
+  public async getGameByIdAsync(id: t.GameId): Promise<t.LoadGameResponse> {
     const url = `${this.buildUrl('games', id)}`;
 
     try {
       const response = await fetch(url, {
         headers: {
-          'Accept': 'application/json',
-          'Authorization': this.userName,
+          Accept: 'application/json',
+          Authorization: this.userName,
         },
         method: 'GET',
       });
@@ -166,8 +166,8 @@ class Server implements CanCreateGame, CanGetBotTypes {
 
     const response = await fetch(url, {
       headers: {
-        'Accept': 'application/json',
-        'Authorization': this.userName,
+        Accept: 'application/json',
+        Authorization: this.userName,
       },
       method: 'GET',
     });
@@ -177,19 +177,19 @@ class Server implements CanCreateGame, CanGetBotTypes {
     return gameIds;
   }
 
-  async playCardAsync(
-    id: t.GameId, card: t.Card, coord: t.Coord
+  public async playCardAsync(
+    id: t.GameId, card: t.Card, coord: t.Coord,
   ): Promise<t.CardPlayed | t.CardPlayedError> {
     const url = this.buildUrl('games', id);
 
     const response = await fetch(url, {
       body: JSON.stringify({
-        card, ...coord
+        card, ...coord,
       }),
       headers: {
         'Accept': 'application/json',
         'Authorization': this.userName,
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
       method: 'POST',
     });

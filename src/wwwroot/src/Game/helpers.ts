@@ -1,10 +1,8 @@
 import * as t from '../types';
 
 export function keyedArray<TKey, TValue>(
-    xs: TValue[],
-    map: (x: TValue) => TKey
-): ReadonlyArray<[TKey, TValue]> {
-    return xs.map<[TKey, TValue]>(x => [map(x), x]);
+    { xs, mapKey }: { xs: TValue[]; mapKey: (x: TValue) => TKey; }): ReadonlyArray<[TKey, TValue]> {
+    return xs.map<[TKey, TValue]>((x) => [mapKey(x), x]);
 }
 
 export function cardKey(card: t.Card): string {

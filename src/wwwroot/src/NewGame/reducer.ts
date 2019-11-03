@@ -52,7 +52,7 @@ export function reducer(state: Readonly<NewGameState>, action: NewGameAction): R
 
 const defaultOpponent = Object.freeze<Opponent>({
     name: '',
-    type: OpponentType.User
+    type: OpponentType.User,
 });
 
 function getDefaultNumSequences(gameSize: GameSize): NumSequencesToWin {

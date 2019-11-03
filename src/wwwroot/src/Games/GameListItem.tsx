@@ -9,8 +9,7 @@ interface GameListItemProps extends Game {
 export default function GameListItem(props: GameListItemProps) {
     const { currentPlayer, gameId, lastMoveAt, opponents, userName } = props;
     const $opponents = opponents.join(', ');
-
-    let $elements = [];
+    const $elements = [];
 
     if (currentPlayer) {
         $elements.push((
@@ -38,7 +37,7 @@ export default function GameListItem(props: GameListItemProps) {
                 <div key="last-move-at">
                     <em>No moves yet</em>
                 </div>
-            ))
+            ));
         }
     } else {
         $elements.push((

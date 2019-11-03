@@ -1,5 +1,5 @@
 import * as t from '../types';
-import * as h from "./helpers";
+import * as h from './helpers';
 
 export interface GameState {
     board: t.Board;
@@ -25,11 +25,11 @@ export interface GameState {
 
 export function init(
     initialState: t.GameStarted,
-    board: t.Board
+    board: t.Board,
 ): Readonly<GameState> {
     const firstPlayer = initialState.players
-        .filter(player => player.id === initialState.firstPlayerId)
-        .map(player => player.handle)[0];
+        .filter((player) => player.id === initialState.firstPlayerId)
+        .map((player) => player.handle)[0];
 
     const isInGame = initialState.playerId !== null;
 
@@ -41,15 +41,17 @@ export function init(
         deadCards: new Map<string, t.Card>(),
         discards: [],
         firstPlayer,
-        hand: isInGame ? new Map<string, t.Card>(h.keyedArray(initialState.hand!, h.cardKey)) : null,
+        hand: isInGame
+            ? new Map<string, t.Card>(h.keyedArray({ xs: initialState.hand!, mapKey: h.cardKey }))
+            : null,
         hasExchangedDeadCard: false,
         latestCardPlayed: new Map<t.PlayerId, t.Card>(),
         latestMoveAt: null,
         numCardsInDeck: initialState.numCardsInDeck,
         playerHandle: initialState.playerHandle,
         playerId: initialState.playerId,
-        players: initialState.players,
         playerTeam: initialState.team,
+        players: initialState.players,
         version: 0,
         winCondition: initialState.winCondition,
         winnerTeam: null,
@@ -58,7 +60,7 @@ export function init(
 
 export function reducer(
     state: Readonly<GameState>,
-    update: Readonly<t.GameUpdated>
+    update: Readonly<t.GameUpdated>,
 ): Readonly<GameState> {
     return Object.freeze({
         ...update.gameEvents.reduce(reducerInternal, state),
@@ -68,7 +70,7 @@ export function reducer(
 
 function reducerInternal(
     state: Readonly<GameState>,
-    event: Readonly<t.GameEvents>
+    event: Readonly<t.GameEvents>,
 ): Readonly<GameState> {
     switch (event.kind) {
         case t.GameEventKind.CardDiscarded: {

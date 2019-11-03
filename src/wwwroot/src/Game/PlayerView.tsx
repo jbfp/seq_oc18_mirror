@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { Card, Team } from "../types";
+import { Card, Team } from '../types';
 import Hand from './Hand';
 
 interface PlayerViewProps {
@@ -23,6 +23,12 @@ export default function PlayerView(props: PlayerViewProps) {
         onExchangeDeadCardClick();
     }, [onExchangeDeadCardClick]);
 
+    const $exchangeDeadCard = isDead && !hasExchangedDeadCard ? (
+        <button className="anchor exchange-dead-card-btn" type="button" onClick={handleExchangeDeadCardClick}>
+            &gt;&nbsp;Exchange dead card&nbsp;&lt;
+        </button>
+    ) : null;
+
     return (
         <div className="player" data-team={team}>
             <Hand
@@ -32,11 +38,7 @@ export default function PlayerView(props: PlayerViewProps) {
                 selectedCardKey={selectedCardKey}
             />
 
-            {isDead && !hasExchangedDeadCard ? (
-                <a className="exchange-dead-card-btn" href="#" onClick={handleExchangeDeadCardClick}>
-                    &gt;&nbsp;Exchange dead card&nbsp;&lt;
-                </a>
-            ) : null}
+            {$exchangeDeadCard}
         </div >
     );
 }

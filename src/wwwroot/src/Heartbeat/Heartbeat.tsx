@@ -30,7 +30,7 @@ export default function Heartbeat() {
             className="heartbeat"
             data-status={status}
             title={StatusNames.get(status)}
-        ></span>
+        />
     );
 }
 

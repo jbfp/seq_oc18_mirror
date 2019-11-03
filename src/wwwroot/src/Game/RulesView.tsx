@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import * as t from "../types";
+import * as t from '../types';
 
 interface RulesViewProps {
     boardType: t.BoardType;

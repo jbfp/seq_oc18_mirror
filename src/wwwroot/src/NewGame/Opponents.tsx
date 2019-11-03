@@ -1,8 +1,8 @@
 import React from 'react';
-import { NewGameAction, setOpponentName, setOpponentType } from "./actions";
-import { ServerContext } from "../contexts";
-import { BackgroundColor, BotType, OpponentType } from './types';
+import { ServerContext } from '../contexts';
+import { NewGameAction, setOpponentName, setOpponentType } from './actions';
 import Opponent from './Opponent';
+import { BackgroundColor, BotType, OpponentType } from './types';
 
 interface OpponentsProps {
     opponents: Array<{ name: string, type: OpponentType }>;
@@ -14,13 +14,13 @@ interface OpponentsState {
 }
 
 class Opponents extends React.Component<OpponentsProps, OpponentsState> {
-    static contextType = ServerContext;
+    public static contextType = ServerContext;
 
-    state = {
+    public state = {
         botTypes: [],
     };
 
-    async componentDidMount() {
+    public async componentDidMount() {
         let botTypes = [];
 
         try {
@@ -32,11 +32,28 @@ class Opponents extends React.Component<OpponentsProps, OpponentsState> {
         this.setState({ botTypes });
     }
 
-    render() {
+    public render() {
         const { botTypes } = this.state;
         const { opponents } = this.props;
         const { dispatch } = this.props;
         const backgroundColors = getBackgroundColors(opponents.length);
+        const $opponents = opponents.map(({ name, type }, i) => {
+            const handleNameChange = (name: string) => dispatch(setOpponentName(i, name));
+            const handleTypeChange = (type: OpponentType) => dispatch(setOpponentType(i, type));
+
+            return (
+                <Opponent
+                    key={i}
+                    index={i}
+                    botTypes={botTypes}
+                    name={name}
+                    type={type}
+                    backgroundColor={backgroundColors[i]}
+                    onNameChange={handleNameChange}
+                    onTypeChange={handleTypeChange}
+                />
+            );
+        });
 
         return (
             <div>
@@ -48,20 +65,9 @@ class Opponents extends React.Component<OpponentsProps, OpponentsState> {
                     />
                 </div>
 
-                {opponents.map(({ name, type }, i) => (
-                    <Opponent
-                        key={i}
-                        index={i}
-                        botTypes={botTypes}
-                        name={name}
-                        type={type}
-                        backgroundColor={backgroundColors[i]}
-                        onNameChange={name => dispatch(setOpponentName(i, name))}
-                        onTypeChange={type => dispatch(setOpponentType(i, type))}
-                    />
-                ))}
-            </div>
-        )
+                {$opponents}
+            </div >
+        );
     }
 }
 
@@ -72,7 +78,8 @@ function getBackgroundColors(n: number): BackgroundColor[] {
         case 1: return [BackgroundColor.Green];
         case 2: return [BackgroundColor.Green, BackgroundColor.Blue];
         case 3: return [BackgroundColor.Green, BackgroundColor.Red, BackgroundColor.Green];
-        case 5: return [BackgroundColor.Green, BackgroundColor.Blue, BackgroundColor.Red, BackgroundColor.Green, BackgroundColor.Blue];
+        case 5: return [BackgroundColor.Green, BackgroundColor.Blue, BackgroundColor.Red,
+        BackgroundColor.Green, BackgroundColor.Blue];
         default: return new Array(n).fill(BackgroundColor.None);
     }
 }

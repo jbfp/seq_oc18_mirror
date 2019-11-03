@@ -1,8 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Game, GameCollections } from './types';
 import GameList from './GameList';
 import './Games.css';
+import { Game, GameCollections } from './types';
 
 interface GamesViewProps {
     games: GameCollections;

@@ -1,16 +1,15 @@
 import React, { useCallback, useState } from 'react';
-import { RouteChildrenProps, Redirect } from 'react-router';
+import { Redirect, RouteChildrenProps } from 'react-router';
 import { Auth } from '../auth';
 import './Login.css';
 
 export default function Login(props: RouteChildrenProps) {
     const [redirectToReferrer, setRedirectToReferrer] = useState(false);
     const [userName, setUserName] = useState('');
-
-    const submit = useCallback(() => {
-        return Auth
-            .signInAsync(userName)
-            .then(() => setRedirectToReferrer(true));
+    const handleUserNameChange = useCallback((event) => setUserName(event.target.value), []);
+    const submit = useCallback(async () => {
+        await Auth.signInAsync(userName);
+        return setRedirectToReferrer(true);
     }, [userName]);
 
     if (redirectToReferrer) {
@@ -20,7 +19,7 @@ export default function Login(props: RouteChildrenProps) {
             from.pathname = '/';
         }
 
-        return <Redirect to={from} />
+        return <Redirect to={from} />;
     }
 
     if (Auth.isAuthenticated) {
@@ -38,7 +37,7 @@ export default function Login(props: RouteChildrenProps) {
                     <input
                         type="text"
                         value={userName}
-                        onChange={event => setUserName(event.target.value)}
+                        onChange={handleUserNameChange}
                         placeholder="Pick a user name"
                         autoCapitalize="none"
                         autoCorrect="off"
@@ -50,7 +49,8 @@ export default function Login(props: RouteChildrenProps) {
                     <button
                         className="login-submit"
                         type="submit"
-                        disabled={userName.length === 0}>
+                        disabled={userName.length === 0}
+                    >
                         Sign in
                     </button>
                 </div>

@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import * as t from '../types';
-import { coordKey } from './helpers';
 import { CellView, JokerView } from './CellView';
+import { coordKey } from './helpers';
 
 interface BoardViewProps {
     board: t.Board;
@@ -25,11 +25,11 @@ export default function BoardView(props: BoardViewProps) {
 
     const style = useMemo(() => {
         const numRows = board.length;
-        const numCols = Math.max.apply(Math, board.map(r => r.length));
+        const numCols = Math.max.apply(Math, board.map((r) => r.length));
 
         return {
-            'gridTemplateColumns': `repeat(${numCols}, ${100 / numCols}%)`,
-            'gridTemplateRows': `repeat(${numRows}, ${100 / numRows}%)`,
+            gridTemplateColumns: `repeat(${numCols}, ${100 / numCols}%)`,
+            gridTemplateRows: `repeat(${numRows}, ${100 / numRows}%)`,
         };
     }, [board]);
 
@@ -77,10 +77,11 @@ export default function BoardView(props: BoardViewProps) {
                     isHighlighted={isHighlighted}
                     isLatest={isLatest}
                     tile={cell}
-                    onCoordClick={onCoordClick} />
+                    onCoordClick={onCoordClick}
+                />
             );
         } else {
-            return <JokerView key={key} />
+            return <JokerView key={key} />;
         }
     });
 
